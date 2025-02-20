@@ -9,6 +9,7 @@ def home():
 # Need to make these pages
 @app.route("/login", methods=['POST', 'GET'])
 
+# ewoud will do the slack app sso
 # Maybe use HC slack as sso instead of creating our own login system
 def login():
     if request.method == 'POST':
