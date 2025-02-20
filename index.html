@@ -4,8 +4,37 @@
         <title>HackTV</title>
         <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     </head>
-    <body>
-    </body>
+    <body class="bg-purple-900" >
+        <div class="relative h-screen w-screen">
+          <div id="dots-container" class="absolute inset-0">
+          </div>
+        </div>
+      
+        <script>
+          const container = document.getElementById('dots-container');
+          const numDots = 200;
+      
+          for (let i = 0; i < numDots; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('absolute', 'rounded-full', 'bg-purple-500', 'w-2', 'h-2');
+      
+            // Random dots 
+            dot.style.left = `${Math.random() * 100}%`;
+            dot.style.top = `${Math.random() * 100}%`;
+      
+            // Add hover effect
+            dot.addEventListener('mouseover', () => {
+              dot.style.backgroundColor = '#9333EA';
+            });
+      
+            dot.addEventListener('mouseout', () => {
+              dot.style.backgroundColor = '#6B46C1';
+            });
+      
+            container.appendChild(dot);
+          }
+        </script>
+      </body>
 
 
 
