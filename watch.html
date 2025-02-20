@@ -3,145 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <title>Watch the stream</title>
-    <!-- JUST COPIED PASTED THESE -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Jura:wght@700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!--  -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Allura&family=Audiowide&family=Delicious+Handrawn&family=Happy+Monkey&family=Indie+Flower&family=Jura:wght@700&family=Orbitron:wght@400..900&family=Saira+Stencil+One&family=Shadows+Into+Light+Two&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Silkscreen:wght@400;700&family=Sriracha&family=Tangerine:wght@400;700&family=The+Girl+Next+Door&display=swap');
-        :root {
-            --main-font: "Jura", serif;
-            --secondary-font: "Silkscreen";
-            --black: black;
-            --white: white;
-            --gray: #2c2c2c;
-            --purple: #560331;
-            --pastel-blue: #D5D6EA;
-        }
-
-        /* LATER */
-        ::-webkit-scrollbar-track {
-
-        } 
-
-        ::selection {
-            color: var(--pastel-blue);
-            background-color: var(--purple);
-        }
-
-        body {
-            background-color: var(--black);
-            font-family: var(--main-font);
-            color: var(--white);
-        }
-
-        button {
-            border: var(--gray) 1px solid;
-            border-radius: 4px;
-            padding: 8px!important;
-            width: fit-content;
-            text-align: center;
-            transition: 200ms ease;
-        }
-        button:hover {
-            transform: scale(110%);
-        }
-        button:active {
-            transform: scale(95%);
-        }
-
-        #ad-section {
-            text-align: center;
-            padding: 8px;
-            user-select: none;
-        }
-        #ad-section h1 {
-            text-align: left;
-        }
-        #ad-section * {
-            margin: 1rem 0;
-        }
-
-        /* OUAIP */
-
-        input {
-            appearance: none;
-            background-color: rgba(255, 255, 255, 0);
-            border-bottom: 1px var(--gray) solid;
-        }
-
-        #comments + div {
-            padding: 1rem 0;
-        }
-        #comments h1 {
-            font-size: 90%;
-        }
-        #comments p {
-            font-size: 80%;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        .ad-title {
-            font-family: var(--secondary-font);
-            text-decoration: solid underline 2px var(--white);
-            font-size: 150%;
-            margin: 0 0 4px 0;
-        }
-
-    </style>
 </head>
-<body>
-    <!-- --- -->
+<body class="bg-black text-white font-[Jura]">
+
     <div class="absolute top-2 left-2 text-2xl text-white font-[Silkscreen] md:text-3xl">
         HackTV
     </div>
 
     <div class="absolute top-16 left-2 flex items-center space-x-2 bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer transition-all duration-300">
         <i class="fas fa-home text-white text-3xl"></i>
-        <span class="text-white text-lg font-[Jura]">Home</span>
+        <span class="text-white text-lg">Home</span>
     </div>
 
     <div class="absolute top-32 left-2 flex items-center space-x-2 hover:text-gray-400 cursor-pointer transition-all duration-300">
         <i class="fas fa-compass text-white text-3xl"></i>
-        <span class="text-white text-lg font-[Jura]">Explore</span>
+        <span class="text-white text-lg">Explore</span>
     </div>
 
     <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
         <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
-            <input type="text" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
+            <input type="text" id="search-input" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
             <div class="border-l border-gray-500 h-full mx-2"></div>
-            <div class="bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700">
+            <div class="bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700 cursor-pointer" onclick="search()">
                 <i class="fas fa-search text-white text-xl"></i>
             </div>
         </div>
     </div>
-    <!-- --- -->
 
     <div id="watch-dashboard" class="mt-40 p-4 grid grid-cols-3 gap-6" style="grid-template-columns:13% 68% 13%;">
-        <div id="ad-section">
-            <p class="ad-title">AD</p>
-            <h1>Rome wasn't build in a day but you CPU could be</h1>
-            <img src="https://hackclub.com/stickers/orpheus-skateboarding-PCB.png" alt="ad image">
-            <button>build it now</button>
+        <div id="ad-section" class="text-center p-4">
+            <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
+            <h1 class="text-white mb-4">Rome wasn't built in a day but you CPU could be</h1>
+            <img src="https://hackclub.com/stickers/orpheus-skateboarding-PCB.png" alt="ad image" class="mb-4">
+            <button onclick="window.location.href='https://cpu.land'" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
+                build it now
+            </button>
+            
         </div>
         
-        <div class="relative overflow-hidden shadow-lg cursor-pointer" style="text-align: center;">
-            <img src="https://placehold.co/672x378/FFF/31343C" alt="Card Image" class="rounded-lg w-315 h-560">
-    </div>
-        <div id="comment-section">
-            <input type="text" placeholder="Add a comment" name="new-comment">
+        <div class="relative overflow-hidden shadow-lg cursor-pointer text-center">
+            <!-- Image that acts as the thumbnail (increased size) -->
+            <img src="https://placehold.co/672x378/FFF/31343C" alt="Image Thumbnail" class="rounded-lg w-96 h-128 mx-auto">
+            
+            <!-- Play Button initially hidden -->
+            <button id="play-pause-btn" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-700 text-white p-4 rounded-full hover:bg-gray-600 transition-all duration-200 opacity-0 pointer-events-none transition-opacity">
+                <i class="fas fa-play text-2xl" id="play-icon"></i>
+            </button>
+        </div>
+
+        <div id="comment-section" class="p-4">
+            <input type="text" placeholder="Add a comment" name="new-comment" class="bg-transparent border-b border-gray-500 p-2 mb-4 w-full text-white">
             <div id="comments">
                 <div>
-                    <h1>@User_n1 <span class="time">12 hours ago</span></h1>
-                    <p>Loved it !</p>
+                    <h1 class="text-white text-sm">@User_n1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
+                    <p class="text-gray-400 text-xs">Loved it!</p>
                 </div>
                 <div>
-                    <h1>@User_n2 <span class="time">60 hours ago</span></h1>
-                    <p>Here from day 1 !</p>
+                    <h1 class="text-white text-sm">@User_n2 <span class="text-gray-400 text-xs">60 hours ago</span></h1>
+                    <p class="text-gray-400 text-xs">Here from day 1!</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+
+        playPauseBtn.addEventListener('click', () => {
+            playPauseBtn.classList.remove('opacity-0', 'pointer-events-none');
+            playPauseBtn.classList.add('opacity-100', 'pointer-events-auto');
+            
+            setTimeout(() => {
+                playPauseBtn.classList.add('opacity-0');
+                playPauseBtn.classList.remove('opacity-100');
+            }, 1000); 
+
+            if (playIcon.classList.contains('fa-play')) {
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+            } else {
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            }
+        });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                playPauseBtn.classList.remove('opacity-0', 'pointer-events-none');
+                playPauseBtn.classList.add('opacity-100', 'pointer-events-auto');
+            }, 500);
+        });
+
+        function search() {
+            const query = document.getElementById('search-input').value;
+            if (query) {
+                window.location.href = `/search/${query}`;
+            }
+        }
+    </script>
+
 </body>
 </html>
