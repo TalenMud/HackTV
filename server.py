@@ -25,6 +25,9 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
+#get allowed users from .env
+ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS").split(",")
+
 @app.route("/")
 def home():
     if "user" in session:
@@ -64,7 +67,7 @@ def slack_callback():
         return f"error: {token_response.get('error')}"
     
     #get user info
-    acces_token = token_response[authed_user][access_token]
+    acces_token = token_response["authed_user"]["access_token"]
     user_response = requests.get(
         "https://slack.com/api/users.identity",
         headers={"Authorization": f"Bearer {access_token}"}
@@ -73,6 +76,13 @@ def slack_callback():
     if not user_response.get("ok"):
         return f"error: {user_response.get('error')}"
     
+    user_info = user_response["user"]
+    slack_user_id = user_info["id"]
+
+    #check if user is allowed
+    if slack_user_id not in ALLOWED_SLACK_IDS:
+        return "womp womp. access denied."
+
     user_info = user_response["user"]
     session["user"] = {
         "id": user_info["id"],
