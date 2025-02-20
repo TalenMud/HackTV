@@ -14,17 +14,16 @@
         HackTV
     </div>
 
-    <div class="absolute top-16 left-2 flex items-center space-x-2 bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer transition-all duration-300">
+    <a href="/" class="absolute top-16 left-2 flex items-center space-x-2 hover:bg-gray-600 cursor-pointer transition-all duration-300">
         <i class="fas fa-home text-white text-3xl"></i>
         <span class="text-white text-lg font-[Varela]">Home</span>
-    </div>
-
-    <a href="/explore" class="absolute top-32 left-2 flex items-center space-x-2 hover:text-gray-400 cursor-pointer transition-all duration-300">
-        <i class="fas fa-compass text-white text-3xl"></i>
-        <span class="text-white text-lg font-[Varela]" >Explore</span>
     </a>
 
-    <!--search bar-->
+    <div id="explore-tab" class="absolute top-[13%] left-2 flex items-center space-x-2 bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer transition-all duration-300">
+        <i class="fas fa-compass text-white text-3xl"></i>
+        <span class="text-white text-lg font-[Varela]">Explore</span>
+    </div>
+
     <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
         <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
             <input type="text" id="search-query" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
@@ -35,13 +34,12 @@
         </div>
     </div>
 
-    <!--login button-->
     <div class="absolute top-4 right-4">
         <a href="/login" class="flex items-center space-x-2 bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-purple-600 transition-all duration-300">
             <div class="bg-white text-black p-1.5 rounded-lg">
                 <span class="text-lg font-semibold">⌘L</span>
             </div>
-            <span class="text-lg font-semibold p-2">  LOGIN WITH SLACK</span>
+            <span class="text-lg font-semibold p-2">LOGIN WITH SLACK</span>
         </a>
     </div>
 
@@ -51,25 +49,13 @@
         const cardsContainer = document.getElementById('cards-container');
         const searchButton = document.getElementById('search-button');
         const searchQuery = document.getElementById('search-query');
-        
-        searchButton.addEventListener('click', () => {
-            const query = searchQuery.value.trim();
-            if (query) {
-                window.location.href = `/search/${query}`;
-            }
-        });
 
-        searchQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchQuery.value.trim();
-                if (query) {
-                    window.location.href = `/search/${query}`;
-                }
-            }
-        });
-        
+        function getRandomNumber() {
+            return Math.floor(Math.random() * 5) + 1;
+        }
+
         function createCards() {
-            const totalCards = 12;
+            const totalCards = getRandomNumber();
             const cardData = Array(totalCards).fill({ title: "Test", description: "Test" });
 
             cardData.forEach(data => {
@@ -100,6 +86,24 @@
                 cardsContainer.appendChild(card);
             });
         }
+
+        searchButton.addEventListener('click', () => {
+            const query = searchQuery.value.trim();
+            if (query) {
+                window.location.href = `/search/${query}`;
+            }
+        });
+
+        searchQuery.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchQuery.value.trim();
+                if (query) {
+                    window.location.href = `/search/${query}`;
+                }
+            }
+        });
+
+        document.getElementById("explore-tab").classList.add("text-white");
 
         createCards();
     </script>

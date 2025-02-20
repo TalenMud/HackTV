@@ -27,20 +27,19 @@ HEADERS = {
 
 #get allowed users from .env
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS").split(",")
-
+@app.route("/explore")
+def explore():
+    return send_file("explore.html")
 @app.route("/")
 def home():
-    if "user" in session:
-        return f"Welcome {session['user']['name']}! <a href='/logout'>Logout</a>"
-    return '<a href="/login">Login with Slack</a>'
-
+    return send_file("index.html")
 @app.route("/login")
 def login():
     """redirects user to Slack OAuth login"""
     slack_auth_url = (
         f"https://slack.com/oauth/v2/authorize?"
         f"client_id={SLACK_CLIENT_ID}&"
-        f"scope=identity.basic,identity.email,identity.team&"
+        "scope=profile&"
         f"redirect_uri={SLACK_REDIRECT_URI}"
     )
     return redirect(slack_auth_url)
@@ -67,7 +66,7 @@ def slack_callback():
         return f"error: {token_response.get('error')}"
     
     #get user info
-    acces_token = token_response["authed_user"]["access_token"]
+    access_token = token_response["authed_user"]["access_token"]
     user_response = requests.get(
         "https://slack.com/api/users.identity",
         headers={"Authorization": f"Bearer {access_token}"}
