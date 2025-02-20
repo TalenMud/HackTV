@@ -50,6 +50,14 @@
         const searchButton = document.getElementById('search-button');
         const searchQuery = document.getElementById('search-query');
 
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = (c === 'x' ? r : (r & 0x3 | 0x8));
+                return v.toString(16);
+            });
+        }
+
         function getRandomNumber() {
             return Math.floor(Math.random() * 5) + 1;
         }
@@ -62,6 +70,12 @@
                 const card = document.createElement('div');
                 card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
                 
+                const randomUUID = generateUUID();
+
+                card.addEventListener('click', () => {
+                    window.location.href = `/watch/${randomUUID}`;
+                });
+
                 const image = document.createElement('img');
                 image.src = "https://placehold.co/300x200/EEE/31343C";
                 image.alt = "Card Image";
