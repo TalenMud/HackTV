@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, send_file, request, redirect
+from flask import Flask, send_file, request, redirect, url_for, session, flash
 from dotenv import load_dotenv
 
 #load environment variables
@@ -13,6 +13,17 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY")
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
+
+#get airtable creds from .env
+AIRTABLE_PAT = os.getenv("AIRTABLE_PAT") #personal access token (tf why is airtable api key deprecated)
+AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
+AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME")
+
+AIRTABLE_URL = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_NAME}"
+HEADERS = {
+    "Authorization": f"Bearer {AIRTABLE_PAT}",
+    "Content-Type": "application/json",
+}
 
 @app.route("/")
 def home():
@@ -80,11 +91,32 @@ def logout():
 @app.route("/signup", methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
-        # Add user to database (need one first)
-        # Redirect to home page
-        pass
-    else:
-        return send_file("signup.html")
+        name = request.form.get("name")
+        email = request.form.get("email")
+
+        if not name or not email:
+            flash("Name and email are required!", "error")
+            return redirect(url_for("signup"))
+        
+        #check if user already exists in airtable db
+        response = requests.get(AIRTABLE_URL, headers=HEADERS)
+        users = response.json().get("records", [])
+
+        for user in users:
+            if user["fields"].get("email") == email:
+                flash("User already exists!", "error")
+                return redirect(url_for("signup"))
+            
+        #add user to airtable db
+        data = {"fields": {"Name": name, "Email": email}}
+
+        response = requests.post(AIRTABLE_URL, json=data, headers=HEADERS)
+        if response.status_code == 200:
+            flash("User created successfully! You can now sign in.", "success")
+        else:
+            flash("Something went wrong! Please try again.", "error")
+
+    return send_file("signup.html")
 
 @app.route("/create", methods=['POST', 'GET'])
 def create():
