@@ -23,5 +23,56 @@
         <i class="fas fa-compass text-white text-3xl"></i>
         <span class="text-white text-lg font-[Varela]">Explore</span>
     </div>
+
+    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
+        <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
+            <input type="text" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
+            <div class="border-l border-gray-500 h-full mx-2"></div>
+            <div class="bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700">
+                <i class="fas fa-search text-white text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="cards-container" class="mt-40 p-4 grid grid-cols-3 gap-6"></div>
+
+    <script>
+        const cardsContainer = document.getElementById('cards-container');
+        
+        function createCards() {
+            const totalCards = 12;
+            const cardData = Array(totalCards).fill({ title: "Test", description: "Test" });
+
+            cardData.forEach(data => {
+                const card = document.createElement('div');
+                card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
+                
+                const image = document.createElement('img');
+                image.src = "https://placehold.co/300x200/EEE/31343C";
+                image.alt = "Card Image";
+                image.classList.add('w-full', 'h-48', 'object-cover');
+                
+                const textContainer = document.createElement('div');
+                textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
+
+                const title = document.createElement('h3');
+                title.classList.add('text-xl', 'font-semibold', 'text-gray-800');
+                title.textContent = data.title;
+                
+                const description = document.createElement('p');
+                description.classList.add('text-sm', 'text-gray-600');
+                description.textContent = data.description;
+                
+                textContainer.appendChild(title);
+                textContainer.appendChild(description);
+                card.appendChild(image);
+                card.appendChild(textContainer);
+                
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        createCards();
+    </script>
 </body>
 </html>
