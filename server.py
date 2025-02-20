@@ -1,24 +1,81 @@
+import os
+import requests
 from flask import Flask, send_file, request, redirect
+from dotenv import load_dotenv
+
+#load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
+#get slack creds from .env
+SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
+SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
+SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 
 @app.route("/")
 def home():
-    return send_file("index.html")
+    if "user" in session:
+        return f"Welcome {session['user']['name']}! <a href='/logout'>Logout</a>"
+    return '<a href="/login">Login with Slack</a>'
 
-# Need to make these pages
-@app.route("/login", methods=['POST', 'GET'])
-
-# ewoud will do the slack app sso
-# Maybe use HC slack as sso instead of creating our own login system
+@app.route("/login")
 def login():
-    if request.method == 'POST':
-        # Check if user exists in database (need one first)
-        # If user exists, redirect to home page
-        # If user does not exist, redirect to signup page
-        pass
-    else:
-        return send_file("login.html")
+    """redirects user to Slack OAuth login"""
+    slack_auth_url = (
+        f"https://slack.com/oauth/v2/authorize?"
+        f"client_id={SLACK_CLIENT_ID}&"
+        f"scope=identity.basic,identity.email,identity.team&"
+        f"redirect_uri={SLACK_REDIRECT_URI}"
+    )
+    return redirect(slack_auth_url)
+
+@app.route("/slack/callback")
+def slack_callback():
+    """slack 0auth callback"""
+    code = request.args.get("code")
+    if not code:
+        return "error: no code provided"
+    
+    #exchange code for token
+    token_response = requests.post(
+        "https://slack.com/api/oauth.v2.access",
+        data={
+            "client_id": SLACK_CLIENT_ID,
+            "client_secret": SLACK_CLIENT_SECRET,
+            "code": code,
+            "redirect_uri": SLACK_REDIRECT_URI
+        },
+    ).json()
+
+    if not token_response.get("ok"):
+        return f"error: {token_response.get('error')}"
+    
+    #get user info
+    acces_token = token_response[authed_user][access_token]
+    user_response = requests.get(
+        "https://slack.com/api/users.identity",
+        headers={"Authorization": f"Bearer {access_token}"}
+    ).json()
+
+    if not user_response.get("ok"):
+        return f"error: {user_response.get('error')}"
+    
+    user_info = user_response["user"]
+    session["user"] = {
+        "id": user_info["id"],
+        "name": user_info["name"],
+        "email": user_info.get["email", ""],
+    }
+
+    return redirect(url_for("home"))
+
+@app.route("/logout")
+def logout():
+    """logs out user by clearing session"""
+    session.pop("user", None)
+    return redirect(url_for("home"))
 
 @app.route("/signup", methods=['POST', 'GET'])
 def signup():
