@@ -26,14 +26,14 @@
 
     <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
         <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
-            <input type="text" id="search-query" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
+            <input type="text" id="search-query" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" value="{{ search_keywords }}" />
             <div class="border-l border-gray-500 h-full mx-2"></div>
             <div class="bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700" id="search-button">
                 <i class="fas fa-search text-white text-xl"></i>
             </div>
         </div>
     </div>
-
+    
     <div class="absolute top-4 right-4">
         <a href="/login" class="flex items-center space-x-2 bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-purple-600 transition-all duration-300">
             <div class="bg-white text-black p-1.5 rounded-lg">

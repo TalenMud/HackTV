@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, send_file, request, redirect, url_for, session, flash
+from flask import Flask, send_file, request, redirect, url_for, session, flash, render_template
 from dotenv import load_dotenv
 
 #load environment variables
@@ -138,7 +138,7 @@ def create():
 @app.route("/search/<keywords>")
 def search(keywords):
     # Search for streams with the given keywords
-    return send_file("search.html")
+    return render_template("search.html", search_keywords=keywords)
 
 @app.route("/watch/<stream_id>")
 def watch(stream_id):
