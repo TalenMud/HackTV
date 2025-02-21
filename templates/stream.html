@@ -1,7 +1,7 @@
 <body>
     <button id="start-btn" onclick="startStreaming()">Start Streaming</button>
     <button id="stop-btn" onclick="stopStreaming()" style="display:none;">Stop Streaming</button>
-    <a href="/watchtest">Watch Stream</a>
+    <a href="/watch/test">Watch Stream</a>
     <script>
         let stream;
         let videoTrack;
@@ -9,17 +9,13 @@
         function startStreaming() {
             document.getElementById('start-btn').style.display = 'none';
             document.getElementById('stop-btn').style.display = 'inline';
-
             navigator.mediaDevices.getDisplayMedia({ video: true }).then(startStream);
         }
 
         function stopStreaming() {
             document.getElementById('start-btn').style.display = 'inline';
             document.getElementById('stop-btn').style.display = 'none';
-
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
+            if (stream) { stream.getTracks().forEach(track => track.stop()); }
         }
 
         function startStream(userStream) {
@@ -30,29 +26,51 @@
             videoElement.autoplay = true;
             videoElement.style.display = 'none';
             document.body.appendChild(videoElement);
-
             captureAndSendFrames();
         }
 
         function captureAndSendFrames() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
             canvas.width = videoTrack.getSettings().width;
             canvas.height = videoTrack.getSettings().height;
-
             setInterval(() => {
                 ctx.drawImage(document.querySelector('video'), 0, 0, canvas.width, canvas.height);
                 canvas.toBlob((blob) => {
-                    const formData = new FormData();
-                    formData.append('image', blob);
+                    if (blob.size > 50000) {
+                        compressAndSend(blob);
+                    } else {
+                        sendImage(blob);
+                    }
+                }, 'image/jpeg', 0.7);
+            }, 16);
+        }
 
-                    fetch('/stream/sendimg', {
-                        method: 'POST',
-                        body: formData,
-                    }).catch(console.error);
-                }, 'image/jpeg');
-            }, 33); 
+        function compressAndSend(blob) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const maxWidth = 800;
+                const maxHeight = 800;
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) { height = Math.round(height * (maxWidth / width)); width = maxWidth; }
+                    else { width = Math.round(width * (maxHeight / height)); height = maxHeight; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((compressedBlob) => sendImage(compressedBlob), 'image/jpeg', 0.7);
+            };
+            img.src = URL.createObjectURL(blob);
+        }
+
+        function sendImage(blob) {
+            const formData = new FormData();
+            formData.append('image', blob);
+            fetch('/stream/sendimg', { method: 'POST', body: formData }).catch(console.error);
         }
     </script>
 </body>

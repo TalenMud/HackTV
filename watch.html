@@ -23,14 +23,16 @@
         <i class="fas fa-compass text-white text-3xl"></i>
         <span class="text-white text-lg">Explore</span>
     </a>
+
     <div class="absolute top-4 right-4">
         <a href="/login" class="flex items-center space-x-2 bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-purple-600 transition-all duration-300">
             <div class="bg-white text-black p-1.5 rounded-lg">
                 <span class="text-lg font-semibold">⌘L</span>
             </div>
-            <span class="text-lg font-semibold p-2">  LOGIN WITH SLACK</span>
+            <span class="text-lg font-semibold p-2"> LOGIN WITH SLACK</span>
         </a>
     </div>
+
     <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
         <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
             <input type="text" id="search-input" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
@@ -45,18 +47,17 @@
         <div id="ad-section" class="text-center p-4">
             <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
             <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
-            <img id="ad-image" src="" alt="ad image" class="mb-4">
+            <a id="ad-link" href="#" target="_blank">
+                <img id="ad-image" src="" alt="ad image" class="mb-4 w-64 mx-auto">
+            </a>
             <button id="ad-button" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
                 Loading...
             </button>
         </div>
-        
+
         <div class="relative overflow-hidden shadow-lg cursor-pointer text-center">
-            <img src="https://placehold.co/672x378/FFF/31343C" alt="Image Thumbnail" class="rounded-lg w-96 h-128 mx-auto">
-            
-            <button id="play-pause-btn" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-700 text-white p-4 rounded-full hover:bg-gray-600 transition-all duration-200 opacity-0 pointer-events-none transition-opacity">
-                <i class="fas fa-play text-2xl" id="play-icon"></i>
-            </button>
+            <img id="stream-image" class="rounded-lg w-96 h-128 mx-auto" alt="Stream Image" />
+            <p id="stream-status" class="text-white text-xl mt-2 hidden">The stream is currently on pause.</p>
         </div>
 
         <div id="comment-section" class="p-4">
@@ -78,95 +79,77 @@
             </div>
         </div>
     </div>
+
     <script>
-        const playPauseBtn = document.getElementById('play-pause-btn');
-        const playIcon = document.getElementById('play-icon');
-    
-        playPauseBtn.addEventListener('click', () => {
-            playPauseBtn.classList.remove('opacity-0', 'pointer-events-none');
-            playPauseBtn.classList.add('opacity-100', 'pointer-events-auto');
-            
-            setTimeout(() => {
-                playPauseBtn.classList.add('opacity-0');
-                playPauseBtn.classList.remove('opacity-100');
-            }, 1000); 
-    
-            if (playIcon.classList.contains('fa-play')) {
-                playIcon.classList.remove('fa-play');
-                playIcon.classList.add('fa-pause');
-            } else {
-                playIcon.classList.remove('fa-pause');
-                playIcon.classList.add('fa-play');
-            }
-        });
-    
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                playPauseBtn.classList.remove('opacity-0', 'pointer-events-none');
-                playPauseBtn.classList.add('opacity-100', 'pointer-events-auto');
-            }, 500);
-        });
-    
-        function search() {
-            const query = document.getElementById('search-input').value;
-            if (query) {
-                window.location.href = `/search/${query}`;
-            }
-        }
-    
+        const streamImage = document.getElementById('stream-image');
+        const streamStatus = document.getElementById('stream-status');
+        const adTitle = document.getElementById('ad-title');
+        const adImage = document.getElementById('ad-image');
+        const adLink = document.getElementById('ad-link');
+        const adButton = document.getElementById('ad-button');
+        
+        let streaming = false;
+        let streamImgURL = '';
+
         async function getAd() {
             try {
                 const response = await fetch('/getad');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
                 const ad = await response.json();
+
+                adTitle.textContent = ad.ad;
+                adImage.src = ad.image;
+                adLink.href = ad.url;
+                adButton.textContent = 'Learn More';
+            } catch (error) {
+                console.error('Error fetching ad:', error);
+                adTitle.textContent = 'Failed to load ad';
+            }
+        }
+
+        async function getImage() {
+            try {
+                const response = await fetch('/stream/getimg');
                 
-                document.getElementById('ad-title').textContent = ad.ad;
-                document.getElementById('ad-image').src = ad.image;
-                document.getElementById('ad-button').textContent = 'Build it now';
-                document.getElementById('ad-button').onclick = () => {
-                    window.open(ad.url, '_blank');
-                };
-    
-                setTimeout(getAd, 90000);
+                if (response.status === 404) {
+                    streamStatus.classList.remove('hidden');
+                    streamImage.style.display = 'none';
+                    return;
+                }
+
+                const imgBlob = await response.blob();
+                const imgUrl = URL.createObjectURL(imgBlob);
+                streamImgURL = imgUrl;
+
+                if (streaming) {
+                    if (streamImage.src !== imgUrl) {
+                        streamImage.src = imgUrl;
+                    }
+                    streamImage.style.display = 'block';
+                    streamStatus.classList.add('hidden');
+                }
             } catch (error) {
                 console.error('There was a problem with the fetch operation:', error);
+                streamStatus.classList.remove('hidden');
+                streamImage.style.display = 'none';
             }
         }
-    
-        window.addEventListener('load', getAd);
-    
-        function handleKeyUp(event) {
-            if (event.key === 'Enter') {
-                sendComment();
-            }
+
+        function startReceivingStream() {
+            streaming = true;
+            streamStatus.classList.add('hidden');
+            setInterval(getImage, 16); 
         }
-    
-        function sendComment() {
-            const commentInput = document.getElementById('comment-input');
-            const commentText = commentInput.value.trim();
-    
-            if (commentText) {
-                const newComment = document.createElement('div');
-                newComment.innerHTML = `
-                    <h1 class="text-white text-sm">@Guest <span class="text-gray-400 text-xs">Just now</span></h1>
-                    <p class="text-gray-400 text-xs">${commentText}</p>
-                `;
-                document.getElementById('comments').appendChild(newComment);
-    
-                commentInput.value = ''; 
-            }
+
+        function stopReceivingStream() {
+            streaming = false;
+            streamImage.style.display = 'none';
+            streamStatus.classList.add('hidden');
         }
-    
-         document.getElementById('search-input').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                search();
-            }
+
+        window.addEventListener('load', () => {
+            startReceivingStream();
+            getAd();
         });
-
     </script>
-    
-
 </body>
 </html>
