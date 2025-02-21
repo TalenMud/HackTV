@@ -1,0 +1,179 @@
+<head>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <button id="create-stream-btn" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 focus:outline-none">
+            Create Stream
+        </button>
+
+        <div id="stream-tabs" class="mt-4 flex space-x-4"></div>
+
+        <div class="mt-4">
+            <button id="start-stream-btn" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 focus:outline-none" style="display:none;">
+                Start Stream
+            </button>
+            <button id="stop-btn" class="bg-red-500 text-white p-2 rounded hover:bg-red-600 focus:outline-none" style="display:none;">
+                Stop Streaming
+            </button>
+        </div>
+
+        <a href="/watch/test" class="block mt-4 text-blue-500 hover:underline">Watch Stream</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let streams = {};
+        let currentStreamId = null;
+
+        $('#create-stream-btn').click(function() {
+            Swal.fire({
+                title: 'Create a Stream',
+                html: `
+                    <input id="stream-name" class="swal2-input" placeholder="Stream Name">
+                    <input id="stream-description" class="swal2-input" placeholder="Stream Description">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Create Stream',
+                preConfirm: () => {
+                    const streamName = $('#stream-name').val();
+                    const streamDescription = $('#stream-description').val();
+
+                    if (!streamName || !streamDescription) {
+                        Swal.showValidationMessage('Both name and description are required');
+                        return false;
+                    }
+
+                    createStream(streamName, streamDescription);
+                }
+            });
+        });
+
+        function createStream(streamName, streamDescription) {
+            const streamId = 'stream-' + new Date().getTime();
+            const tab = $('<button>')
+                .text(`Stream: ${streamName}`)
+                .addClass('stream-tab bg-gray-200 text-black p-2 rounded hover:bg-gray-300')
+                .click(() => selectStream(streamId));
+
+            $('#stream-tabs').append(tab);
+
+            $.post(`/createstream/${streamName}/${streamDescription}`, function(response) {
+                console.log(response);
+                streams[streamId] = { name: streamName, description: streamDescription };
+            });
+        }
+
+        function startStreaming(streamId) {
+            navigator.mediaDevices.getDisplayMedia({ video: true }).then(function(userStream) {
+                streams[streamId] = userStream;
+                const videoTrack = userStream.getVideoTracks()[0];
+                const videoElement = $('<video>').attr('autoplay', true).css('display', 'none').get(0);
+                videoElement.srcObject = userStream;
+                $(videoElement).data('streamId', streamId);
+                $('body').append(videoElement);
+                captureAndSendFrames(streamId);
+            });
+        }
+
+        function selectStream(streamId) {
+            if (currentStreamId) {
+                const oldVideoElement = $(`video[data-stream-id="${currentStreamId}"]`);
+                oldVideoElement.hide();
+                $(`#stream-tabs button[data-stream-id="${currentStreamId}"]`).removeClass('selected');
+            }
+            currentStreamId = streamId;
+            $(`#stream-tabs button[data-stream-id="${streamId}"]`).addClass('selected bg-blue-500 text-white');
+
+            $('#start-stream-btn').show();
+            $('#start-stream-btn').off('click').click(() => {
+                startStreaming(streamId);
+                $('#start-stream-btn').hide();
+                $('#stop-btn').show();
+            });
+
+            if (!streams[streamId]) {
+                $('#stop-btn').hide();
+            }
+        }
+
+        function captureAndSendFrames(streamId) {
+            const videoElement = $(`video[data-stream-id="${streamId}"]`)[0];
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            setInterval(function() {
+                ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(function(blob) {
+                    if (blob.size > 50000) {
+                        compressAndSend(blob);
+                    } else {
+                        sendImage(blob);
+                    }
+                }, 'image/jpeg', 0.7);
+            }, 16);
+        }
+
+        function compressAndSend(blob) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const maxWidth = 800;
+                const maxHeight = 800;
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) { height = Math.round(height * (maxWidth / width)); width = maxWidth; }
+                    else { width = Math.round(width * (maxHeight / height)); height = maxHeight; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(function(compressedBlob) {
+                    sendImage(compressedBlob);
+                }, 'image/jpeg', 0.7);
+            };
+            img.src = URL.createObjectURL(blob);
+        }
+
+        function sendImage(blob) {
+            const formData = new FormData();
+            formData.append('image', blob);
+            fetch('/stream/sendimg', { method: 'POST', body: formData }).catch(console.error);
+        }
+
+        $('#stop-btn').click(function() {
+            if (currentStreamId && streams[currentStreamId]) {
+                const userStream = streams[currentStreamId];
+                userStream.getTracks().forEach(track => track.stop());
+                delete streams[currentStreamId];
+                const videoElement = $(`video[data-stream-id="${currentStreamId}"]`);
+                videoElement.remove();
+                $(`#stream-tabs button[data-stream-id="${currentStreamId}"]`).remove();
+                currentStreamId = null;
+                $('#stop-btn').hide();
+                $('#start-stream-btn').hide();
+                $('#create-stream-btn').show();
+            }
+        });
+    </script>
+
+    <style>
+        .stream-tab {
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .stream-tab.selected {
+            background-color: #3182ce;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</body>
