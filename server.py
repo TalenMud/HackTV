@@ -93,7 +93,7 @@ def slack_callback():
         return f"error: {token_response.get('error')}"
     
     #get user info
-    acces_token = token_response["authed_user"]["access_token"]
+    access_token = token_response["authed_user"]["access_token"]
     user_response = requests.get(
         "https://slack.com/api/openid.connect.userInfo",
         headers={"Authorization": f"Bearer {access_token}"}
