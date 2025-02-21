@@ -2,6 +2,7 @@ import os
 import requests
 from flask import Flask, send_file, request, redirect, url_for, session, flash, render_template
 from dotenv import load_dotenv
+import random
 
 #load environment variables
 load_dotenv()
@@ -30,6 +31,60 @@ ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS").split(",")
 @app.route("/explore")
 def explore():
     return send_file("explore.html")
+
+@app.route("/getad") # Get an ad from the ad list
+def getad():
+    ads = [
+        {
+            "ad": "Put the you in CPU today",
+            "image": "https://hackclub.com/stickers/inside.png",
+            "url": "https://www.cpu.land"
+        },
+        {
+            "ad": "A Game about Love & Graphing, Made By Hack Clubbers",
+            "image": "https://sinerider.com/Assets/Images/loading-screen.png",
+            "url": "https://sinerider.com/"
+        },
+        {
+            "ad": "Free Linux VPS for Hack Club Members",
+            "image": "https://hackclub.com/stickers/nest_hatched_smolpheus.png",
+            "url": "https://hackclub.com/nest"
+        },
+        {
+            "ad": "OnBoard to PCB Design",
+            "image": "https://hackclub.com/stickers/orpheus-skateboarding-PCB.png",
+            "url": "https://hackclub.com/onboard/"
+        },
+        {
+            "ad": "HCB: Start a Non-Profit",
+            "image": "https://hackclub.com/stickers/hcb_(dark).png",
+            "url": "https://hackclub.com/fiscal-sponsorship/"
+        },
+        {
+            "ad": "YS: A Game, WS: A Console (A Sprig)",
+            "image": "https://hackclub.com/stickers/sprig.svg", 
+            "url": "https://sprig.hackclub.com/"
+        },
+        {
+            "ad": "Blot: Online Drawing Machine",
+            "image": "https://hackclub.com/stickers/Blot.png", 
+            "url": "https://blot.hackclub.com/editor"
+        },
+        {
+            "ad": "Design your own 3D printer, Get a Grant to Build It, then get flown to a Hack Club event!",
+            "image": "https://infill.hackclub.com/_astro/houston.CZZyCf7p_Z2wV2f.webp", 
+            "url": "https://infill.hackclub.com/"
+        },
+        {
+            "ad": "Build a IOS App, Get $100 to Ship it to the App Store",
+            "image": "https://cider.hackclub.com/logo.svg",
+            "url": "https://cider.hackclub.com/"
+        }
+    ]
+    
+    selected_ad = random.choice(ads)
+    return selected_ad
+
 @app.route("/")
 def home():
     return send_file("index.html")

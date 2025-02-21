@@ -14,15 +14,15 @@
         HackTV
     </div>
 
-    <div class="absolute top-16 left-2 flex items-center space-x-2 bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer transition-all duration-300">
+    <a href="/" class="absolute top-16 left-2 flex items-center space-x-2  p-2 rounded cursor-pointer transition-all duration-300">
         <i class="fas fa-home text-white text-3xl"></i>
         <span class="text-white text-lg">Home</span>
-    </div>
+    </a>
 
-    <div class="absolute top-32 left-2 flex items-center space-x-2 hover:text-gray-400 cursor-pointer transition-all duration-300">
+    <a href="/explore" class="absolute top-32 left-2 flex items-center space-x-2 hover:text-gray-400 cursor-pointer transition-all duration-300">
         <i class="fas fa-compass text-white text-3xl"></i>
         <span class="text-white text-lg">Explore</span>
-    </div>
+    </a>
 
     <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
         <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
@@ -37,12 +37,11 @@
     <div id="watch-dashboard" class="mt-40 p-4 grid grid-cols-3 gap-6" style="grid-template-columns:13% 68% 13%;">
         <div id="ad-section" class="text-center p-4">
             <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
-            <h1 class="text-white mb-4">Rome wasn't built in a day but you CPU could be</h1>
-            <img src="https://hackclub.com/stickers/orpheus-skateboarding-PCB.png" alt="ad image" class="mb-4">
-            <button onclick="window.location.href='https://cpu.land'" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
-                build it now
+            <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
+            <img id="ad-image" src="" alt="ad image" class="mb-4">
+            <button id="ad-button" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
+                Loading...
             </button>
-            
         </div>
         
         <div class="relative overflow-hidden shadow-lg cursor-pointer text-center">
@@ -103,6 +102,29 @@
                 window.location.href = `/search/${query}`;
             }
         }
+
+        async function getAd() {
+            try {
+                const response = await fetch('/getad');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const ad = await response.json();
+                
+                document.getElementById('ad-title').textContent = ad.ad;
+                document.getElementById('ad-image').src = ad.image;
+                document.getElementById('ad-button').textContent = 'Build it now';
+                document.getElementById('ad-button').onclick = () => {
+                    window.open(ad.url, '_blank');
+                };
+
+                setTimeout(getAd, 90000);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+
+        window.addEventListener('load', getAd);
     </script>
 
 </body>
