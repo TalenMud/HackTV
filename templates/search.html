@@ -43,12 +43,20 @@
         </a>
     </div>
 
+    <div id="no-results" class="hidden text-center text-white text-xl mt-8">
+        <i class="fas fa-frown text-4xl mb-4"></i>
+        <p>No Streams Found</p>
+    </div>
+
     <div id="cards-container" class="mt-40 p-4 grid grid-cols-3 gap-6"></div>
 
     <script>
         const cardsContainer = document.getElementById('cards-container');
         const searchButton = document.getElementById('search-button');
         const searchQuery = document.getElementById('search-query');
+        const noResultsMessage = document.getElementById('no-results');
+
+        let cardData = [];
 
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -58,15 +66,28 @@
             });
         }
 
-        function getRandomNumber() {
-            return Math.floor(Math.random() * 5) + 1;
+        function getActiveStreams(query = '') {
+            const data = "Test.Test:Test2.Test"; 
+            cardData = data.split('.');
+
+            cardData = Array.from(new Set(cardData));
+            
+            if (query) {
+                cardData = cardData.filter(data => data.toLowerCase().includes(query.toLowerCase()));
+            }
+
+            createCards();
         }
 
         function createCards() {
-            const totalCards = getRandomNumber();
-            const cardData = Array(totalCards).fill({ title: "Test", description: "Test" });
-
+            cardsContainer.innerHTML = '';
+            if (cardData.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+                return;
+            }
+            noResultsMessage.classList.add('hidden');
             cardData.forEach(data => {
+                const [title, description] = data.split(':');
                 const card = document.createElement('div');
                 card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
                 
@@ -84,16 +105,16 @@
                 const textContainer = document.createElement('div');
                 textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
 
-                const title = document.createElement('h3');
-                title.classList.add('text-xl', 'font-semibold', 'text-gray-800');
-                title.textContent = data.title;
+                const titleElem = document.createElement('h3');
+                titleElem.classList.add('text-xl', 'font-semibold', 'text-gray-800');
+                titleElem.textContent = title;
                 
-                const description = document.createElement('p');
-                description.classList.add('text-sm', 'text-gray-600');
-                description.textContent = data.description;
+                const descriptionElem = document.createElement('p');
+                descriptionElem.classList.add('text-sm', 'text-gray-600');
+                descriptionElem.textContent = description;
                 
-                textContainer.appendChild(title);
-                textContainer.appendChild(description);
+                textContainer.appendChild(titleElem);
+                textContainer.appendChild(descriptionElem);
                 card.appendChild(image);
                 card.appendChild(textContainer);
                 
@@ -102,24 +123,28 @@
         }
 
         searchButton.addEventListener('click', () => {
-            const query = searchQuery.value.trim();
+            const query = searchQuery.value.trim().toLowerCase();
             if (query) {
-                window.location.href = `/search/${query}`;
+                getActiveStreams(query);
             }
         });
 
         searchQuery.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const query = searchQuery.value.trim();
+                const query = searchQuery.value.trim().toLowerCase();
                 if (query) {
-                    window.location.href = `/search/${query}`;
+                    getActiveStreams(query);
                 }
             }
         });
 
-        document.getElementById("explore-tab").classList.add("text-white");
-
-        createCards();
+        const searchKeywords = "{{ search_keywords }}";
+        if (searchKeywords) {
+            searchQuery.value = searchKeywords;
+            getActiveStreams(searchKeywords);
+        } else {
+            getActiveStreams();
+        }
     </script>
 </body>
 </html>

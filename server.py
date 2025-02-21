@@ -220,7 +220,9 @@ def receive_image():
         current_image = request.files['image'].read()
         return 'Image received', 200
     return 'No image found', 400
-
+@app.route("/activestreams")
+def activestreams():
+    return "Test.Test:Test2.Test"
 @app.route('/stream/getimg', methods=['GET'])
 def get_image():
     if current_image:
