@@ -53,14 +53,19 @@
         </div>
 
         <div id="comment-section" class="p-4">
-            <input type="text" placeholder="Add a comment" name="new-comment" class="bg-transparent border-b border-gray-500 p-2 mb-4 w-full text-white">
+            <div class="flex items-center mb-4">
+                <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" class="bg-transparent border-b border-gray-500 p-2 w-full text-white" onkeyup="handleKeyUp(event)">
+                <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendComment()">
+                    <i class="fas fa-paper-plane text-xl"></i>
+                </button>
+            </div>
             <div id="comments">
                 <div>
-                    <h1 class="text-white text-sm">@User_n1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
+                    <h1 class="text-white text-sm">@User_1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
                     <p class="text-gray-400 text-xs">Loved it!</p>
                 </div>
                 <div>
-                    <h1 class="text-white text-sm">@User_n2 <span class="text-gray-400 text-xs">60 hours ago</span></h1>
+                    <h1 class="text-white text-sm">@User_2 <span class="text-gray-400 text-xs">24 hours ago</span></h1>
                     <p class="text-gray-400 text-xs">Here from day 1!</p>
                 </div>
             </div>
@@ -125,6 +130,28 @@
         }
 
         window.addEventListener('load', getAd);
+
+        function handleKeyUp(event) {
+            if (event.key === 'Enter') {
+                sendComment();
+            }
+        }
+
+        function sendComment() {
+            const commentInput = document.getElementById('comment-input');
+            const commentText = commentInput.value.trim();
+
+            if (commentText) {
+                const newComment = document.createElement('div');
+                newComment.innerHTML = `
+                    <h1 class="text-white text-sm">@Guest <span class="text-gray-400 text-xs">Just now</span></h1>
+                    <p class="text-gray-400 text-xs">${commentText}</p>
+                `;
+                document.getElementById('comments').appendChild(newComment);
+
+                commentInput.value = ''; 
+            }
+        }
     </script>
 
 </body>
