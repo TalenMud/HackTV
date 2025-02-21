@@ -8,7 +8,7 @@ import psycopg2
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
@@ -16,7 +16,7 @@ SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
 
-#bye airtable
+
 
 #get psql connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -58,7 +58,7 @@ def getad():
 
 @app.route("/")
 def home():
-    return send_file("index.html")
+    return render_template("index.html")
 
 @app.route("/login")
 def login():
@@ -189,7 +189,7 @@ def search(keywords):
 
 @app.route("/watch/<stream_id>")
 def watch(stream_id):
-    return send_file("watch.html")
+    return render_template("watch.html") #add custom stream id stuff later
 
 @app.route("/stream/<stream_id>")
 def stream(stream_id):
