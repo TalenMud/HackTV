@@ -223,7 +223,7 @@ def activestreams():
 def get_image():
     if current_image:
         return send_file(io.BytesIO(current_image), mimetype='image/jpeg')
-    return 'No image available', 404
+    return 'No image available', 200
 
 if __name__ == "__main__":
     app.run(debug=True)
