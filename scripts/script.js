@@ -7,8 +7,10 @@ Array.from(hamLogos).forEach((hamLogo)=>{
         toggleSidebar=hamLogo.classList.toggle("clicked");
         if(toggleSidebar){
             menu.style.top="-100rem";
+            menu.style.width = 0;
         }else{
             menu.style.top=0;
+            menu.style.width = "auto";
         }
         
     });
