@@ -118,13 +118,13 @@ def slack_callback():
     )
     conn.commit()
     cur.close()
-    conn.close()
+    conn.close() 
 
     #store user session
     session["user"] = {
         "id": slack_user_id,
-        "name": user_response.get("name", ""),
-        "email": user_response.get("email", ""),
+        "name": user_name,
+        "email": user_email,
     }
 
     return redirect(url_for("home"))
@@ -171,9 +171,17 @@ def create():
 
 @app.route("/createstream/<stream_name>/<stream_description>", methods=['POST', 'GET'])
 def createstream(stream_name, stream_description):
-    global streams_data
-    streams_data = streams_data + f":{stream_name}.{stream_description}"
-    return "Stream Created", 200  
+    """stores a new stream in psql"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO streams (name, description) VALUES (%s, %s)",
+        (stream_name, stream_description)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return "Stream created", 200
 
 @app.route("/search/<keywords>")
 def search(keywords):
@@ -203,7 +211,13 @@ def receive_image():
 
 @app.route("/activestreams")
 def activestreams():
-    return streams_data
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name, description FROM streams")
+    streams = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"streams": [{"name": row[0], "description": row[1]} for row in streams]}
 
 @app.route('/stream/getimg', methods=['GET'])
 def get_image():
