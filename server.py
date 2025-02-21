@@ -26,6 +26,10 @@ HEADERS = {
 
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS").split(",")
 
+@app.route('/account')  
+def account():
+    return render_template('account.html') 
+
 @app.route("/explore")
 def explore():
     return send_file("explore.html")

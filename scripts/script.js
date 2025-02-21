@@ -5,14 +5,18 @@ let menu=document.getElementById("menu");
 Array.from(hamLogos).forEach((hamLogo)=>{
     hamLogo.addEventListener("click",()=>{
         toggleSidebar=hamLogo.classList.toggle("clicked");
-        if(toggleSidebar){
+        if(toggleSidebar)
+        {
             menu.style.top="-100rem";
             menu.style.width = 0;
-        }else{
+        }
+        else
+        {
             menu.style.top=0;
             menu.style.width = "auto";
         }
         
     });
 });
+
 
