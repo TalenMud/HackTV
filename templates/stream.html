@@ -1,0 +1,58 @@
+<body>
+    <button id="start-btn" onclick="startStreaming()">Start Streaming</button>
+    <button id="stop-btn" onclick="stopStreaming()" style="display:none;">Stop Streaming</button>
+    <a href="/watchtest">Watch Stream</a>
+    <script>
+        let stream;
+        let videoTrack;
+
+        function startStreaming() {
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'inline';
+
+            navigator.mediaDevices.getDisplayMedia({ video: true }).then(startStream);
+        }
+
+        function stopStreaming() {
+            document.getElementById('start-btn').style.display = 'inline';
+            document.getElementById('stop-btn').style.display = 'none';
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function startStream(userStream) {
+            stream = userStream;
+            videoTrack = stream.getVideoTracks()[0];
+            const videoElement = document.createElement('video');
+            videoElement.srcObject = stream;
+            videoElement.autoplay = true;
+            videoElement.style.display = 'none';
+            document.body.appendChild(videoElement);
+
+            captureAndSendFrames();
+        }
+
+        function captureAndSendFrames() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = videoTrack.getSettings().width;
+            canvas.height = videoTrack.getSettings().height;
+
+            setInterval(() => {
+                ctx.drawImage(document.querySelector('video'), 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => {
+                    const formData = new FormData();
+                    formData.append('image', blob);
+
+                    fetch('/stream/sendimg', {
+                        method: 'POST',
+                        body: formData,
+                    }).catch(console.error);
+                }, 'image/jpeg');
+            }, 33); 
+        }
+    </script>
+</body>

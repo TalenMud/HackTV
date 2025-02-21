@@ -1,0 +1,17 @@
+<body>
+    <div id="image-container" style="position: relative;">
+        <img id="streamed-image" src="" style="width: 100%; height: auto;">
+    </div>
+
+    <script>
+        setInterval(() => {
+            fetch('/stream/getimg')
+                .then(response => response.blob())
+                .then(blob => {
+                    const img = document.getElementById('streamed-image');
+                    img.src = URL.createObjectURL(blob);
+                })
+                .catch(console.error);
+        }, 33);
+    </script>
+</body>

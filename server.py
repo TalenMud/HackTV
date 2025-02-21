@@ -2,6 +2,7 @@ import os
 import requests
 from flask import Flask, send_file, request, redirect, url_for, session, flash, render_template
 from dotenv import load_dotenv
+import io
 import random
 
 #load environment variables
@@ -31,7 +32,9 @@ ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS").split(",")
 @app.route("/explore")
 def explore():
     return send_file("explore.html")
-
+@app.route("/stream")
+def streams():
+    return render_template("stream.html")
 @app.route("/getad") # Get an ad from the ad list
 def getad():
     ads = [
@@ -203,8 +206,25 @@ def watch(stream_id):
 
 @app.route("/stream/<stream_id>")
 def stream(stream_id):
-    # Need to implement some way to send video stream, ideally without writing to disk first
     pass
+current_image = None
 
+@app.route("/watchtest")
+def watchtest():
+    return render_template("watchtesting.html")
+
+@app.route('/stream/sendimg', methods=['POST'])
+def receive_image():
+    global current_image
+    if 'image' in request.files:
+        current_image = request.files['image'].read()
+        return 'Image received', 200
+    return 'No image found', 400
+
+@app.route('/stream/getimg', methods=['GET'])
+def get_image():
+    if current_image:
+        return send_file(io.BytesIO(current_image), mimetype='image/jpeg')
+    return 'No image available', 404
 if __name__ == "__main__":
     app.run(debug=True)
