@@ -147,7 +147,7 @@
             try {
                 const response = await fetch('/stream/getimg');
                 
-                if (response.status === 404) {
+                if (response.text = "No Image Found") {
                     streamStatus.classList.remove('hidden');
                     streamImage.style.display = 'none';
                     return;
