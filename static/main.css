@@ -1,0 +1,115 @@
+*{
+    color:white;
+}
+/* Logo part */
+.dot{
+    background-color:white;
+    transition:all 0.5s ease;
+    margin:5px;
+    width:5px;
+    height:5px;
+}
+.hamDesign{
+    transition:all 1s ease;
+}
+.hamDesign.clicked{    
+   transform: rotate(90deg); 
+}
+.hamDesign.clicked .dot{
+    height: 40px;
+}
+
+/* Menu part */
+#menu{
+    transition: all 0.8s ease;
+    padding-right:1rem;
+}
+.menuItem{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-left:1rem;
+    padding-right:1rem;
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+    width:8rem;
+    cursor:pointer;
+    border-radius:1rem;
+    margin-bottom:1rem;
+    transition: all 0.3s ease;
+}
+.menuItem i{
+    margin:10px;
+}
+.menuItem:hover{
+    background-color:#2a0d4f;
+}
+.menuItem.selected{
+    background-color:#9546fc;
+    transition: all 0.5s ease;
+}
+.menuItem.selected:hover{
+    color: rgba(148, 70, 252, 0.5);
+    box-shadow: 0 5px 30px rgba(148, 70, 252, .4);
+}
+
+
+#searchbox{
+    width:16rem;
+    font: "Jura",serif;
+    margin-left: 10rem;
+    height:2.5rem;
+    border: 1px solid #303030;
+    background-color: #121212;
+    transition:all 0.5s ease-in-out;
+    outline:none;
+    border-top-left-radius:1rem;
+    border-bottom-left-radius:1rem;
+}
+
+#searchbox:focus{
+  border:1px solid #9546FC;
+}
+#searchbutton{
+  padding-left:1rem;
+  padding-right:1rem;
+  transition: all 0.5s ease;
+  border-top-right-radius:1rem;
+  border-bottom-right-radius:1rem;
+}
+#searchbutton:hover{
+  background-color:#454545;
+}
+#searchbutton:active{
+  background-color:#9546FC;
+}
+
+.activeButton{
+    background-color:#9546fc;
+    transition: all 0.5s ease;
+    padding-left:1rem;
+    padding-right:1rem;
+    padding-top:0.3rem;
+    padding-bottom:0.3rem;
+    border-radius:1rem;
+}
+.activeButton:hover{
+    color: rgba(148, 70, 252, 0.5);
+    box-shadow: 0 5px 30px rgba(148, 70, 252, .4);
+}
+
+/*Main content*/
+.mainContent{
+  flex-grow:1;
+  transition:all 0.5s ease;
+  overflow:scroll;
+}
+
+.commentInput{
+  outline:none;
+  transition:all 0.5s ease;
+  border-bottom:1px solid gray;
+}
+.commentInput{
+  border-bottom: 1px solid #9546fc;
+}
