@@ -19,6 +19,8 @@ AIRTABLE_PAT = os.getenv("AIRTABLE_PAT") #personal access token (tf why is airta
 AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
 AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME")
 
+#i guess were not using airtable anymore :(
+
 AIRTABLE_URL = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_NAME}"
 HEADERS = {
     "Authorization": f"Bearer {AIRTABLE_PAT}",
@@ -36,11 +38,12 @@ def home():
 
 @app.route("/login")
 def login():
-    """redirects user to Slack OAuth login"""
+    """redirects user to Slack OpenID Connect login"""
     slack_auth_url = (
-        f"https://slack.com/oauth/v2/authorize?"
+        f"https://slack.com/openid/connect/authorize?"
+        f"response_type=code&"
         f"client_id={SLACK_CLIENT_ID}&"
-        f"scope=identity.basic,identity.email,identity.team&"
+        f"scode=openid&%20profile%20email&"
         f"redirect_uri={SLACK_REDIRECT_URI}"
     )
     return redirect(slack_auth_url)
@@ -54,7 +57,7 @@ def slack_callback():
     
     #exchange code for token
     token_response = requests.post(
-        "https://slack.com/api/oauth.v2.access",
+        "https://slack.com/api/openid.connect.token",
         data={
             "client_id": SLACK_CLIENT_ID,
             "client_secret": SLACK_CLIENT_SECRET,
@@ -67,27 +70,26 @@ def slack_callback():
         return f"error: {token_response.get('error')}"
     
     #get user info
-    acces_token = token_response["authed_user"]["access_token"]
+    acces_token = token_response["access_token"]
     user_response = requests.get(
-        "https://slack.com/api/users.identity",
+        "https://slack.com/api/openid.connect.userInfo",
         headers={"Authorization": f"Bearer {access_token}"}
     ).json()
 
-    if not user_response.get("ok"):
-        return f"error: {user_response.get('error')}"
+    if "sub" not in user_response:
+        return "unable to get user info"
     
-    user_info = user_response["user"]
-    slack_user_id = user_info["id"]
+    slack_user_id = user_response["sub"]
 
     #check if user is allowed
     if slack_user_id not in ALLOWED_SLACK_IDS:
         return "womp womp. access denied."
 
-    user_info = user_response["user"]
+    #store user session
     session["user"] = {
-        "id": user_info["id"],
-        "name": user_info["name"],
-        "email": user_info.get["email", ""],
+        "id": slack_user_id,
+        "name": user_response.get("name", ""),
+        "email": user_response.get("email", ""),
     }
 
     return redirect(url_for("home"))
