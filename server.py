@@ -4,6 +4,7 @@ from flask import Flask, send_file, request, redirect, url_for, session, flash, 
 from dotenv import load_dotenv
 import io
 import random
+import psycopg2
 
 load_dotenv()
 
@@ -14,23 +15,21 @@ SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
-AIRTABLE_PAT = os.getenv("AIRTABLE_PAT")
-AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
-AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME")
 
-#i guess were not using airtable anymore :(
+#bye airtable
 
-AIRTABLE_URL = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_NAME}"
-HEADERS = {
-    "Authorization": f"Bearer {AIRTABLE_PAT}",
-    "Content-Type": "application/json",
-}
+#get psql connection
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS").split(",")
+ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
+
+def get_db_connection():
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
 
 @app.route('/account')  
 def account():
-    return render_template('account.html') 
+    return render_template("account.html") 
 
 @app.route("/explore")
 def explore():
@@ -68,7 +67,7 @@ def login():
         f"https://slack.com/openid/connect/authorize?"
         f"response_type=code&"
         f"client_id={SLACK_CLIENT_ID}&"
-        f"scope=identity.basic,identity.email,identity.team&"
+        f"scope=openid%20profile%20email&"
         f"redirect_uri={SLACK_REDIRECT_URI}"
     )
     return redirect(slack_auth_url)
@@ -89,11 +88,11 @@ def slack_callback():
         },
     ).json()
 
-    if not token_response.get("ok"):
-        return f"error: {token_response.get('error')}"
+    if "access_token" not in token_response:
+        return f"error: {token_response.get('error', 'no token recieved')}"
     
     #get user info
-    access_token = token_response["authed_user"]["access_token"]
+    access_token = token_response["access_token"]
     user_response = requests.get(
         "https://slack.com/api/openid.connect.userInfo",
         headers={"Authorization": f"Bearer {access_token}"}
@@ -106,6 +105,20 @@ def slack_callback():
 
     if slack_user_id not in ALLOWED_SLACK_IDS:
         return "womp womp. access denied."
+
+    user_name = user_response.get("name", "")
+    user_email = user_response.get("email", "")
+
+    #store in psql
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO users (slack_id, name, email) VALUES (%s, %s, %s) ON CONFLICT (slack_id) DO NOTHING",
+        (slack_user_id, user_name, user_email)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
 
     #store user session
     session["user"] = {
