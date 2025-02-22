@@ -136,7 +136,9 @@
                 adImage.src = ad.image;
                 adLink.href = ad.url;
                 adButton.textContent = 'Learn More';
-                adButton.onclick="location.redirect.href=adLink.href;";
+                adButton.addEventListener("click", () => {
+                    window.open(adLink.href, "_blank");
+                });
             } catch (error) {
                 console.error('Error fetching ad:', error);
                 adTitle.textContent = 'Failed to load ad';
