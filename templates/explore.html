@@ -1,74 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HackTV</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
+    <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    </head>
+
 <body class="bg-black">
-    <div class="absolute top-2 left-2 text-2xl text-white font-[Silkscreen] md:text-3xl">
-        HackTV
-    </div>
 
-    <a href="/" class="absolute top-16 left-2 flex items-center space-x-2 hover:bg-gray-600 cursor-pointer transition-all duration-300">
-        <i class="fas fa-home text-white text-3xl"></i>
-        <span class="text-white text-lg font-[Varela]">Home</span>
-    </a>
+<section class="h-[100vh] w-[100vw] bg-[#110A10]">
+    <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
+        <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+        <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer" onclick="window.location.href='index.html';">HackTV</span>
 
-    <div id="explore-tab" class="absolute top-[13%] left-2 flex items-center space-x-2 bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer transition-all duration-300">
-        <i class="fas fa-compass text-white text-3xl"></i>
-        <span class="text-white text-lg font-[Varela]">Explore</span>
-    </div>
-
-    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-lg">
-        <div class="flex items-center bg-gray-700 p-2 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300">
-            <input type="text" id="search-query" placeholder="Search..." class="bg-gray-700 text-white outline-none p-2 flex-1 rounded-l-lg hover:bg-gray-600 focus:ring-2 focus:ring-blue-500" />
-            <div class="border-l border-gray-500 h-full mx-2"></div>
-            <div class="bg-gray-800 p-2 rounded-r-lg hover:bg-gray-700" id="search-button">
+        <div class="flex items-center justify-center ml-16">
+            <input type="text" id="searchbox" placeholder="Search" class="pl-4">
+            <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
                 <i class="fas fa-search text-white text-xl"></i>
-            </div>
+            </button>
+        </div>
+
+        <div class="ml-auto">
+            <a href="/login" class="flex items-center activeButton">
+                <div class="bg-[#2a0d4f] text-black p-1.5 px-2 rounded-lg">
+                    <span class="text-lg text-white font-semibold">⌘</span>
+                </div>
+                <span class="text-lg font-semibold p-2">  Login With Slack</span>
+            </a>
         </div>
     </div>
 
-    <div class="absolute top-4 right-4">
-        <a href="/login" class="flex items-center space-x-2 bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-purple-600 transition-all duration-300">
-            <div class="bg-white text-black p-1.5 rounded-lg">
-                <span class="text-lg font-semibold">⌘L</span>
+    <div class="flex flex-row justify-start w-full bg-[]">
+        <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
+            <a class="menuItem selected" href="/"">
+                <i class="fas fa-home text-white text-xl"></i>
+                <span class="text-white text-lg font-[Varela]">Home</span>
+            </a>
+            <a class="menuItem" href="/explore">
+                <i class="fas fa-compass text-white text-xl"></i>
+                <span class="text-white text-lg font-[Varela]">Explore</span>
+            </a>
+            <div class="menuItem">
+                <i class="fas fa-clock-rotate-left text-white text-xl"></i>
+                <span class="text-white text-lg font-[Varela]">History</span>
             </div>
-            <span class="text-lg font-semibold p-2">LOGIN WITH SLACK</span>
-        </a>
-    </div>
+            <div class="menuItem">
+                <i class="fas fa-gear text-white text-xl"></i>
+                <span class="text-white text-lg font-[Varela]">Settings</span>
+            </div>
+        </div>
 
-    <div class="flex items-center justify-center h-[calc(100vh-5rem)]">
-        <div class="text-center text-white">
-            <i class="fas fa-compass text-6xl mb-4"></i>
-            <p class="text-xl font-[Varela]">Search using the search bar to explore!</p>
+        <div class="flex flex-col items-center justify-center w-full h-full text-center">
+            <i class="fas fa-compass text-6xl text-white mb-4"></i>
+            <p class="text-white text-xl font-[Varela] mb-4">Start using the search bar to explore</p>
+
+           
         </div>
     </div>
+</section>
 
-    <script>
-        const searchButton = document.getElementById('search-button');
-        const searchQuery = document.getElementById('search-query');
+<script>
+    const searchButton = document.getElementById('search-button');
+    const searchQuery = document.getElementById('search-query');
 
-        searchButton.addEventListener('click', () => {
+    searchButton.addEventListener('click', () => {
+        const query = searchQuery.value.trim();
+        if (query) {
+            window.location.href = `/search/${query}`;
+        }
+    });
+
+    searchQuery.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
             const query = searchQuery.value.trim();
             if (query) {
                 window.location.href = `/search/${query}`;
             }
-        });
+        }
+    });
+</script>
 
-        searchQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchQuery.value.trim();
-                if (query) {
-                    window.location.href = `/search/${query}`;
-                }
-            }
-        });
-    </script>
 </body>
 </html>
