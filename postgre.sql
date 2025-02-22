@@ -4,6 +4,7 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL, 
     email VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
+    settings JSONB DEFAULT '{"ads_enabled": true}'
 );
 
 CREATE TABLE streams (

@@ -32,7 +32,52 @@ def index():
 
 @app.route('/settings')  
 def account():
-    return render_template("settings.html") 
+    if "user" not in session:
+        return redirect(url_for("login"))
+    
+    user_id = session["user"]["id"]
+
+    if request.method == 'POST':
+        #update ad prefrence
+        ads_enabled = 'ads_enabled' in request.form
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        try:
+            cur.execute("""
+                UPDATE users
+                SET settings = JSONB_SET(
+                    COALESCE(settings, '{}'::jsonb),
+                    '{ads_enabled}',
+                    %s::jsonb)
+                )
+                WHERE slack_id = %s
+            """, (str(ads_enabled).lower(), user_id))
+            conn.commit()
+            flash("Settings updated", "success")
+        except psycopg2.Error as e:
+            flash("failed to update settings", "error")
+        finally:
+            cur.close()
+            conn.close()
+    
+    #get current settings
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT COALESCE(settings->>'ads_enabled', 'true')::boolean
+            FROM users
+            WHERE slack_id = %s
+        """, (user_id,))
+        ads_enabled = cur.fetchone()[0]
+    except psycopg2.Error as e:
+        ads_enabled = True #default to true if error occurs
+    finally:
+        cur.close()
+        conn.close()
+
+    return render_template("settings.html", ads_enabled=ads_enabled)
 
 @app.route('/history')  
 def history():
@@ -47,8 +92,25 @@ def streams():
     return render_template("stream.html")
 
 @app.route("/getad")
-def getad(): #idea: instead of putting all this here, we should get the active yswses from ysws.hackclub.com through api or if there is no api then just scrape the data ;)
-    ads = [
+def getad():
+    #check if user has ads disabled
+    if "user" in session:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+                SELECT COALESCE(settings->>'ads_enabled', 'true')::boolean
+                FROM users
+                WHERE slack_id = %s
+            """, (session["user"]["id"],))
+            ads_enabled = cur.fetchone()[0]
+            if not ads_enabled:
+                return '', 204 #no content
+        finally:
+            cur.close()
+            conn.close()
+
+    ads = [  #idea: instead of putting all this here, we should get the active yswses from ysws.hackclub.com through api or if there is no api then just scrape the data ;)
         {"ad": "Put the you in CPU today", "image": "https://hackclub.com/stickers/inside.png", "url": "https://www.cpu.land"},
         {"ad": "A Game about Love & Graphing, Made By Hack Clubbers", "image": "https://sinerider.com/Assets/Images/loading-screen.png", "url": "https://sinerider.com/"},
         {"ad": "Free Linux VPS for Hack Club Members", "image": "https://hackclub.com/stickers/nest_hatched_smolpheus.png", "url": "https://hackclub.com/nest"},
@@ -116,12 +178,11 @@ def slack_callback():
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO users (slack_id, name, email)
-                VALUES (%s, %s, %s)
+                """INSERT INTO users (slack_id, name, email, settings)
+                VALUES (%s, %s, %s, "{ads_enabled: true}"::jsonb)
                 ON CONFLICT (slack_id) DO UPDATE SET
                 name = EXCLUDED.name,
-                email = EXCLUDED.email
-                RETURNING id""",
+                email = EXCLUDED.email""",
                 (slack_id, user_response.get("name", ""), user_response.get("email", ""))
             )
             user_id = cur.fetchone()[0]
