@@ -26,7 +26,9 @@ ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
-
+@app.route('/index.html')
+def index():
+    return redirect(url_for('home'))
 @app.route('/account')  
 def account():
     return render_template("account.html") 
