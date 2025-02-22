@@ -109,17 +109,11 @@
             history.forEach(video => {
                 const listItem = document.createElement('li');
                 listItem.classList.add('bg-[#2a0d4f]', 'p-4', 'rounded-md', 'flex', 'items-center');
-
-                const thumbnail = document.createElement('img');
-                thumbnail.src = video.thumbnail;
-                thumbnail.alt = `Thumbnail of ${video.title}`;
-                thumbnail.classList.add('w-24', 'h-16', 'object-cover', 'rounded-md', 'mr-4');
                 
                 const title = document.createElement('h3');
                 title.classList.add('text-lg', 'font-[Varela]', 'text-white');
                 title.textContent = video.id; 
 
-                listItem.appendChild(thumbnail);
                 listItem.appendChild(title);
                 videoHistoryList.appendChild(listItem);
             });
