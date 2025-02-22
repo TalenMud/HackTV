@@ -102,4 +102,5 @@ Feel free to contribute to our code any time! Here's how:
  - Talen Mudaly (@TalenMud)
  - Matthew F (@GamerC0der)
  - @m5kro
+<br>
 And others who contributed through PRs! (none yet pls make some)
