@@ -160,9 +160,43 @@ def createstream(stream_name, stream_description):
     conn.close()
     return "Stream created", 200
 
-@app.route("/search/<keywords>") #ewoud has dibs on this
+@app.route("/search/<keywords>")
 def search(keywords):
-    return render_template("search.html", search_keywords=keywords)
+    #split keywords and create search patterns
+    search_terms = keywords.split("+")
+    search_patterns = [f'%{term}%' for term in search_terms]
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        #search both name and desc, case insensitive
+        cur.execute("""
+            SELECT name, description
+            FROM streams
+            WHERE name ILIKE ANY(%s)
+                OR description ILIKE ANY(%s)
+            ORDER BY name
+            LIMIT 50
+            """,
+            (search_patterns, search_patterns))
+        
+        results = [{
+            'id': row[0],
+            'name': row[1],
+            'description': row[2]
+        } for row in cur.fetchall()]
+
+    except psycopg2.Error as e:
+        print(f"Database error: {e}")
+        results = []
+    finally:
+        cur.close()
+        conn.close()
+
+    return render_template("search.html",
+                           search_keywords=keywords,
+                           results=results)
 
 @app.route("/watch/<stream_id>")
 def watch(stream_id):
