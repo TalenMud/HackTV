@@ -14,7 +14,10 @@
     </head>
 
 <body>
-<section class="h-[100vh] w-[100vw] bg-[#110A10] font-sans">
+
+      <!--for the dots background-->
+      <div id="background"></div>
+<section class="h-[100vh] w-[100vw] font-sans">
     <!-- The navbar kinda thing -->
     <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
         <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
@@ -93,6 +96,9 @@
 
 <script src="{{ url_for('static',filename='scripts/script.js') }}">
 
+
+<script src="{{ url_for('static', filename='scripts/dots.js') }}">
+</script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

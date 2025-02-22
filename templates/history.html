@@ -14,7 +14,10 @@
 
 <body class="bg-black">
 
-<section class="h-[100vh] w-[100vw] bg-[#110A10]">
+      <!--for the dots background-->
+      <div id="background"></div>
+
+<section class="h-[100vh] w-[100vw]">
     <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
         <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
             <span class="dot"></span>
@@ -74,6 +77,9 @@
 
 
 <script src="{{ url_for('static', filename='scripts/script.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/dots.js') }}">
 </script>
 
 <script>

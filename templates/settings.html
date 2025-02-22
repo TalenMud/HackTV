@@ -14,7 +14,8 @@
 
 <body class="bg-black">
 
-<section class="h-[100vh] w-[100vw] bg-[#110A10]">
+      <div id="background"></div>
+<section class="h-[100vh] w-[100vw]">
     <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
         <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
             <span class="dot"></span>
@@ -41,7 +42,8 @@
     </div>
 
     <div class="flex flex-row justify-start w-full bg-[]">
-        <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
+      <!-- Sidebar -->
+      <div class="w-[9rem] h-auto relative hidden pt-8 lg:flex flex-col items-start pl-4 ml-0" id="menu">
           <a class="menuItem" href="/">
               <i class="fas fa-home text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Home</span>
@@ -115,6 +117,15 @@
                 </label>
               </div>
 
+
+
+              <div class="flex flex-row jusitify-center items-center">
+              <p class="text-white text-lg font-[Varela]">Enable Comments/Chats</p>
+                <label class="switch">
+                  <input type="checkbox" checked="true">
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
             </div>
       </div>
@@ -123,6 +134,8 @@
 
 
 <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/dots.js') }}"></script>
+
 
 <script>
     const searchButton = document.getElementById('searchbutton');

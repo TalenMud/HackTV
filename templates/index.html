@@ -12,7 +12,10 @@
     </head>
 
     <body>
-<section class="h-[100vh] w-[100vw] bg-[#110A10]">
+      <!--for the dots background-->
+      <div id="background"></div>
+
+<section class="h-[100vh] w-[100vw] ">
     <!-- The navbar kinda thing -->
     <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
         <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
@@ -37,9 +40,9 @@
         </div>
     </div>
 
-    <div class="flex flex-row justify-start w-full bg-[]">
+    <div class="flex flex-row justify-start w-full ">
       <!-- Sidebar -->
-      <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
+      <div class="w-[9rem] relative hidden pt-8 lg:flex flex-col items-start pl-4 ml-0 " id="menu">
           <div class="menuItem selected">
               <i class="fas fa-home text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Home</span>
@@ -64,8 +67,8 @@
       </div>
 
       <!--Main content(videos)-->
-      <div class="mainContent w-full h-full flex items-center justify-center">
-        <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-full"></div>
+      <div class="mainContent w-full h-auto flex items-center justify-center ">
+        <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto "></div>
       </div>
 
     </div>
@@ -75,6 +78,9 @@
 <!--js-->
 
 <script src="{{ url_for('static', filename='scripts/script.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/dots.js') }}">
 </script>
 
 <script>
