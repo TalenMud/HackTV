@@ -41,15 +41,15 @@
     <div class="flex flex-row justify-start w-full bg-[]">
       <!-- Sidebar -->
       <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
-          <div class="menuItem selected">
+          <a class="menuItem" href="/"">
               <i class="fas fa-home text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Home</span>
-          </div>
+          </a>
 
-          <div class="menuItem">
+          <a class="menuItem" href="/explore">
               <i class="fas fa-compass text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Explore</span>
-          </div>
+          </a>
 
           <div class="menuItem">
               <i class="fas fa-clock-rotate-left text-white text-xl"></i>
@@ -126,25 +126,67 @@ $(document).ready(function() {
 
     $('#create-stream-btn').click(function() {
         Swal.fire({
-            title: 'Create a Stream',
-            html: `
-                <input id="stream-name" class="swal2-input" placeholder="Stream Name">
-                <input id="stream-description" class="swal2-input" placeholder="Stream Description">
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Create Stream',
-            preConfirm: () => {
-                const streamName = $('#stream-name').val();
-                const streamDescription = $('#stream-description').val();
+    title: 'Create a Stream',
+    html: `
+        <input id="stream-name" class="swal2-input" placeholder="Stream Name">
+        <input id="stream-description" class="swal2-input" placeholder="Stream Description">
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Create Stream',
+    preConfirm: () => {
+        const streamName = $('#stream-name').val();
+        const streamDescription = $('#stream-description').val();
 
-                if (!streamName || !streamDescription) {
-                    Swal.showValidationMessage('Both name and description are required');
-                    return false;
-                }
+        if (!streamName || !streamDescription) {
+            Swal.showValidationMessage('Both name and description are required');
+            return false;
+        }
 
-                createStream(streamName, streamDescription);
-            }
-        });
+        createStream(streamName, streamDescription);
+    },
+    customClass: {
+        container: 'swal2-container-dark',
+        popup: 'swal2-popup-dark',
+        title: 'swal2-title-dark',
+        htmlContainer: 'swal2-html-container-dark',
+        input: 'swal2-input-dark',
+        confirmButton: 'swal2-confirm-dark',
+        cancelButton: 'swal2-cancel-dark'
+    }
+});
+
+$('.swal2-popup-dark').css({
+    'background-color': '#2d2d2d',
+    'color': '#fff',
+    'border-radius': '10px'
+});
+
+$('.swal2-input').css({
+    'background-color': '#4f4f4f',
+    'border': '1px solid #666',
+    'color': '#fff',
+    'border-radius': '5px',
+    'padding': '10px'
+});
+
+$('.swal2-confirm-dark').css({
+    'background-color': '#3182ce',
+    'border': 'none',
+    'color': '#fff',
+    'border-radius': '5px',
+    'padding': '10px 20px',
+    'cursor': 'pointer'
+});
+
+$('.swal2-cancel-dark').css({
+    'background-color': '#444',
+    'border': 'none',
+    'color': '#fff',
+    'border-radius': '5px',
+    'padding': '10px 20px',
+    'cursor': 'pointer'
+});
+
     });
 
     $('#start-stream-btn').click(function() {
@@ -268,43 +310,96 @@ function sendImage(blob) {
     </script>
 
     <style>
-        .stream-tab {
-            padding: 8px 16px;
-            margin: 0 5px;
-            border: 1px solid #ccc;
-            cursor: pointer;
-        }
+      body {
+    background-color: #121212;
+    color: #e0e0e0;
+}
 
-        .stream-tab.selected {
-            background-color: #3182ce;
-            color: white;
-            font-weight: bold;
-        }
-            .chrome-tab {
-        padding: 10px 20px;
-        margin: 5px 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px 4px 0 0;
-        cursor: pointer;
-        background-color: #f1f1f1;
-        color: #333;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
+.swal2-input {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
 
-    .chrome-tab.selected {
-        background-color: #3182ce;
-        color: white;
-        border-color: #3182ce;
-    }
+.swal2-confirm {
+    background-color: #3182ce;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-    .chrome-tab:hover {
-        background-color: #ddd;
-    }
+.swal2-cancel {
+    background-color: #888;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-    .chrome-tab:focus {
-        outline: none;
-    }
+.swal2-confirm:hover {
+    background-color: #2b6cb0;
+}
+
+.swal2-cancel:hover {
+    background-color: #666;
+}
+
+#stream-tabs {
+    background-color: #1e1e1e;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.chrome-tab {
+    background-color: #333;
+    color: #e0e0e0;
+    padding: 12px 20px;
+    margin: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #555;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.chrome-tab.selected {
+    background-color: #3182ce;
+    color: white;
+    border-color: #3182ce;
+}
+
+.chrome-tab:hover {
+    background-color: #444;
+}
+
+.chrome-tab:focus {
+    outline: none;
+}
+
+#start-stream-btn, #stop-btn, #create-stream-btn {
+    background-color: #2d3748;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#start-stream-btn:hover, #stop-btn:hover, #create-stream-btn:hover {
+    background-color: #4a5568;
+}
 
     </style>
 
