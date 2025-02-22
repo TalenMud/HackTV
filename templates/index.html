@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    </head>
+
+    <body>
+      <!--for the dots background-->
+      <div id="background"></div>
+
+<section class="h-[100vh] w-[100vw] ">
+    <!-- The navbar kinda thing -->
+    <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
+        <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+        <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer" onclick="window.location.href='index.html';">HackTV</span>
+        <div class="flex items-center justify-center ml-16">
+          <input type="text" id="searchbox" placeholder="Search" class="pl-4">
+          <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
+              <i class="fas fa-search text-white text-xl"></i>
+          </button>
+        </div>
+        <div class="ml-auto">
+          <a href="/login" class="flex items-center activeButton">
+                <div class="bg-[#2a0d4f] text-black p-1.5 px-2 rounded-lg">
+                    <span class="text-lg text-white font-semibold">⌘</span>
+                </div>
+                <span class="text-lg font-semibold p-2">  Login With Slack</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="flex flex-row justify-start w-full ">
+      <!-- Sidebar -->
+      <div class="w-[9rem] relative hidden pt-8 lg:flex flex-col items-start pl-4 ml-0 " id="menu">
+          <div class="menuItem selected">
+              <i class="fas fa-home text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">Home</span>
+          </div>
+
+          <a class="menuItem" href="/explore">
+              <i class="fas fa-compass text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">Explore</span>
+          </a>
+
+          <a class="menuItem" href="/history">
+              <i class="fas fa-clock-rotate-left text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">History</span>
+          </a>
+
+          <a class="menuItem" href="/settings">
+              <i class="fas fa-gear text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">Settings</span>
+          </a>
+      </div>
+
+      </div>
+
+      <!--Main content(videos)-->
+      <div class="mainContent w-full h-auto flex items-center justify-center ">
+        <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto "></div>
+      </div>
+
+    </div>
+
+</section>
+
+<!--js-->
+
+<script src="{{ url_for('static', filename='scripts/script.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/dots.js') }}">
+</script>
+
+<script>
+    const cardsContainer = document.getElementById('cards-container');
+    const searchButton = document.getElementById('searchbutton');
+    const searchQuery = document.getElementById('searchbox');
+    
+    searchButton.addEventListener('click', () => {
+        const query = searchQuery.value.trim();
+        if (query) {
+            window.location.href = `/search/${query}`;
+        }
+    });
+    
+    searchQuery.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = searchQuery.value.trim();
+            if (query) {
+                window.location.href = `/search/${query}`;
+            }
+        }
+    });
+    
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = (c === 'x' ? r : (r & 0x3 | 0x8));
+            return v.toString(16);
+        });
+    }
+    
+    function fetchActiveStreams() {
+        fetch('/activestreams')
+            .then(response => response.json())
+            .then(data => {
+                const streams = data.streams;
+                createCards(streams);
+            })
+            .catch(err => console.error('Error fetching active streams:', err));
+    }
+    
+    function createCards(streams) {
+        if (streams.length === 0) {
+            const noStreamsMessage = document.createElement('div');
+            noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+            noStreamsMessage.textContent = "No active streams available at the moment.";
+            cardsContainer.appendChild(noStreamsMessage);
+            return;
+        }
+    
+        streams.forEach(stream => {
+            const { name, description } = stream;
+    
+            const card = document.createElement('div');
+            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
+    
+            const randomUUID = generateUUID();
+    
+            card.addEventListener('click', () => {
+                window.location.href = `/watch/${randomUUID}`;
+            });
+    
+            const image = document.createElement('img');
+            image.src = "https://placehold.co/300x200/EEE/31343C";
+            image.alt = "Card Image";
+            image.classList.add('w-full', 'h-48', 'object-cover');
+    
+            const textContainer = document.createElement('div');
+            textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
+    
+            const titleElement = document.createElement('h3');
+            titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
+            titleElement.textContent = name;
+    
+            const descriptionElement = document.createElement('p');
+            descriptionElement.classList.add('text-sm', 'text-gray-600');
+            descriptionElement.textContent = description || "No description available";
+    
+            textContainer.appendChild(titleElement);
+            textContainer.appendChild(descriptionElement);
+            card.appendChild(image);
+            card.appendChild(textContainer);
+    
+            cardsContainer.appendChild(card);
+        });
+    }
+    
+    fetchActiveStreams();
+    </script>
+    
+
+</body>
+
+
+</html>

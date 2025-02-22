@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Watch the stream</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static',filename='styles/main.css') }}">
+    </head>
+
+<body class="bg-black text-white font-[Jura]">
+
+      <!--for the dots background-->
+      <div id="background"></div>
+<section class="h-[100vh] w-[100vw] font-sans">
+    <!-- The navbar kinda thing -->
+    <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
+        <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+        <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer" onclick="window.location.href='/';">HackTV</span>
+        <div class="flex items-center justify-center ml-16">
+          <input type="text" id="searchbox" placeholder="Search" class="pl-4">
+          <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
+              <i class="fas fa-search text-white text-xl"></i>
+          </button>
+        </div>
+        <div class="ml-auto">
+          <a href="/login" class="flex items-center activeButton">
+                <div class="bg-[#2a0d4f] text-black p-1.5 px-2 rounded-lg">
+                    <span class="text-lg text-white font-semibold">⌘</span>
+                </div>
+                <span class="text-lg font-semibold p-2">  Login With Slack</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="flex flex-row justify-start w-full bg-[]">
+      <!-- Sidebar -->
+      <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
+          <a class="menuItem" href="/">
+              <i class="fas fa-home text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">Home</span>
+          </a>
+
+          <a class="menuItem selected" href="/explore">
+              <i class="fas fa-compass text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">Explore</span>
+          </a>
+
+          <a class="menuItem" href="/history">
+              <i class="fas fa-clock-rotate-left text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">History</span>
+          </a>
+
+          <a class="menuItem" href="/settings">
+              <i class="fas fa-gear text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">Settings</span>
+          </a>
+      </div>
+
+      <!--Main content(stream,chat etc.)-->
+      <div class="mainContent w-full h-full flex items-center justify-center">
+        <div id="watch-dashboard" class="mt-40 p-4">
+        <div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[15rem]">
+            <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
+            <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
+            <a id="ad-link" href="#" target="_blank">
+                <img id="ad-image" src="" alt="ad image" class="mb-4 w-64 mx-auto">
+            </a>
+            <button id="ad-button" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
+                Loading...
+            </button>
+        </div>
+        <div class="flex flex-col w-full items-center justify-center">
+
+          <div class="relative overflow-hidden shadow-lg cursor-pointer text-center">
+              <img id="stream-image" class="rounded-lg w-96 h-128 mx-auto" alt="Stream Image" />
+              <p id="stream-status" class="text-white text-xl mt-2 hidden">The stream is currently on pause.</p>
+          </div>
+
+          <div id="comment-section" class="p-4 mt-16">
+              <div class="flex items-center mb-4">
+                  <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" class="commentInput bg-transparent p-2 w-full text-white" onkeyup="handleKeyUp(event)">
+                  <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendComment()">
+                      <i class="fas fa-paper-plane text-xl"></i>
+                  </button>
+              </div>
+              <div id="comments">
+                  <div>
+                      <h1 class="text-white text-sm">@User_1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
+                      <p class="text-gray-400 text-xs">Loved it</p>
+                  </div>
+                  <div>
+                      <h1 class="text-white text-sm">@User_2 <span class="text-gray-400 text-xs">24 hours ago</span></h1>
+                      <p class="text-gray-400 text-xs">Here from day 1</p>
+                  </div>
+              </div>
+          </div>
+        </div>
+    </div>
+
+      </div>
+
+    </div>
+
+</section>
+
+<!--js-->
+
+<script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
+
+<script src="{{ url_for('static', filename='scripts/dots.js') }}">
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const streamImage = document.getElementById('stream-image');
+        const streamStatus = document.getElementById('stream-status');
+        const adTitle = document.getElementById('ad-title');
+        const adImage = document.getElementById('ad-image');
+        const adLink = document.getElementById('ad-link');
+        const adButton = document.getElementById('ad-button');
+        
+        let streaming = false;
+        let streamImgURL = '';
+
+        async function getAd() {
+            try {
+                const response = await fetch('/getad');
+                const ad = await response.json();
+
+                adTitle.textContent = ad.ad;
+                adImage.src = ad.image;
+                adLink.href = ad.url;
+                adButton.textContent = 'Learn More';
+                adButton.addEventListener("click", () => {
+                    window.open(adLink.href, "_blank");
+                });
+            } catch (error) {
+                console.error('Error fetching ad:', error);
+                adTitle.textContent = 'Failed to load ad';
+            }
+        }
+        async function getImage() {
+            try {
+                const response = await fetch('/stream/getimg');
+                
+                if (response.text = "No Image Found") {
+                    streamStatus.classList.remove('hidden');
+                    streamImage.style.display = 'none';
+                    return;
+                }
+
+                const imgBlob = await response.blob();
+                const imgUrl = URL.createObjectURL(imgBlob);
+                streamImgURL = imgUrl;
+
+                if (streaming) {
+                    if (streamImage.src !== imgUrl) {
+                        streamImage.src = imgUrl;
+                    }
+                    streamImage.style.display = 'block';
+                    streamStatus.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+                streamStatus.classList.remove('hidden');
+                streamImage.style.display = 'none';
+            }
+        }
+
+        function startReceivingStream() {
+            streaming = true;
+            streamStatus.classList.add('hidden');
+            setInterval(getImage, 16); 
+        }
+
+        function stopReceivingStream() {
+            streaming = false;
+            streamImage.style.display = 'none';
+            streamStatus.classList.add('hidden');
+        }
+
+        window.addEventListener('load', () => {
+            startReceivingStream();
+            getAd();
+        });
+    </script>
+
+</body>
+</html>

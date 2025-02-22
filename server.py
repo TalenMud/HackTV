@@ -8,7 +8,7 @@ import psycopg2
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
@@ -16,7 +16,7 @@ SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
 
-#bye airtable
+
 
 #get psql connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -26,14 +26,21 @@ ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
+@app.route('/index.html')
+def index():
+    return redirect(url_for('home'))
 
-@app.route('/account')  
+@app.route('/settings')  
 def account():
-    return render_template("account.html") 
+    return render_template("settings.html") 
+
+@app.route('/history')  
+def history():
+    return render_template("history.html") 
 
 @app.route("/explore")
 def explore():
-    return send_file("explore.html")
+    return render_template("explore.html")
 
 @app.route("/stream")
 def streams():
@@ -60,7 +67,7 @@ def getad(): #idea: instead of putting all this here, we should get the active y
 
 @app.route("/")
 def home():
-    return send_file("index.html")
+    return render_template("index.html")
 
 @app.route("/login")
 def login():
@@ -163,7 +170,7 @@ def search(keywords):
 
 @app.route("/watch/<stream_id>")
 def watch(stream_id):
-    return send_file("watch.html")
+    return render_template("watch.html") #add custom stream id stuff later
 
 @app.route("/stream/<stream_id>")
 def stream(stream_id):
@@ -197,7 +204,7 @@ def activestreams():
 def get_image():
     if current_image:
         return send_file(io.BytesIO(current_image), mimetype='image/jpeg')
-    return 'No image available', 404
+    return 'No image available', 200
 
 if __name__ == "__main__":
     app.run(debug=True)
