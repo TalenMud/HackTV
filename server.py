@@ -24,8 +24,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
 
 def get_db_connection():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+    return psycopg2.connect(DATABASE_URL)
+
 @app.route('/index.html')
 def index():
     return redirect(url_for('home'))
@@ -83,9 +83,8 @@ def login():
 
 @app.route("/slack/callback")
 def slack_callback():
-    code = request.args.get("code")
-    if not code:
-        return "error: no code provided"
+    if not (code := request.args.get("code")):
+        return "missing auth code", 400
     
     token_response = requests.post(
         "https://slack.com/api/openid.connect.token",
@@ -98,42 +97,39 @@ def slack_callback():
     ).json()
 
     if "access_token" not in token_response:
-        return f"error: {token_response.get('error', 'no token recieved')}"
+        return f"error: {token_response.get('error', 'no token recieved')}", 401
     
     #get user info
-    access_token = token_response["access_token"]
     user_response = requests.get(
         "https://slack.com/api/openid.connect.userInfo",
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={"Authorization": f"Bearer {token_response['access_token']}"}
     ).json()
 
     if "sub" not in user_response:
-        return "unable to get user info"
-    
-    slack_user_id = user_response["sub"]
+        return "unable to get user info", 401
 
-    if slack_user_id not in ALLOWED_SLACK_IDS:
-        return "womp womp. access denied."
+    #authorize user
+    if (slack_id := user_response["sub"]) not in ALLOWED_SLACK_IDS:
+        return "unauthorized", 403
 
-    user_name = user_response.get("name", "")
-    user_email = user_response.get("email", "")
+    #put user in db
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO users (slack_id, name, email)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (slack_id) DO UPDATE SET
+                name = EXCLUDED.name,
+                email = EXCLUDED.email""",
+                (slack_id, user_response.get("name", ""), user_response.get("email", ""))
+            )
+            conn.commit()
 
-    #store in psql
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO users (slack_id, name, email) VALUES (%s, %s, %s) ON CONFLICT (slack_id) DO NOTHING",
-        (slack_user_id, user_name, user_email)
-    )
-    conn.commit()
-    cur.close()
-    conn.close() 
-
-    #store user session
+    #create user session
     session["user"] = {
-        "id": slack_user_id,
-        "name": user_name,
-        "email": user_email,
+        "id": slack_id,
+        "name": user_response.get("name", ""),
+        "email": user_response.get("email", "")
     }
 
     return redirect(url_for("home"))
