@@ -120,13 +120,16 @@ def slack_callback():
                 VALUES (%s, %s, %s)
                 ON CONFLICT (slack_id) DO UPDATE SET
                 name = EXCLUDED.name,
-                email = EXCLUDED.email""",
+                email = EXCLUDED.email
+                RETURNING id""",
                 (slack_id, user_response.get("name", ""), user_response.get("email", ""))
             )
+            user_id = cur.fetchone()[0]
             conn.commit()
 
     #create user session
     session["user"] = {
+        "db_id": user_id,
         "id": slack_id,
         "name": user_response.get("name", ""),
         "email": user_response.get("email", "")
@@ -152,7 +155,7 @@ def createstream(stream_name, stream_description):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO streams (name, description) VALUES (%s, %s)",
+        "INSERT INTO streams (name, description, likes, dislikes) VALUES (%s, %s, 0, 0)",
         (stream_name, stream_description)
     )
     conn.commit()
@@ -194,7 +197,7 @@ def search(keywords):
         cur.close()
         conn.close()
 
-    return render_template("search.html",
+    return render_template(     "search.html",
                            search_keywords=keywords,
                            results=results)
 
@@ -224,17 +227,84 @@ def receive_image():
 def activestreams():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT name, description FROM streams")
+    cur.execute("SELECT id, name, description, likes, dislikes FROM streams")
     streams = cur.fetchall()
     cur.close()
     conn.close()
-    return {"streams": [{"name": row[0], "description": row[1]} for row in streams]}
+    return {"streams": [{
+        "id": row[0],
+        "name": row[1], 
+        "description": row[2],
+        "likes": row[3],
+        "dislikes": row[4]
+        } for row in streams]}
 
 @app.route('/stream/getimg', methods=['GET'])
 def get_image():
     if current_image:
         return send_file(io.BytesIO(current_image), mimetype='image/jpeg')
     return 'No image available', 200
+
+#likes/dislikes route
+@app.route("/stream/<int:stream_id>/like", methods=['POST'])
+def handle_vote(stream_id):
+    if "user" not in session:
+        return "unauthorized", 401
+    
+    vote_type = request.form.get("type")
+    if vote_type not in ("like", "dislike"):
+        return "invalid vote type", 400
+    
+    user_id = session["user"]["id"]
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        #record vote
+        cur.execute("""
+            INSERT INTO votes (user_id, stream_id, vote_type)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (user_id, stream_id) DO UPDATE SET vote_type = EXCLUDED.vote_type
+            """, (user_id, stream_id, vote_type))
+        
+        #update stream vote count
+        cur.execute("""
+            UPDATE streams SET
+                    likes = (SELECT COUNT(*) FROM votes WHERE stream_id = %s AND vote_type = "like"),
+                    dislikes = (SELECT COUNT(*) FROM votes WHERE stream_id = %s AND vote_type = "dislike")
+            WHERE id = %s
+        """), (stream_id, stream_id, stream_id)
+
+        conn.commit()
+        return "vote recorded", 200
+    
+    except psycopg2.Error as e:
+        conn.rollback()
+        return f"database error: {e}", 500
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route("/stream/<int:stream_id>/votes")
+def get_votes(stream_id):
+    """get current vote counts"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            SELECT likes, dislikes FROM streams WHERE id = %s
+        """, (stream_id,))
+        result = cur.fetchone()
+        return {
+            "likes": result[0] if result else 0,
+            "dislikes": result[1] if result else 0
+        }
+    finally:
+        cur.close()
+        conn.close()
+    
 
 if __name__ == "__main__":
     app.run(debug=True)

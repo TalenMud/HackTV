@@ -11,5 +11,14 @@ CREATE TABLE streams (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
-    owner_id INT REFERENCES users(id)
-)
+    owner_id INT REFERENCES users(id),
+    likes INT DEFAULT 0,
+    dislikes INT DEFAULT 0
+);
+
+CREATE TABLE votes (
+    user_id INT REFERENCES users(id),
+    stream_id INT REFERENCES streams(id),
+    vote_type VARCHAR(7) CHECK (vote_type IN ('like', 'dislike')),
+    PRIMARY KEY (user_id, stream_id)
+);
