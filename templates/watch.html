@@ -157,7 +157,7 @@
                 return;
             }
 
-            const imgBlob = await fetch('/stream/getimg').then(res => res.blob());  // Fetch the image again to get the blob
+            const imgBlob = await fetch('/stream/getimg').then(res => res.blob());
             const imgUrl = URL.createObjectURL(imgBlob);
 
             if (streamImage.src !== imgUrl) {
@@ -180,11 +180,27 @@
         streamImage.style.display = 'none';
     }
 
+    function addVideoToLocalStorage() {
+        const videoId = crypto.randomUUID();
+        const videoDetails = {
+            id: videoId,
+            title: "Sample Video Title",
+            url: "https://example.com/video.mp4",
+            thumbnail: "https://via.placeholder.com/150"
+        };
+
+        let history = JSON.parse(localStorage.getItem('history')) || [];
+        history.push(videoDetails);
+        localStorage.setItem('history', JSON.stringify(history));
+    }
+
     window.addEventListener('load', () => {
         startReceivingStream();
         getAd();
+        addVideoToLocalStorage();
     });
 </script>
+
 
 
 </body>
