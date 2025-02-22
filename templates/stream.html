@@ -15,10 +15,8 @@
 
 <body>
 
-      <!--for the dots background-->
       <div id="background"></div>
 <section class="h-[100vh] w-[100vw] font-sans">
-    <!-- The navbar kinda thing -->
     <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
         <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
             <span class="dot"></span>
@@ -43,7 +41,6 @@
     </div>
 
     <div class="flex flex-row justify-start w-full bg-[]">
-      <!-- Sidebar -->
       <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
           <a class="menuItem selected" href="/">
               <i class="fas fa-home text-white text-xl"></i>
@@ -66,7 +63,6 @@
           </a>
       </div>
 
-      <!--Main content(stream,chat etc.)-->
       <div class="mainContent w-full h-full flex items-center justify-center">
     <div class="container mx-auto p-6">
         <button id="create-stream-btn" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 focus:outline-none">
@@ -92,13 +88,9 @@
 
 </section>
 
-<!--js-->
+<script src="{{ url_for('static',filename='scripts/script.js') }}"></script>
 
-<script src="{{ url_for('static',filename='scripts/script.js') }}">
-</script>
-
-<script src="{{ url_for('static', filename='scripts/dots.js') }}">
-</script>
+<script src="{{ url_for('static', filename='scripts/dots.js') }}"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -133,67 +125,66 @@ $(document).ready(function() {
 
     $('#create-stream-btn').click(function() {
         Swal.fire({
-    title: 'Create a Stream',
-    html: `
-        <input id="stream-name" class="swal2-input" placeholder="Stream Name">
-        <input id="stream-description" class="swal2-input" placeholder="Stream Description">
-    `,
-    showCancelButton: true,
-    confirmButtonText: 'Create Stream',
-    preConfirm: () => {
-        const streamName = $('#stream-name').val();
-        const streamDescription = $('#stream-description').val();
+            title: 'Create a Stream',
+            html: `
+                <input id="stream-name" class="swal2-input" placeholder="Stream Name">
+                <input id="stream-description" class="swal2-input" placeholder="Stream Description">
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Create Stream',
+            preConfirm: () => {
+                const streamName = $('#stream-name').val();
+                const streamDescription = $('#stream-description').val();
 
-        if (!streamName || !streamDescription) {
-            Swal.showValidationMessage('Both name and description are required');
-            return false;
-        }
+                if (!streamName || !streamDescription) {
+                    Swal.showValidationMessage('Both name and description are required');
+                    return false;
+                }
 
-        createStream(streamName, streamDescription);
-    },
-    customClass: {
-        container: 'swal2-container-dark',
-        popup: 'swal2-popup-dark',
-        title: 'swal2-title-dark',
-        htmlContainer: 'swal2-html-container-dark',
-        input: 'swal2-input-dark',
-        confirmButton: 'swal2-confirm-dark',
-        cancelButton: 'swal2-cancel-dark'
-    }
-});
+                createStream(streamName, streamDescription);
+            },
+            customClass: {
+                container: 'swal2-container-dark',
+                popup: 'swal2-popup-dark',
+                title: 'swal2-title-dark',
+                htmlContainer: 'swal2-html-container-dark',
+                input: 'swal2-input-dark',
+                confirmButton: 'swal2-confirm-dark',
+                cancelButton: 'swal2-cancel-dark'
+            }
+        });
 
-$('.swal2-popup-dark').css({
-    'background-color': '#2d2d2d',
-    'color': '#fff',
-    'border-radius': '10px'
-});
+        $('.swal2-popup-dark').css({
+            'background-color': '#2d2d2d',
+            'color': '#fff',
+            'border-radius': '10px'
+        });
 
-$('.swal2-input').css({
-    'background-color': '#4f4f4f',
-    'border': '1px solid #666',
-    'color': '#fff',
-    'border-radius': '5px',
-    'padding': '10px'
-});
+        $('.swal2-input').css({
+            'background-color': '#4f4f4f',
+            'border': '1px solid #666',
+            'color': '#fff',
+            'border-radius': '5px',
+            'padding': '10px'
+        });
 
-$('.swal2-confirm-dark').css({
-    'background-color': '#3182ce',
-    'border': 'none',
-    'color': '#fff',
-    'border-radius': '5px',
-    'padding': '10px 20px',
-    'cursor': 'pointer'
-});
+        $('.swal2-confirm-dark').css({
+            'background-color': '#3182ce',
+            'border': 'none',
+            'color': '#fff',
+            'border-radius': '5px',
+            'padding': '10px 20px',
+            'cursor': 'pointer'
+        });
 
-$('.swal2-cancel-dark').css({
-    'background-color': '#444',
-    'border': 'none',
-    'color': '#fff',
-    'border-radius': '5px',
-    'padding': '10px 20px',
-    'cursor': 'pointer'
-});
-
+        $('.swal2-cancel-dark').css({
+            'background-color': '#444',
+            'border': 'none',
+            'color': '#fff',
+            'border-radius': '5px',
+            'padding': '10px 20px',
+            'cursor': 'pointer'
+        });
     });
 
     $('#start-stream-btn').click(function() {
@@ -236,12 +227,18 @@ function createStream(streamName, streamDescription) {
 function startStreaming(streamId) {
     navigator.mediaDevices.getDisplayMedia({ video: true }).then(function(userStream) {
         streams[streamId] = userStream;
-        const videoTrack = userStream.getVideoTracks()[0];
+
         const videoElement = $('<video>').attr('autoplay', true).css('display', 'none').get(0);
         videoElement.srcObject = userStream;
-        $(videoElement).data('streamId', streamId);
+        $(videoElement).attr('data-stream-id', streamId);
+
         $('body').append(videoElement);
+
+        selectStream(streamId);
+
         captureAndSendFrames(streamId);
+    }).catch(function(error) {
+        console.error('Error accessing media devices.', error);
     });
 }
 
@@ -268,20 +265,33 @@ function selectStream(streamId) {
 
 function captureAndSendFrames(streamId) {
     const videoElement = $(`video[data-stream-id="${streamId}"]`)[0];
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
-    setInterval(function() {
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(function(blob) {
-            if (blob.size > 50000) {
-                compressAndSend(blob);
-            } else {
-                sendImage(blob);
-            }
-        }, 'image/jpeg', 0.7);
-    }, 16);
+
+    if (!videoElement) {
+        console.error("Video element not found for streamId: " + streamId);
+        return;
+    }
+
+    videoElement.onplaying = function () {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+
+        setInterval(function () {
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(function (blob) {
+                if (blob.size > 50000) {
+                    compressAndSend(blob);
+                } else {
+                    sendImage(blob);
+                }
+            }, 'image/jpeg', 0.7);
+        }, 16);
+    };
+
+    if (videoElement.readyState >= 3) {
+        videoElement.onplaying();
+    }
 }
 
 function compressAndSend(blob) {
@@ -312,7 +322,6 @@ function sendImage(blob) {
     formData.append('image', blob);
     fetch('/stream/sendimg', { method: 'POST', body: formData }).catch(console.error);
 }
-
 
 </script>
 
@@ -394,24 +403,18 @@ function sendImage(blob) {
 }
 
 #start-stream-btn, #stop-btn, #create-stream-btn {
-    background-color: #2d3748;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
+    background-color: #3182ce;
+    color: white;
     border-radius: 5px;
-    font-weight: bold;
+    padding: 10px 20px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 #start-stream-btn:hover, #stop-btn:hover, #create-stream-btn:hover {
-    background-color: #4a5568;
+    background-color: #2b6cb0;
 }
 
-    </style>
-
+</style>
 
 </body>
-
-
 </html>

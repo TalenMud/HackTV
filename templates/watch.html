@@ -120,79 +120,72 @@
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        const streamImage = document.getElementById('stream-image');
-        const streamStatus = document.getElementById('stream-status');
-        const adTitle = document.getElementById('ad-title');
-        const adImage = document.getElementById('ad-image');
-        const adLink = document.getElementById('ad-link');
-        const adButton = document.getElementById('ad-button');
-        
-        let streaming = false;
-        let streamImgURL = '';
+<script>
+    const streamImage = document.getElementById('stream-image');
+    const adTitle = document.getElementById('ad-title');
+    const adImage = document.getElementById('ad-image');
+    const adLink = document.getElementById('ad-link');
+    const adButton = document.getElementById('ad-button');
 
-        async function getAd() {
-            try {
-                const response = await fetch('/getad');
-                const ad = await response.json();
+    let streaming = false;
 
-                adTitle.textContent = ad.ad;
-                adImage.src = ad.image;
-                adLink.href = ad.url;
-                adButton.textContent = 'Learn More';
-                adButton.addEventListener("click", () => {
-                    window.open(adLink.href, "_blank");
-                });
-            } catch (error) {
-                console.error('Error fetching ad:', error);
-                adTitle.textContent = 'Failed to load ad';
-            }
+    async function getAd() {
+        try {
+            const response = await fetch('/getad');
+            const ad = await response.json();
+
+            adTitle.textContent = ad.ad;
+            adImage.src = ad.image;
+            adLink.href = ad.url;
+            adButton.textContent = 'Learn More';
+            adButton.addEventListener("click", () => {
+                window.open(adLink.href, "_blank");
+            });
+        } catch (error) {
+            console.error('Error fetching ad:', error);
+            adTitle.textContent = 'Failed to load ad';
         }
-        async function getImage() {
-            try {
-                const response = await fetch('/stream/getimg');
-                
-                if (response.text = "No Image Found") {
-                    streamStatus.classList.remove('hidden');
-                    streamImage.style.display = 'none';
-                    return;
-                }
+    }
 
-                const imgBlob = await response.blob();
-                const imgUrl = URL.createObjectURL(imgBlob);
-                streamImgURL = imgUrl;
+    async function getImage() {
+        try {
+            const response = await fetch('/stream/getimg');
+            const textResponse = await response.text();
 
-                if (streaming) {
-                    if (streamImage.src !== imgUrl) {
-                        streamImage.src = imgUrl;
-                    }
-                    streamImage.style.display = 'block';
-                    streamStatus.classList.add('hidden');
-                }
-            } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
-                streamStatus.classList.remove('hidden');
+            if (textResponse === "No Image Found") {
                 streamImage.style.display = 'none';
+                return;
             }
-        }
 
-        function startReceivingStream() {
-            streaming = true;
-            streamStatus.classList.add('hidden');
-            setInterval(getImage, 16); 
-        }
+            const imgBlob = await fetch('/stream/getimg').then(res => res.blob());  // Fetch the image again to get the blob
+            const imgUrl = URL.createObjectURL(imgBlob);
 
-        function stopReceivingStream() {
-            streaming = false;
+            if (streamImage.src !== imgUrl) {
+                streamImage.src = imgUrl;
+                streamImage.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
             streamImage.style.display = 'none';
-            streamStatus.classList.add('hidden');
         }
+    }
 
-        window.addEventListener('load', () => {
-            startReceivingStream();
-            getAd();
-        });
-    </script>
+    function startReceivingStream() {
+        streaming = true;
+        setInterval(getImage, 16);
+    }
+
+    function stopReceivingStream() {
+        streaming = false;
+        streamImage.style.display = 'none';
+    }
+
+    window.addEventListener('load', () => {
+        startReceivingStream();
+        getAd();
+    });
+</script>
+
 
 </body>
 </html>
