@@ -2,7 +2,9 @@
 
 We are making a platform for hack clubbers to show off the time and effort they are using to make their projects via livestreams!
 
-HackTV uses essentially a Flask API to run, and what's different about this streaming platform, is that all the content displayed, from livestreams to ads are Hack Club related ! Showcase YSWS projects or amazing work, HackTV is the place where Hackers meet and chill all together ! 
+HackTV uses essentially a Flask API to run, and what's different about this streaming platform, is that all the content displayed, from livestreams to ads are Hack Club related! Showcase YSWS projects or amazing work, HackTV is the place where Hackers meet and chill all together!
+
+Comes with hack club flavored ads :)
 
 ## Versions panel
 ### Version 1.0.?
