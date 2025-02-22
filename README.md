@@ -18,6 +18,7 @@
  - HTML5
  - JavaScript
 
+
 ## Installation
 1. **Prerequisites:**
      - PostgreSQL
