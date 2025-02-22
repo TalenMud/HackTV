@@ -29,9 +29,14 @@ def get_db_connection():
 @app.route('/index.html')
 def index():
     return redirect(url_for('home'))
-@app.route('/account')  
+
+@app.route('/settings')  
 def account():
-    return render_template("account.html") 
+    return render_template("settings.html") 
+
+@app.route('/history')  
+def history():
+    return render_template("history.html") 
 
 @app.route("/explore")
 def explore():

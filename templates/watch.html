@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-  <title>Watch the stream</title>
+        <title>Watch the stream</title>
+        <script src="https://cdn.tailwindcss.com"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
@@ -41,25 +41,25 @@
     <div class="flex flex-row justify-start w-full bg-[]">
       <!-- Sidebar -->
       <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
-          <div class="menuItem selected" onclick="window.location.href='/';">
+          <a class="menuItem" href="/">
               <i class="fas fa-home text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Home</span>
-          </div>
+          </a>
 
-          <div class="menuItem" onclick="window.location.href='/explore';">
+          <a class="menuItem selected" href="/explore">
               <i class="fas fa-compass text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Explore</span>
-          </div>
+          </a>
 
-          <div class="menuItem" onclick="window.location.href='/history';">
+          <a class="menuItem" href="/history">
               <i class="fas fa-clock-rotate-left text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">History</span>
-          </div>
+          </a>
 
-          <div class="menuItem" onclick="window.location.href='/settings';">
+          <a class="menuItem" href="/settings">
               <i class="fas fa-gear text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Settings</span>
-          </div>
+          </a>
       </div>
 
       <!--Main content(stream,chat etc.)-->
@@ -111,11 +111,9 @@
 
 <!--js-->
 
-<script src="scripts/script.js">
-</script>
+<script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script>
         const streamImage = document.getElementById('stream-image');
         const streamStatus = document.getElementById('stream-status');
@@ -144,26 +142,6 @@
                 adTitle.textContent = 'Failed to load ad';
             }
         }
-        let hamLogos=document.getElementsByClassName("hamDesign");
-    let toggleSidebar=false;
-    let menu=document.getElementById("menu");
-
-    Array.from(hamLogos).forEach((hamLogo)=>{
-        hamLogo.addEventListener("click",()=>{
-            toggleSidebar=hamLogo.classList.toggle("clicked");
-            if(toggleSidebar)
-            {
-                menu.style.top="-100rem";
-                menu.style.width = 0;
-            }
-            else
-            {
-                menu.style.top=0;
-                menu.style.width = "auto";
-            }
-            
-        });
-    });
         async function getImage() {
             try {
                 const response = await fetch('/stream/getimg');
