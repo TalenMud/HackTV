@@ -51,6 +51,8 @@ ALLOWED_SLACK_IDS=user_slack_ids
 flask run --port 5000
 ```
 
+## File heirarchy
+
 ```heirarchy
 hacktv/
 ├── static/
