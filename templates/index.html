@@ -45,10 +45,10 @@
               <span class="text-white text-lg font-[Varela]">Home</span>
           </div>
 
-          <div class="menuItem">
+          <a class="menuItem" href="/explore">
               <i class="fas fa-compass text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Explore</span>
-          </div>
+          </a>
 
           <div class="menuItem">
               <i class="fas fa-clock-rotate-left text-white text-xl"></i>
@@ -76,84 +76,93 @@
 </script>
 
 <script>
-const cardsContainer = document.getElementById('cards-container');
-const searchButton = document.getElementById('searchbutton');
-const searchQuery = document.getElementById('searchbox');
-
-        searchButton.addEventListener('click', () => {
+    const cardsContainer = document.getElementById('cards-container');
+    const searchButton = document.getElementById('searchbutton');
+    const searchQuery = document.getElementById('searchbox');
+    
+    searchButton.addEventListener('click', () => {
+        const query = searchQuery.value.trim();
+        if (query) {
+            window.location.href = `/search/${query}`;
+        }
+    });
+    
+    searchQuery.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
             const query = searchQuery.value.trim();
             if (query) {
                 window.location.href = `/search/${query}`;
             }
+        }
+    });
+    
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = (c === 'x' ? r : (r & 0x3 | 0x8));
+            return v.toString(16);
         });
-
-        searchQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchQuery.value.trim();
-                if (query) {
-                    window.location.href = `/search/${query}`;
-                }
-            }
+    }
+    
+    function fetchActiveStreams() {
+        fetch('/activestreams')
+            .then(response => response.json())
+            .then(data => {
+                const streams = data.streams;
+                createCards(streams);
+            })
+            .catch(err => console.error('Error fetching active streams:', err));
+    }
+    
+    function createCards(streams) {
+        if (streams.length === 0) {
+            const noStreamsMessage = document.createElement('div');
+            noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+            noStreamsMessage.textContent = "No active streams available at the moment.";
+            cardsContainer.appendChild(noStreamsMessage);
+            return;
+        }
+    
+        streams.forEach(stream => {
+            const { name, description } = stream;
+    
+            const card = document.createElement('div');
+            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
+    
+            const randomUUID = generateUUID();
+    
+            card.addEventListener('click', () => {
+                window.location.href = `/watch/${randomUUID}`;
+            });
+    
+            const image = document.createElement('img');
+            image.src = "https://placehold.co/300x200/EEE/31343C";
+            image.alt = "Card Image";
+            image.classList.add('w-full', 'h-48', 'object-cover');
+    
+            const textContainer = document.createElement('div');
+            textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
+    
+            const titleElement = document.createElement('h3');
+            titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
+            titleElement.textContent = name;
+    
+            const descriptionElement = document.createElement('p');
+            descriptionElement.classList.add('text-sm', 'text-gray-600');
+            descriptionElement.textContent = description || "No description available";
+    
+            textContainer.appendChild(titleElement);
+            textContainer.appendChild(descriptionElement);
+            card.appendChild(image);
+            card.appendChild(textContainer);
+    
+            cardsContainer.appendChild(card);
         });
-
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0;
-                const v = (c === 'x' ? r : (r & 0x3 | 0x8));
-                return v.toString(16);
-            });
-        }
-
-        function fetchActiveStreams() {
-            fetch('/activestreams')
-                .then(response => response.text())
-                .then(data => {
-                    const streamTitles = data.split(":");
-                    createCards(streamTitles);
-                })
-                .catch(err => console.error('Error fetching active streams:', err));
-        }
-
-        function createCards(streams) {
-            streams.forEach(stream => {
-                const [title, description] = stream.split('.', 2);  
-
-                const card = document.createElement('div');
-                card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
-                
-                const randomUUID = generateUUID();
-
-                card.addEventListener('click', () => {
-                    window.location.href = `/watch/${randomUUID}`;
-                });
-
-                const image = document.createElement('img');
-                image.src = "https://placehold.co/300x200/EEE/31343C";
-                image.alt = "Card Image";
-                image.classList.add('w-full', 'h-48', 'object-cover');
-                
-                const textContainer = document.createElement('div');
-                textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
-
-                const titleElement = document.createElement('h3');
-                titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
-                titleElement.textContent = title;
-                
-                const descriptionElement = document.createElement('p');
-                descriptionElement.classList.add('text-sm', 'text-gray-600');
-                descriptionElement.textContent = description || "No description available"; 
-
-                textContainer.appendChild(titleElement);
-                textContainer.appendChild(descriptionElement);
-                card.appendChild(image);
-                card.appendChild(textContainer);
-                
-                cardsContainer.appendChild(card);
-            });
-        }
-
-        fetchActiveStreams(); 
+    }
+    
+    fetchActiveStreams();
     </script>
+    
 
 </body>
 

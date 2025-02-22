@@ -57,6 +57,15 @@
         const noResultsMessage = document.getElementById('no-results');
 
         let cardData = [];
+        function getActiveStreams() {
+            fetch('/activestreams')
+                .then(response => response.json())
+                .then(data => {
+                    const streams = data.streams;
+                    createCards(streams);
+                })
+                .catch(err => console.error('Error fetching active streams:', err));
+         }
 
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -66,18 +75,8 @@
             });
         }
 
-        function getActiveStreams(query = '') {
-            const data = "Test.Test:Test2.Test"; 
-            cardData = data.split('.');
-
-            cardData = Array.from(new Set(cardData));
-            
-            if (query) {
-                cardData = cardData.filter(data => data.toLowerCase().includes(query.toLowerCase()));
-            }
-
-            createCards();
-        }
+          
+    
 
         function createCards() {
             cardsContainer.innerHTML = '';

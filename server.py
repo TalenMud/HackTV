@@ -33,7 +33,7 @@ def account():
 
 @app.route("/explore")
 def explore():
-    return send_file("explore.html")
+    return render_template("explore.html")
 
 @app.route("/stream")
 def streams():
