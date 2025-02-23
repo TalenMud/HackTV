@@ -1,11 +1,71 @@
 {% extends 'base.html' %}
-{% block title %}HackTV - Explore{% endblock %}
+{% block title %}HackTV - Create Stream{% endblock %}
+
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">homeContainer</div>
+{% endblock %}
 
 {% block content%}
-    <div class="container mx-auto p-6">
-        <button id="create-stream-btn" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 focus:outline-none">
-            Create Stream
+    <div class="container relative top-[20vh] mx-auto h-full p-6 flex flex-col justify-center items-center">
+
+      <!--Stream form-->
+      <form class="flex flex-col items-center justify-center">
+
+            <h1 class="font-[Silkscreen] text-3xl underline text-white mb-4">Create Stream</h1>
+
+  <label class="m-4 flex items-center font-[Varela]">
+    Stream Title<span class="text-red-400">*</span>:
+    <input type="text" name="stream-title" class="mx-4 inpt w-[20rem] h-[2.5rem]" placeholder="For ex. 'Let's make a keyboard together!'" required>
+  </label>
+
+  <label class="m-4 flex items-center font-[Varela]">
+      Stream Description:
+      <textarea type="text" name="stream-desc" class="mx-4 pt-2 inpt w-[20rem] h-[10rem]" placeholder="For ex. 'In this stream I plan to teach others how to make a keyboard from scratch!' "></textarea>
+    </label>
+
+  <label class="m-4 flex items-center font-[Varela]">
+      Stream Thumbnail<span class="text-red-400">*</span>:
+      <input type="file" name="stream-thumb" class="mx-4 " required></input>
+    </label>
+        
+    <button type="submit" id="create-stream-btn" class="flex items-center justify-center font-[Varela] m-4 activeButton text-white w-[10rem] h-[4rem]">
+          Start <svg fill="#ffffff" style="margin-left:1rem;" width="2rem" height="2rem" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Stream_On" data-name="Stream On"> <g> <path d="M6.26,19.089A9.625,9.625,0,0,1,6.234,4.911C6.709,4.475,6,3.769,5.527,4.2A10.516,10.516,0,0,0,5.553,19.8c.475.433,1.184-.273.707-.707Z"></path> <path d="M8.84,15.706a5.024,5.024,0,0,1-.014-7.412c.474-.437-.234-1.143-.707-.707a6.028,6.028,0,0,0,.014,8.826c.474.434,1.183-.272.707-.707Z"></path> <circle cx="12" cy="12" r="1.244"></circle> <path d="M17.74,4.911a9.625,9.625,0,0,1,.026,14.178c-.475.436.234,1.142.707.707A10.516,10.516,0,0,0,18.447,4.2c-.475-.433-1.184.273-.707.707Z"></path> <path d="M15.16,8.294a5.024,5.024,0,0,1,.014,7.412c-.474.437.234,1.143.707.707a6.028,6.028,0,0,0-.014-8.826c-.474-.434-1.183.272-.707.707Z"></path> </g> </g> </g></svg>
+      </button>
+      </form>
+
+      <!--Video upload form-->
+
+            <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
+
+      <form class="flex flex-col items-center justify-center">
+
+            <h1 class="font-[Silkscreen] text-3xl underline text-white mb-4">Upload Video</h1>
+
+  <label class="m-4 flex items-center font-[Varela]">
+    Video Title<span class="text-red-400">*</span>:
+    <input type="stream-title" name="stream-title" class="mx-4 inpt w-[20rem] h-[2.5rem]" placeholder="For ex. 'Made a content streaming website!'" required>
+  </label>
+
+  <label class="m-4 flex items-center font-[Varela]">
+      Video Description:
+      <textarea type="stream-title" name="stream-title" class="pt-2 mx-4 inpt w-[20rem] h-[10rem]" placeholder="For ex. 'This project is basically a media streaming website for hackclub, people can upload their project videos and more, along with live streams! Somewhat like FOSS youtube but for Hackclub:)'"></textarea>
+    </label>
+
+  <label class="m-4 flex items-center font-[Varela]">
+      Video<span class="text-red-400">*</span>:
+      <input type="file" name="stream-thumb" class="mx-4 " required></input>
+    </label>
+
+  <label class="m-4 flex items-center font-[Varela]">
+      Video Thumbnail<span class="text-red-400">*</span>:
+      <input type="file" name="stream-thumb" class="mx-4 " required></input>
+    </label>
+        
+      <button id="create-video-btn" class="flex flex-row items-center justify-center m-4 activeButton text-white w-[10rem] h-[4rem] font-[Varela]">
+            Upload Video <svg viewBox="0 0 24 24" width="2rem" height="2rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12 16V3M12 3L16 7.375M12 3L8 7.375" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
         </button>
+      </form>
+
 
         <div id="stream-tabs" class="mt-4 flex space-x-4"></div>
 
@@ -257,94 +317,94 @@ function sendImage(blob) {
 
 </script>
 
-<style>
-      body {
-    background-color: #121212;
-    color: #e0e0e0;
-}
-
-.swal2-input {
-    background-color: #333;
-    color: #e0e0e0;
-    border: 1px solid #555;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-}
-
-.swal2-confirm {
-    background-color: #3182ce;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.swal2-cancel {
-    background-color: #888;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.swal2-confirm:hover {
-    background-color: #2b6cb0;
-}
-
-.swal2-cancel:hover {
-    background-color: #666;
-}
-
-#stream-tabs {
-    background-color: #1e1e1e;
-    border-radius: 5px;
-    padding: 10px;
-}
-
-.chrome-tab {
-    background-color: #333;
-    color: #e0e0e0;
-    padding: 12px 20px;
-    margin: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    border: 1px solid #555;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.chrome-tab.selected {
-    background-color: #3182ce;
-    color: white;
-    border-color: #3182ce;
-}
-
-.chrome-tab:hover {
-    background-color: #444;
-}
-
-.chrome-tab:focus {
-    outline: none;
-}
-
-#start-stream-btn, #stop-btn, #create-stream-btn {
-    background-color: #3182ce;
-    color: white;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-#start-stream-btn:hover, #stop-btn:hover, #create-stream-btn:hover {
-    background-color: #2b6cb0;
-}
+<!--<style>-->
+<!--      body {-->
+<!--    background-color: #121212;-->
+<!--    color: #e0e0e0;-->
+<!--}-->
+<!---->
+<!--.swal2-input {-->
+<!--    background-color: #333;-->
+<!--    color: #e0e0e0;-->
+<!--    border: 1px solid #555;-->
+<!--    padding: 10px;-->
+<!--    margin: 5px 0;-->
+<!--    border-radius: 5px;-->
+<!--}-->
+<!---->
+<!--.swal2-confirm {-->
+<!--    background-color: #3182ce;-->
+<!--    color: #ffffff;-->
+<!--    border: none;-->
+<!--    padding: 10px 20px;-->
+<!--    border-radius: 5px;-->
+<!--    font-weight: bold;-->
+<!--    cursor: pointer;-->
+<!--    transition: background-color 0.3s ease;-->
+<!--}-->
+<!---->
+<!--.swal2-cancel {-->
+<!--    background-color: #888;-->
+<!--    color: #ffffff;-->
+<!--    border: none;-->
+<!--    padding: 10px 20px;-->
+<!--    border-radius: 5px;-->
+<!--    font-weight: bold;-->
+<!--    cursor: pointer;-->
+<!--    transition: background-color 0.3s ease;-->
+<!--}-->
+<!---->
+<!--.swal2-confirm:hover {-->
+<!--    background-color: #2b6cb0;-->
+<!--}-->
+<!---->
+<!--.swal2-cancel:hover {-->
+<!--    background-color: #666;-->
+<!--}-->
+<!---->
+<!-- #stream-tabs {-->
+<!--    background-color: #1e1e1e;-->
+<!--    border-radius: 5px;-->
+<!--    padding: 10px;-->
+<!--}-->
+<!---->
+<!--.chrome-tab {-->
+<!--    background-color: #333;-->
+<!--    color: #e0e0e0;-->
+<!--    padding: 12px 20px;-->
+<!--    margin: 5px 10px;-->
+<!--    border-radius: 5px;-->
+<!--    cursor: pointer;-->
+<!--    border: 1px solid #555;-->
+<!--    font-weight: bold;-->
+<!--    transition: all 0.3s ease;-->
+<!--}-->
+<!---->
+<!--.chrome-tab.selected {-->
+<!--    background-color: #3182ce;-->
+<!--    color: white;-->
+<!--    border-color: #3182ce;-->
+<!--}-->
+<!---->
+<!--.chrome-tab:hover {-->
+<!--    background-color: #444;-->
+<!--}-->
+<!---->
+<!--.chrome-tab:focus {-->
+<!--    outline: none;-->
+<!--}-->
+<!---->
+<!-- #start-stream-btn, #stop-btn, #create-stream-btn {-->
+<!--    background-color: #3182ce;-->
+<!--    color: white;-->
+<!--    border-radius: 5px;-->
+<!--    padding: 10px 20px;-->
+<!--    cursor: pointer;-->
+<!--}-->
+<!---->
+<!-- #start-stream-btn:hover, #stop-btn:hover, #create-stream-btn:hover {-->
+<!--    background-color: #2b6cb0;-->
+<!--}-->
 
 </style>
 

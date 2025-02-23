@@ -1,5 +1,6 @@
 *{
     color:white;
+    scroll-behavior: smooth;
 }
 /* Logo part */
 .dot{
@@ -94,10 +95,8 @@
     border-radius:1rem;
 }
 .activeButton:hover{
-    color: rgba(148, 70, 252, 0.5);
     box-shadow: 0 5px 30px rgba(148, 70, 252, .4);
 }
-
 /*Main content*/
 .mainContent{
   flex-grow:1;
@@ -243,3 +242,32 @@ input[type="checkbox"]:checked {
   border:1px solid #9546FC;
 }
 
+/*Scrollbar*/
+
+.mainContent::-webkit-scrollbar {
+    width: 10px; 
+}
+
+.mainContent::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 1rem;
+}
+
+.mainContent::-webkit-scrollbar-thumb {
+    background: #9546FC; 
+    border-radius: 1rem;
+}
+
+.mainContent::-webkit-scrollbar-thumb:hover {
+    background: #2a0d4f;
+}
+
+.mainContent::-webkit-scrollbar-button {
+    display: none;
+}
+
+.mainContent {
+    scrollbar-width: thin; 
+    scrollbar-color: #9546FC rgba(0,0,0,0.4); 
+    scrollbar-border-radius: 1rem;
+}
