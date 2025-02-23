@@ -13,6 +13,10 @@
     </head>
 
 <body class="bg-black text-white font-[Jura]">
+      <!--Loading screen-->
+      <div id="loader"> 
+        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
+    </div>
 
       <!--for the dots background-->
       <div id="background"></div>
@@ -117,6 +121,9 @@
 <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
 
 <script src="{{ url_for('static', filename='scripts/dots.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/loading.js') }}">
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

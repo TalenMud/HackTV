@@ -12,6 +12,11 @@
     </head>
 
     <body>
+
+      <!--Loading screen-->
+      <div id="loader"> 
+        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
+    </div>
       <!--for the dots background-->
       <div id="background"></div>
 
@@ -80,6 +85,10 @@
 <script src="{{ url_for('static', filename='scripts/script.js') }}">
 </script>
 
+<script src="{{ url_for('static', filename='scripts/loading.js') }}">
+</script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='scripts/dots.js') }}">
 </script>
 
@@ -169,6 +178,7 @@
     }
     
     fetchActiveStreams();
+
     </script>
     
 

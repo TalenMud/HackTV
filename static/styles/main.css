@@ -187,3 +187,29 @@
 .glow{
   background-color: #9546fc;
 }
+
+/*Loading screen*/
+#loader {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+	position: absolute;
+	z-index: 100000;
+	background-color:#110A10;
+	width: 100svw;
+	height: 100svh;
+	color:white;
+	transition: 0.5s all linear;
+	overflow: hidden;
+}
+
+#loader img{
+  padding:1rem;
+  z-index:100001;
+}
+
+#loader.hidden {
+  opacity: 0;
+  overflow: visible;
+}
+

@@ -30,6 +30,10 @@
 
 <body class="bg-black">
 
+      <!--Loading screen-->
+      <div id="loader"> 
+        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
+    </div>
       <div id="background"></div>
 <section class="h-[100vh] w-[100vw]">
     <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
@@ -152,6 +156,7 @@
 
 <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/dots.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/loading.js') }}"></script>
 
 
 <script>

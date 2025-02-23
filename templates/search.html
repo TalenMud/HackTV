@@ -13,6 +13,11 @@
 </head>
 
 <body class="bg-black">
+
+      <!--Loading screen-->
+      <div id="loader"> 
+        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
+    </div>
     <div id="background"></div>
 
     <section class="h-[100vh] w-[100vw]">
@@ -79,6 +84,7 @@
 
     <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/dots.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/loading.js') }}"></script>
 
     <script>
         const searchButton = document.getElementById('searchbutton');
