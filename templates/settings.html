@@ -14,34 +14,34 @@
             <h3 class="font-[Silkscreen] text-2xl text-white mb-4 underline">Preferences</h3>
             <div class="flex flex-col justify-center items-center w-full h-auto p-4" id="preferences">
               <div class="flex flex-row jusitify-center items-center">
-              <p class="text-white text-lg font-[Varela]">Disable Background dots</p>
-                <label class="switch">
-                  <input type="checkbox" checked="true">
+                
+                <label class="switch text-white text-lg font-[Varela]">Background dots <span class="status-feature">enabled</span>
+                  <input type="checkbox" class="checkbox" checked="true">
                   <span class="slider"></span>
                 </label>
               </div>
 
               <div class="flex flex-row jusitify-center items-center">
-              <p class="text-white text-lg font-[Varela]">Disable dot animation</p>
-                <label class="switch">
-                  <input type="checkbox" checked="true">
+                
+                <label class="switch text-white text-lg font-[Varela]">Dot animation <span class="status-feature">enabled</span>
+                  <input type="checkbox" class="checkbox" checked="true">
                   <span class="slider"></span>
                 </label>
               </div>
 
               <div class="flex flex-row jusitify-center items-center">
-                <p class="text-white text-lg font-[Varela]">Disable ads<span class="text-[#555555]"> (Hey! they are fun!)</span></p>
-                <label class="switch">
-                  <input type="checkbox" checked="true">
+                
+                <label class="switch text-white text-lg font-[Varela]">Ads <span class="status-feature">enabled</span> <span class="text-[#555555]"> (Hey! they are fun!)</span>
+                  <input type="checkbox" class="checkbox" checked="true">
                   <span class="slider"></span>
                 </label>
               </div>
 
 
               <div class="flex flex-row jusitify-center items-center">
-              <p class="text-white text-lg font-[Varela]">Disable Comments/Chats</p>
-                <label class="switch">
-                  <input type="checkbox" checked="true">
+                
+                <label class="switch text-white text-lg font-[Varela]">Comments/Chats <span class="status-feature">enabled</span>
+                  <input type="checkbox" class="checkbox" checked="true">
                   <span class="slider"></span>
                 </label>
               </div>
@@ -51,9 +51,10 @@
             <h3 class="font-[Silkscreen] text-2xl text-white mb-4 underline">Visibility</h3>
             <div class="flex flex-col justify-center items-center w-full h-auto p-4" id="visibility">
               <div class="flex flex-row jusitify-center items-center">
-              <p class="text-white text-lg font-[Varela]">Anonymous commenting</p>
-                <label class="switch">
-                  <input type="checkbox">
+
+                
+                <label class="switch text-white text-lg font-[Varela]">Anonymous commenting
+                  <input type="checkbox" class="checkbox">
                   <span class="slider"></span>
                 </label>
               </div>
@@ -64,21 +65,13 @@
 
 {% block script%}
 <script>
-    /* not done yet I need to change things... */
-    // const labelSettings = document.querySelectorAll(".switch")
-    // // console.log(labelSettings[])
-
-    // document.querySelectorAll("input[type='checkbox']").forEach(element => {
-    //   element.addEventListener("input", () => {
-    //   for (let element of labelSettings) {
-    //   console.log(element.parentNode.innerText)
-    //   if (!element.childNodes[1].checked) {
-    //     element.parentNode.innerText.replace(/\b(Enable|Disable)\b/g, (match) => {
-    //         return match === "Enable" ? "Disable" : "Enable"
-    //     })
-    //   }
-    // }
-    // })
-    // });
+    const labelSettings = document.querySelectorAll(".switch")
+    labelSettings.forEach(element => {
+      if (element.innerHTML.includes("enabled") || element.innerHTML.includes("disabled")){  
+        element.querySelector("input").addEventListener("input", () => {
+          element.querySelector(".status-feature").innerText = {"true": "enabled", "false": "disabled"}[element.querySelector("input").checked]
+        })
+      }
+    });
 </script>
 {% endblock %}
