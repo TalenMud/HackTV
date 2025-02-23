@@ -1,52 +1,59 @@
 import os
 from dotenv import load_dotenv
 import psycopg2
-from psycopg2 import sql
 
 load_dotenv()
 
 database_url = os.getenv('DATABASE_URL')
 
-conn = psycopg2.connect(database_url)
-cur = conn.cursor()
+try:
+    conn = psycopg2.connect(database_url)
+    cur = conn.cursor()
 
-create_users_table = """
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    slack_id VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(100) NOT NULL, 
-    email VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    settings JSONB DEFAULT '{"ads_enabled": true}'
-);
-"""
+    create_users_table = """
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        slack_id VARCHAR(50) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL, 
+        email VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        settings JSONB DEFAULT '{"ads_enabled": true}'
+    );
+    """
 
-create_streams_table = """
-CREATE TABLE IF NOT EXISTS streams (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT NOW(),
-    owner_id INT REFERENCES users(id),
-    likes INT DEFAULT 0,
-    dislikes INT DEFAULT 0
-);
-"""
+    create_streams_table = """
+    CREATE TABLE IF NOT EXISTS streams (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        owner_id INT REFERENCES users(id),
+        likes INT DEFAULT 0,
+        dislikes INT DEFAULT 0
+    );
+    """
 
-create_votes_table = """
-CREATE TABLE IF NOT EXISTS votes (
-    user_id INT REFERENCES users(id),
-    stream_id INT REFERENCES streams(id),
-    vote_type VARCHAR(7) CHECK (vote_type IN ('like', 'dislike')),
-    PRIMARY KEY (user_id, stream_id)
-);
-"""
+    create_votes_table = """
+    CREATE TABLE IF NOT EXISTS votes (
+        user_id INT REFERENCES users(id),
+        stream_id INT REFERENCES streams(id),
+        vote_type VARCHAR(7) CHECK (vote_type IN ('like', 'dislike')),
+        PRIMARY KEY (user_id, stream_id)
+    );
+    """
 
-cur.execute(create_users_table)
-cur.execute(create_streams_table)
-cur.execute(create_votes_table)
+    cur.execute(create_users_table)
+    cur.execute(create_streams_table)
+    cur.execute(create_votes_table)
 
-conn.commit()
+    conn.commit()
+    print("Tables created successfully!")
 
-cur.close()
-conn.close()
+except psycopg2.Error as e:
+    print(f"Error: {e}")
+
+finally:
+    if 'cur' in locals() and cur is not None:
+        cur.close()
+    if 'conn' in locals() and conn is not None:
+        conn.close()
