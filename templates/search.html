@@ -26,7 +26,7 @@
         const cardsContainer = document.getElementById('cards-container');
         const noResultsMessage = document.getElementById('no-results');
 
-        const searchResults = {{ results|tojson }};
+        const searchResults = "{{ results|tojson|safe }}";
         
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
