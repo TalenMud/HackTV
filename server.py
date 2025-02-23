@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import io
 import random
 import psycopg2
+import yaml
 
 load_dotenv()
 
@@ -15,8 +16,6 @@ SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
-
-
 
 #get psql connection
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -91,6 +90,38 @@ def explore():
 def streams():
     return render_template("stream.html")
 
+def fetch_ysws_ads():
+    try:
+        response = requests.get("https://ysws.hackclub.com/data.yml", timeout=5)
+        response.raise_for_status()
+        data = yaml.safe_load(response.content)
+
+        ads = []
+        #process limited time yswses
+        for entry in data.get('limitedTime', []):
+            if entry.get('status', '') == 'active':
+                ads.append({
+                    "ad": entry['name'],
+                    "description": entry['description'],
+                    "url": entry.get('website', '#'),
+                    "image": "https://hackclub.com/stickers/orpheus.png" #default image, there is no image url in the yaml :(
+                })
+
+        #process indefinite yswses
+        for entry in data.get('indefinite', []):
+            if entry.get('status', '') == 'active':
+                ads.append({
+                    "ad": entry['name'],
+                    "description": entry['description'],
+                    "url": entry.get('website', '#'),
+                    "image": "https://hackclub.com/stickers/orpheus.png" #default image
+                })
+
+        return ads
+    except Exception as e:
+        print(f"error fetching ysws data: {e}")
+        return None
+
 @app.route("/getad")
 def getad():
     #check if user has ads disabled
@@ -110,7 +141,11 @@ def getad():
             cur.close()
             conn.close()
 
-    ads = [  #idea: instead of putting all this here, we should get the active yswses from ysws.hackclub.com through api or if there is no api then just scrape the data ;)
+    #fetch ysws ads
+    ysws_ads = fetch_ysws_ads()
+
+    #use default ads if ysws ads in the yaml are not available
+    ads = ysws_ads if ysws_ads else [
         {"ad": "Put the you in CPU today", "image": "https://hackclub.com/stickers/inside.png", "url": "https://www.cpu.land"},
         {"ad": "A Game about Love & Graphing, Made By Hack Clubbers", "image": "https://sinerider.com/Assets/Images/loading-screen.png", "url": "https://sinerider.com/"},
         {"ad": "Free Linux VPS for Hack Club Members", "image": "https://hackclub.com/stickers/nest_hatched_smolpheus.png", "url": "https://hackclub.com/nest"},
