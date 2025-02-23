@@ -10,5 +10,6 @@ venv/
 #ignore system files
 .DS_Store
 Thumbs.db
+
 setup_db.py
 
