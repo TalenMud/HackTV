@@ -162,6 +162,21 @@
  transform: translateX(1.9em);
 }
 
+input[type="checkbox"] {
+  appearance: none;
+  border: 1px white solid;
+  padding: 2px;
+  border-radius: 2px;
+  width: 16px;
+  height: 16px;
+  margin: 0 1em;
+  transition: 200ms ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #993e8b;
+}
+
 /*Dots background*/
 #background{
   display: grid;
