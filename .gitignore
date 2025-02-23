@@ -11,3 +11,5 @@ venv/
 .DS_Store
 Thumbs.db
 setup_db.py
+rsa.pub
+rsa.pub.pub
