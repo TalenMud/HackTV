@@ -86,6 +86,10 @@ def history():
 def explore():
     return render_template("explore.html")
 
+@app.route("/feedback")
+def feedback():
+    return render_template("feedback.html")
+
 @app.route("/stream")
 def streams():
     return render_template("stream.html")
@@ -158,7 +162,7 @@ def getad():
         {"ad": "Juice: Code a game for 100 hours, get a steam grant, get a stipend to the event!", "image": "ADD ME PLEASE ADD ME I BEG YOU", "url": "https://juice.hackclub.com/"}, #incomplete
         {"ad": "Jungle: Code a game, recieve tokens to be spent on assets for your game!", "image": "PLEASE ADD ME I NEED TO BE ADDED PLEASE", "url": "uhh idfk tbh"} #incomplete
     ]
-    
+
     selected_ad = random.choice(ads)
     return selected_ad
 
@@ -258,6 +262,7 @@ def createstream(stream_name, stream_description):
     cur.close()
     conn.close()
     return "Stream created", 200
+
 @app.route("/search/<keywords>")
 def search(keywords):
     search_terms = keywords.split("+")

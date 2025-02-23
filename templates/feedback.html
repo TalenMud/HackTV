@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}HackTV - Feedback{% endblock %}
+
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">homeContainer</div>
+{% endblock %}
+
+{% block content%}
+      <div class="mainContent w-full h-full flex flex-col items-center justify-center">
+            <h1 class="font-[Silkscreen] text-3xl underline text-white mb-4">Feedback</h1>
+            <p class="font-[Varela] text-lg text-[#909090] mb-4 w-[50%] text-center">Please feel free to message, if there's anything which you don't like, or any new feature you want to request for! If you liked our project, let us know too 💖</p>
+
+<form action="https://formspree.io/f/mnnjynry" class="flex flex-col justify-center items-center" method="POST">
+  <label class="m-4">
+    Your Email<span class="text-red-400">*</span>:
+    <input type="email" name="email" class="mx-4 inpt w-[20rem] h-[2.5rem]" required>
+  </label>
+  <label class="m-4 flex justify-start">
+    Your Message<span class="text-red-400">*</span>:
+    <textarea name="message" class="inpt w-[20rem] mx-4 h-[5rem]" required></textarea>
+  </label>
+  <!-- your other form fields go here -->
+  <button type="submit" class="activeButton w-[8rem] h-[3rem] mt-4">
+                <span class="text-lg font-semibold p-2 flex items-center justify-center">Submit 󰒊</span></button>
+</form>
+      </div>
+{% endblock%}
+
+{% block script%}
+{% endblock %}
