@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, send_file, request, redirect, url_for, session, flash, render_template
+from flask import Flask, jsonify, send_file, request, redirect, url_for, session, flash, render_template
 from dotenv import load_dotenv
 import io
 import random
@@ -81,6 +81,9 @@ def account():
 @app.route('/history')  
 def history():
     return render_template("history.html") 
+@app.route('/beta/stream')  
+def newstream():
+    return render_template("newstream.html") 
 
 @app.route("/explore")
 def explore():
@@ -249,9 +252,14 @@ def create():
     else:
         return send_file("create.html")
 
-@app.route("/createstream/<stream_name>/<stream_description>", methods=['POST', 'GET'])
-def createstream(stream_name, stream_description):
-    """stores a new stream in psql"""
+@app.route("/createstream", methods=['POST'])
+def createstream():
+    stream_name = request.form.get('name')
+    stream_description = request.form.get('description')
+    
+    if not stream_name or not stream_description:
+        return jsonify({"success": False, "message": "Stream name and description are required."}), 400
+
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
@@ -261,7 +269,9 @@ def createstream(stream_name, stream_description):
     conn.commit()
     cur.close()
     conn.close()
-    return "Stream created", 200
+
+    return jsonify({"success": True, "message": "Stream created successfully!"}), 200
+
 
 @app.route("/search/<keywords>")
 def search(keywords):
@@ -301,8 +311,8 @@ def search(keywords):
     return render_template("search.html", search_keywords=keywords, results=results)
 
 @app.route("/watch/<stream_id>")
-def watch(stream_id):
-    return render_template("watch.html") #add custom stream id stuff later
+def watchold(stream_id):
+    return render_template("watch.html", stream_id=stream_id) #add custom stream id stuff later
 
 @app.route("/stream/<stream_id>")
 def stream(stream_id):
