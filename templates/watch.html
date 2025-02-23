@@ -1,74 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Watch</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <link rel="stylesheet" href="{{ url_for('static',filename='styles/main.css') }}">
-    </head>
+{% extends 'base.html' %}
+{% block title %}HackTV - Watch stream{% endblock %}
 
-<body class="bg-black text-white font-[Jura]">
-      <!--Loading screen-->
-      <div id="loader"> 
-        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
-    </div>
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">homeContainer</div>
+{% endblock %}
 
-      <!--for the dots background-->
-      <div id="background"></div>
-<section class="h-[100vh] w-[100vw] font-sans">
-    <!-- The navbar kinda thing -->
-    <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
-        <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-        <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer" onclick="window.location.href='/';">HackTV</span>
-        <div class="flex items-center justify-center ml-16">
-          <input type="text" id="searchbox" placeholder="Search" class="pl-4">
-          <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
-              <i class="fas fa-search text-white text-xl"></i>
-          </button>
-        </div>
-        <div class="ml-auto">
-          <a href="/login" class="flex items-center activeButton">
-                <div class="bg-[#2a0d4f] text-black p-1.5 px-2 rounded-lg">
-                    <span class="text-lg text-white font-semibold">⌘</span>
-                </div>
-                <span class="text-lg font-semibold p-2">  Login With Slack</span>
-            </a>
-        </div>
-    </div>
-
-    <div class="flex flex-row justify-start w-full bg-[]">
-      <!-- Sidebar -->
-      <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
-          <a class="menuItem" href="/">
-              <i class="fas fa-home text-white text-xl"></i>
-              <span class="text-white text-lg font-[Varela]">Home</span>
-          </a>
-
-          <a class="menuItem selected" href="/explore">
-              <i class="fas fa-compass text-white text-xl"></i>
-              <span class="text-white text-lg font-[Varela]">Explore</span>
-          </a>
-
-          <a class="menuItem" href="/history">
-              <i class="fas fa-clock-rotate-left text-white text-xl"></i>
-              <span class="text-white text-lg font-[Varela]">History</span>
-          </a>
-
-          <a class="menuItem" href="/settings">
-              <i class="fas fa-gear text-white text-xl"></i>
-              <span class="text-white text-lg font-[Varela]">Settings</span>
-          </a>
-      </div>
-
+{% block content%}
       <!--Main content(stream,chat etc.)-->
       <div class="mainContent w-full h-full flex items-center justify-center">
         <div id="watch-dashboard" class="mt-40 p-4">
@@ -109,24 +46,10 @@
           </div>
         </div>
     </div>
+{% endblock%}
 
-      </div>
+{% block script%}
 
-    </div>
-
-</section>
-
-<!--js-->
-
-<script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
-
-<script src="{{ url_for('static', filename='scripts/dots.js') }}">
-</script>
-
-<script src="{{ url_for('static', filename='scripts/loading.js') }}">
-</script>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const streamImage = document.getElementById('stream-image');
     const adTitle = document.getElementById('ad-title');
@@ -208,7 +131,4 @@
     });
 </script>
 
-
-
-</body>
-</html>
+{% endblock %}

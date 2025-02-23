@@ -1,133 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>History</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
-</head>
+{% extends 'base.html' %}
+{% block title %}HackTV - History{% endblock %}
 
-<body class="bg-black">
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">historyContainer</div>
+{% endblock %}
 
-      <!--Loading screen-->
-      <div id="loader"> 
-        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
-    </div>
-    <div id="background"></div>
-
-    <section class="h-[100vh] w-[100vw]">
-        <div class="p-4 pr-8 flex items-center bg-[#110A10] relative" style="z-index:1000;">
-            <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
-            <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer" onclick="window.location.href='index.html';">HackTV</span>
-
-            <div class="flex items-center justify-center ml-16">
-                <input type="text" id="searchbox" placeholder="Search" class="pl-4">
-                <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
-                    <i class="fas fa-search text-white text-xl"></i>
-                </button>
-            </div>
-
-            <div class="ml-auto">
-                <a href="/login" class="flex items-center activeButton">
-                    <div class="bg-[#2a0d4f] text-black p-1.5 px-2 rounded-lg">
-                        <span class="text-lg text-white font-semibold">⌘</span>
-                    </div>
-                    <span class="text-lg font-semibold p-2">Login With Slack</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="flex flex-row justify-start w-full bg-[]">
-            <div class="w-[9rem] relative hidden mt-8 lg:flex flex-col items-start ml-4 ml-0" id="menu">
-                <a class="menuItem" href="/">
-                    <i class="fas fa-home text-white text-xl"></i>
-                    <span class="text-white text-lg font-[Varela]">Home</span>
-                </a>
-
-                <a class="menuItem" href="/explore">
-                    <i class="fas fa-compass text-white text-xl"></i>
-                    <span class="text-white text-lg font-[Varela]">Explore</span>
-                </a>
-
-                <a class="menuItem selected" href="/history">
-                    <i class="fas fa-clock-rotate-left text-white text-xl"></i>
-                    <span class="text-white text-lg font-[Varela]">History</span>
-                </a>
-
-                <a class="menuItem" href="/settings">
-                    <i class="fas fa-gear text-white text-xl"></i>
-                    <span class="text-white text-lg font-[Varela]">Settings</span>
-                </a>
-            </div>
-
+{% block content%}
             <div class="flex flex-col items-center justify-center w-full h-full text-center mt-8">
                 <i class="fas fa-clock-rotate-left text-6xl text-white mb-4"></i>
                 <p class="text-white text-xl font-[Varela] mb-4">Your recently watched videos</p>
 
                 <ul class="w-full px-4 space-y-8" id="video-history-list"></ul>
             </div>
-        </div>
-    </section>
+{% endblock%}
 
-    <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
-    <script src="{{ url_for('static', filename='scripts/dots.js') }}"></script>
-<script src="{{ url_for('static', filename='scripts/loading.js') }}">
-</script>
+{% block script%}
 
-    <script>
-        const searchButton = document.getElementById('searchbutton');
-        const searchQuery = document.getElementById('searchbox');
-        const videoHistoryList = document.getElementById('video-history-list');
+<script>
 
-        searchButton.addEventListener('click', () => {
-            const query = searchQuery.value.trim();
-            if (query) {
-                window.location.href = `/search/${query}`;
-            }
-        });
+    function loadVideoHistory() {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
 
-        searchQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchQuery.value.trim();
-                if (query) {
-                    window.location.href = `/search/${query}`;
-                }
-            }
-        });
-
-        function loadVideoHistory() {
-            const history = JSON.parse(localStorage.getItem('history')) || [];
-
-            if (history.length === 0) {
-                videoHistoryList.innerHTML = '<li class="text-white">No videos in history.</li>';
-                return;
-            }
-
-            videoHistoryList.innerHTML = '';
-            history.forEach(video => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('bg-[#2a0d4f]', 'p-4', 'rounded-md', 'flex', 'items-center');
-                
-                const title = document.createElement('h3');
-                title.classList.add('text-lg', 'font-[Varela]', 'text-white');
-                title.textContent = video.id; 
-
-                listItem.appendChild(title);
-                videoHistoryList.appendChild(listItem);
-            });
+        if (history.length === 0) {
+            videoHistoryList.innerHTML = '<li class="text-white">No videos in history.</li>';
+            return;
         }
 
-        window.addEventListener('load', loadVideoHistory);
-    </script>
+        videoHistoryList.innerHTML = '';
+        history.forEach(video => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('bg-[#2a0d4f]', 'p-4', 'rounded-md', 'flex', 'items-center');
+            
+            const title = document.createElement('h3');
+            title.classList.add('text-lg', 'font-[Varela]', 'text-white');
+            title.textContent = video.id; 
 
-</body>
-</html>
+            listItem.appendChild(title);
+            videoHistoryList.appendChild(listItem);
+        });
+    }
+
+    window.addEventListener('load', loadVideoHistory);
+  </script>
+
+{% endblock %}
