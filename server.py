@@ -86,6 +86,10 @@ def history():
 def explore():
     return render_template("explore.html")
 
+@app.route("/feedback")
+def feedback():
+    return render_template("feedback.html")
+
 @app.route("/stream")
 def streams():
     return render_template("stream.html")

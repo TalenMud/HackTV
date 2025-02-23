@@ -228,3 +228,18 @@ input[type="checkbox"]:checked {
   overflow: visible;
 }
 
+/*Feedback*/
+.inpt{
+    font: "Jura",serif;
+    border: 1px solid #303030;
+    background-color: #121212;
+    transition:all 0.5s ease-in-out;
+    outline:none;
+    border-radius:0.5rem;
+    padding-left:1rem;
+}
+
+.inpt:focus{
+  border:1px solid #9546FC;
+}
+
