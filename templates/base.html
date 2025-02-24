@@ -9,6 +9,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
         <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
     </head>
 
@@ -16,7 +17,7 @@
 
       <!--Loading screen-->
       <div id="loader"> 
-        <img src="static/res/loading.svg" class="w-[7rem] h-[7rem]" />
+        <img src="{{ url_for('static',filename='res/loading.svg') }}" class="w-[7rem] h-[7rem]" />
     </div>
       <!--for the dots background-->
       <div id="background"></div>

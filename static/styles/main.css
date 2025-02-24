@@ -271,3 +271,26 @@ input[type="checkbox"]:checked {
     scrollbar-color: #9546FC rgba(0,0,0,0.4); 
     scrollbar-border-radius: 1rem;
 }
+
+/*Streaming page*/
+#comment-input{
+  border:none;
+  border-bottom:2px solid #2a0d4f;
+  background-color:transparent;
+  transition: all 0.5s ease-in-out;
+  outline:none;
+}
+#comment-input:focus{
+  border-bottom:2px solid #9546FC;
+}
+.reactButton svg,.reactButton p{
+  fill: #999999;
+  transition: all 0.3s ease;
+}
+.reactButton:hover svg{
+  fill: white;
+}
+.reactButton.clicked svg{
+  fill:#9546FC;
+}
+
