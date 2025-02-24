@@ -93,9 +93,16 @@ def explore():
 def feedback():
     return render_template("feedback.html")
 
-@app.route("/stream")
+@app.route("/stream",methods=["POST","GET"])
 def streams():
-    return render_template("stream.html")
+    if request.method=="POST":
+        title=request.form['stream-title']
+        description=request.form['stream-desc']
+        data={"title":title,"desc":description,"streamer":True}
+        return render_template("watch.html",data=data)
+
+    data={"title":None,"desc":None,"streamer":False}
+    return render_template("stream.html",data=data)
 
 def fetch_ysws_ads():
     try:
@@ -310,7 +317,7 @@ def search(keywords):
 
     return render_template("search.html", search_keywords=keywords, results=results)
 
-@app.route("/watch/<stream_id>")
+@app.route("/watch/<stream_id>",methods=["POST","GET"])
 def watchold(stream_id):
     return render_template("watch.html", stream_id=stream_id) #add custom stream id stuff later
 
