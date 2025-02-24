@@ -294,3 +294,23 @@ input[type="checkbox"]:checked {
   fill:#9546FC;
 }
 
+#createButton{
+  background-color:#2a0d4f;
+  border-radius:100%;
+  padding:1.5rem;
+  transition: all 0.3s ease;
+  margin-right:2rem;
+}
+
+#createButton svg{
+  transition: all 0.3s ease;
+}
+#createButton:hover{
+  background-color:#9546FC;
+  border-radius:100%;
+  padding:1.25rem;
+}
+#createButton:hover svg{
+  height:1.5rem;
+  width:1.5rem;
+}
