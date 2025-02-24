@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, send_file, request, redirect, url_for, session, flash, render_template
+from flask import Flask, jsonify, send_file, request, redirect, url_for, session, flash, render_template
 from dotenv import load_dotenv
 import io
 import random
@@ -322,21 +322,21 @@ def receive_image():
         return 'Image received', 200
     return 'No image found', 400
 
-@app.route("/activestreams")
-def activestreams():
+@app.route('/activestreams')
+def active_streams():
+    category_id = request.args.get('category_id')
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, name, description, likes, dislikes FROM streams")
-    streams = cur.fetchall()
+
+    if category_id:
+        cur.execute("SELECT streams.name, streams.description, streams.likes, streams.dislikes FROM streams WHERE category_id = %s", (category_id,))
+    else:
+        cur.execute("SELECT streams.name, streams.description, streams.likes, streams.dislikes FROM streams")
+
+    streams = [{"name": row[0], "description": row[1], "likes": row[2], "dislikes": row[3]} for row in cur.fetchall()]
     cur.close()
     conn.close()
-    return {"streams": [{
-        "id": row[0],
-        "name": row[1], 
-        "description": row[2],
-        "likes": row[3],
-        "dislikes": row[4]
-        } for row in streams]}
+    return jsonify({"streams": streams})
 
 @app.route('/stream/getimg', methods=['GET'])
 def get_image():
@@ -404,6 +404,19 @@ def get_votes(stream_id):
         cur.close()
         conn.close()
     
+
+
+
+
+@app.route('/categories')
+def get_categories():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM categories")
+    categories = [{"id": row[0], "name": row[1]} for row in cur.fetchall()]
+    cur.close()
+    conn.close()
+    return jsonify({"categories": categories})
 
 if __name__ == "__main__":
     app.run(debug=True)
