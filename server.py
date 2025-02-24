@@ -1,11 +1,13 @@
 import os
 import requests
-from flask import Flask, jsonify, send_file, request, redirect, url_for, session, flash, render_template
+from flask import Flask, jsonify, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
 from dotenv import load_dotenv
 import io
 import random
 import psycopg2
 import yaml
+import uuid
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -21,6 +23,11 @@ streams_data = "Test.Test:Test2.Test"
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
+
+#upload settings for videos
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads', 'videos')
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024 #1GB limit. for 100MB use 100 * 1024 * 1024
+ALLOWED_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
@@ -252,12 +259,70 @@ def logout():
     session.pop("user", None)
     return redirect(url_for("home"))
 
+def allowed_file(filename):
+    return '.' in filename and \
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route("/create", methods=['POST', 'GET'])
 def create():
     if request.method == 'POST':
-        pass
-    else:
-        return send_file("create.html")
+        #check if user is logged in
+        if 'user' not in session:
+            flash("Login to create streams", "error")
+            return redirect(url_for("login"))
+        
+        stream_name = request.form.get('stream_name')
+        stream_description = request.form.get('stream_description')
+        video_file = request.files.get('video')
+
+        if not all([stream_name, stream_description, video_file]):
+            flash('all fields are required', 'error')
+            return redirect(url_for('create'))
+        
+        if not allowed_file(video_file.filename):
+            flash('invalid file type', 'error')
+            return redirect(url_for('create'))
+        
+        #generate secure filename
+        filename = secure_filename(video_file.filename)
+        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+        save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+
+        #create upload directory if needed
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+        try:
+            video_file.save(save_path)
+        except Exception as e:
+            flash('error saving video', 'error')
+            return redirect(url_for('create'))
+        
+        #save video to db
+        conn = get_db_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                """INSERT INTO streams
+                (name, description, video_filename, likes, dislikes)
+                VALUES (%s, %s, %s, 0, 0)""",
+                (stream_name, stream_description, unique_filename)
+            )
+            conn.commit()
+        except psycopg2.Error as e:
+            flash('database error: could not create stream', 'error')
+            return redirect(url_for('create'))
+        finally:
+            cur.close()
+            conn.close()
+
+        flash('stream created successfully', 'success')
+        return redirect(url_for('home'))
+    
+    return send_file("create.html")
+
+@app.route('/videos/<filename>')
+def get_video(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route("/createstream", methods=['POST'])
 def createstream():
@@ -317,9 +382,28 @@ def search(keywords):
 
     return render_template("search.html", search_keywords=keywords, results=results)
 
-@app.route("/watch/<stream_id>",methods=["POST","GET"])
-def watchold(stream_id):
-    return render_template("watch.html", stream_id=stream_id) #add custom stream id stuff later
+@app.route("/watch/<int:stream_id>")
+def watch(stream_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT name, description, video_filename
+            FROM streams WHERE id = %s
+        """, (stream_id,))
+        stream_data = cur.fetchone()
+
+        if not stream_data:
+            return "Stream not found", 404
+        
+        return render_template("watch.html",
+            stream_name=stream_data[0],
+            description=stream_data[1],
+            video_url=url_for('get_video', filename=stream_data[2]))
+    
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route("/stream/<stream_id>")
 def stream(stream_id):
