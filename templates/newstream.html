@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerJS Media Streaming</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.6/dist/sweetalert2.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.24/dist/tailwind.min.css"></script>
+</head>
+<body class="bg-gray-800">
+
+  <div class="text-center mt-10">
+    <button id="start-streaming" class="bg-blue-500 text-white p-3 rounded-lg">Start Streaming</button>
+    <button id="view-stream" class="bg-green-500 text-white p-3 rounded-lg mt-5" style="display:none;">View Stream</button>
+    <br><br>
+    <span id="peer-id" class="text-white font-bold"></span>
+  </div>
+
+  <div id="video-container" class="flex justify-center mt-10">
+    <video id="local-video" autoplay muted class="w-1/3 h-auto rounded-lg"></video>
+    <video id="remote-video" autoplay class="w-1/3 h-auto rounded-lg hidden"></video>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('start-streaming');
+    const viewButton = document.getElementById('view-stream');
+    const peerIdSpan = document.getElementById('peer-id');
+    const localVideo = document.getElementById('local-video');
+    const remoteVideo = document.getElementById('remote-video');
+
+    let peer;
+    let localStream;
+    let call;
+
+    startButton.onclick = async function() {
+      try {
+        localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+
+        peer = new Peer();
+
+        peer.on('open', (id) => {
+          peerIdSpan.textContent = `My Peer ID: ${id}`;
+          startButton.style.display = 'none';
+          viewButton.style.display = 'inline-block';
+        });
+
+        peer.on('call', function(call) {
+          call.answer(localStream);
+          call.on('stream', function(remoteStream) {
+            remoteVideo.srcObject = remoteStream;
+            remoteVideo.style.display = 'block';
+          });
+        });
+      } catch (err) {
+        console.error("Error getting user media:", err);
+      }
+    };
+
+    viewButton.onclick = function() {
+      Swal.fire({
+        title: 'Enter Peer ID to view stream',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: 'Connect',
+        showLoaderOnConfirm: true,
+        preConfirm: (peerId) => {
+          const remotePeerId = peerId.trim();
+          if (remotePeerId) {
+            call = peer.call(remotePeerId, localStream);
+
+            call.on('stream', function(remoteStream) {
+              remoteVideo.srcObject = remoteStream;
+              remoteVideo.style.display = 'block';
+            });
+          } else {
+            Swal.showValidationMessage('Please enter a valid Peer ID');
+          }
+        },
+        allowOutsideClick: false
+      });
+    };
+  </script>
+</body>
+</html>
