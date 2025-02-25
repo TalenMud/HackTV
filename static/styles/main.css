@@ -314,3 +314,33 @@ input[type="checkbox"]:checked {
   height:1.5rem;
   width:1.5rem;
 }
+
+/* Form style elements */
+
+form * {
+  font-family: "Varela", serif ;
+}
+
+fieldset {
+  border: #909090 1px solid;
+  color: #909090;
+  border-radius: 8px;
+  padding: 8px;
+  background-color: #9546fc05;
+}
+fieldset legend {
+  margin-left: 2rem;
+  padding: 6px;
+}
+label {
+  display: flex;
+  justify-content: space-between;
+}
+
+textarea {
+  max-height: 8rem;
+  padding: 12px 0;
+}
+textarea::placeholder {
+  font-size: 0.9em;
+}
