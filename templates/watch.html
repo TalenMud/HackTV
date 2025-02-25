@@ -6,9 +6,12 @@
 {% endblock %}
 
 {% block content%}
+
       <!--Main content(stream,chat etc.)-->
-      <div class="mainContent w-full h-full flex items-center justify-center">
-        <div id="watch-dashboard" class="mt-40 p-4">
+
+      <!--Ad section-->
+      <div id="peer-id-display" class="text-white mt-4">Peer ID: <span id="peer-id">Not Available</span></div>
+
         <div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[15rem]">
             <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
             <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
@@ -19,17 +22,49 @@
                 Loading...
             </button>
         </div>
-        <div class="flex flex-col w-full items-center justify-center">
+        
+        <div class="ml-24 w-full p-8 flex flex-row">
 
-          <div class="relative overflow-hidden shadow-lg cursor-pointer text-center">
-              <img id="stream-image" class="rounded-lg w-96 h-128 mx-auto" alt="Stream Image" />
-              <p id="stream-status" class="text-white text-xl mt-2 hidden">The stream is currently on pause.</p>
-          </div>
+        <!--Video/Stream section-->
+        <div class="w-[75%] overflow-y-scroll">
+
+  <div id="video-container" class="h-[40rem] w-full flex justify-center">
+    <video id="local-video" autoplay muted class="w-full h-auto rounded-lg"></video>
+    <video id="remote-video" autoplay class="w-full h-auto rounded-lg hidden"></video>
+  </div>
+        <h1 class="font-[Silkscreen] text-3xl text-white m-4">{{ data.title }}</h1>
+        <div class="w-full h-[6rem] flex flex-row justify-evenly items-center">
+          <!--Like button-->
+          <button class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300 reactButton">
+<svg viewBox="0 0 24 24" width="3rem" height="3rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M15.0501 7.04419C15.4673 5.79254 14.5357 4.5 13.2163 4.5C12.5921 4.5 12.0062 4.80147 11.6434 5.30944L8.47155 9.75H5.85748L5.10748 10.5V18L5.85748 18.75H16.8211L19.1247 14.1428C19.8088 12.7747 19.5406 11.1224 18.4591 10.0408C17.7926 9.37439 16.8888 9 15.9463 9H14.3981L15.0501 7.04419ZM9.60751 10.7404L12.864 6.1813C12.9453 6.06753 13.0765 6 13.2163 6C13.5118 6 13.7205 6.28951 13.627 6.56984L12.317 10.5H15.9463C16.491 10.5 17.0133 10.7164 17.3984 11.1015C18.0235 11.7265 18.1784 12.6814 17.7831 13.472L15.8941 17.25H9.60751V10.7404ZM8.10751 17.25H6.60748V11.25H8.10751V17.25Z"></path> </g></svg>
+<p class="text-white font-[Varela] ">0 likes</p>
+          </button>
+
+          <!--Dislike button-->
+          <button class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300 reactButton">
+<svg viewBox="0 0 24 24" height="3rem" width="3rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M15.0501 16.9558C15.4673 18.2075 14.5357 19.5 13.2164 19.5C12.5921 19.5 12.0063 19.1985 11.6435 18.6906L8.47164 14.25L5.85761 14.25L5.10761 13.5L5.10761 6L5.85761 5.25L16.8211 5.25L19.1247 9.85722C19.8088 11.2253 19.5407 12.8776 18.4591 13.9592C17.7927 14.6256 16.8888 15 15.9463 15L14.3982 15L15.0501 16.9558ZM9.60761 13.2596L12.8641 17.8187C12.9453 17.9325 13.0765 18 13.2164 18C13.5119 18 13.7205 17.7105 13.6271 17.4302L12.317 13.5L15.9463 13.5C16.491 13.5 17.0133 13.2836 17.3984 12.8985C18.0235 12.2735 18.1784 11.3186 17.7831 10.528L15.8941 6.75L9.60761 6.75L9.60761 13.2596ZM8.10761 6.75L6.60761 6.75L6.60761 12.75L8.10761 12.75L8.10761 6.75Z"></path> </g></svg>
+<p class="text-white font-[Varela] ">0 dislikes</p>
+          </button>
+
+          <!--Share-->
+          <button class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300 reactButton">
+<svg viewBox="0 0 24 24" height="3rem" width="3rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z"></path> </g></svg>
+<p class="text-white font-[Varela] ">share</p>
+          </button>
+
+        </div>
+        <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
+        <p class="font-[Varela] text-xl text-[#777777] m-4">{{ data.desc }}
+
+        </p>
+        </div>
+
+        <!--Comment Section-->
 
           <div id="comment-section" class="p-4 mt-16">
               <div class="flex items-center mb-4">
-                  <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" class="commentInput bg-transparent p-2 w-full text-white" onkeyup="handleKeyUp(event)">
-                  <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendComment()">
+                  <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" onkeyup="handleKeyUp(event)">
+                  <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendcomment()">
                       <i class="fas fa-paper-plane text-xl"></i>
                   </button>
               </div>
@@ -45,13 +80,11 @@
               </div>
           </div>
         </div>
-    </div>
 {% endblock%}
 
 {% block script%}
 
 <script>
-    const streamImage = document.getElementById('stream-image');
     const adTitle = document.getElementById('ad-title');
     const adImage = document.getElementById('ad-image');
     const adLink = document.getElementById('ad-link');
@@ -77,38 +110,6 @@
         }
     }
 
-    async function getImage() {
-        try {
-            const response = await fetch('/stream/getimg');
-            const textResponse = await response.text();
-
-            if (textResponse === "No Image Found") {
-                streamImage.style.display = 'none';
-                return;
-            }
-
-            const imgBlob = await fetch('/stream/getimg').then(res => res.blob());
-            const imgUrl = URL.createObjectURL(imgBlob);
-
-            if (streamImage.src !== imgUrl) {
-                streamImage.src = imgUrl;
-                streamImage.style.display = 'block';
-            }
-        } catch (error) {
-            console.error('There was a problem with the fetch operation:', error);
-            streamImage.style.display = 'none';
-        }
-    }
-
-    function startReceivingStream() {
-        streaming = true;
-        setInterval(getImage, 16);
-    }
-
-    function stopReceivingStream() {
-        streaming = false;
-        streamImage.style.display = 'none';
-    }
 
     function addVideoToLocalStorage() {
         const videoId = crypto.randomUUID();
@@ -125,10 +126,58 @@
     }
 
     window.addEventListener('load', () => {
-        startReceivingStream();
         getAd();
         addVideoToLocalStorage();
     });
+
+    //Like/dislike/share button click
+    const btns=document.querySelectorAll(".reactButton");
+    btns.forEach((btn) =>{
+      btn.addEventListener("click",()=>{
+          btn.classList.toggle("clicked");
+      })
+    });
+    
+    // Starting video for the streamer
+    {% if data.streamer %}
+
+    const startButton = document.getElementById('start-streaming');
+    const viewButton = document.getElementById('view-stream');
+    const peerIdSpan = document.getElementById('peer-id');
+    const localVideo = document.getElementById('local-video');
+    const remoteVideo = document.getElementById('remote-video');
+
+    let peer;
+    let localStream;
+    let call;
+
+    async function startStream() {
+      try {
+        localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+
+        peer = new Peer();
+
+        peer.on('open', (id) => {
+          peerIdSpan.textContent = `${id}`;
+          startButton.style.display = 'none';
+          viewButton.style.display = 'inline-block';
+        });
+
+        peer.on('call', function(call) {
+          call.answer(localStream);
+          call.on('stream', function(remoteStream) {
+            remoteVideo.srcObject = remoteStream;
+            remoteVideo.style.display = 'block';
+          });
+        });
+      } catch (err) {
+        console.error("Error getting user media:", err);
+      }
+    }
+    
+    startStream();
+    {% endif %}
 </script>
 
 {% endblock %}
