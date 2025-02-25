@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--needed for progress bar to show up-->
+  <style>
+    #progressBar {
+      width: 100%;
+      background: #eee;
+      margin: 10px 0;
+      height: 20px;
+      border-radius: 5px;
+      overflow: hidden;
+      display: none;
+    }
+    #progressBarFill {
+      height: 100%;
+      width: 0;
+      background: #4caf50;
+      transition: width 0.3s ease;
+    }
+    #fileLink {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CDN reverse engineer :)</h1>
+  <input type="file" id="fileInput" />
+  <button id="uploadButton">Upload</button>
+  
+  <div id="progressBar">
+    <div id="progressBarFill"></div>
+  </div>
+  <div id="fileLink"></div>
+
+  <script>
+	// Should also implement a mp4 verification
+	var currentFile = null;
+  
+	// On page load, send a GET request to /register to obtain the userkey
+	window.addEventListener('load', function() {
+	  var xhr = new XMLHttpRequest();
+	  xhr.open('GET', 'https://anondrop.net/register', true);
+	  xhr.onload = function() {
+		if (xhr.status === 200) {
+		  var responseText = xhr.responseText;
+		  // Use a regex to extract the userkey from the returned script. This was terrible to  figure out
+		  var match = responseText.match(/localStorage\.setItem\(\s*['"]userkey['"]\s*,\s*['"]([^'"]+)['"]\s*\)/);
+		  if (match && match[1]) {
+			localStorage.setItem('userkey', match[1]);
+			console.log('Userkey stored: ' + match[1]);
+		  }
+		} else {
+		  console.error('Failed to load /register, status: ' + xhr.status);
+		}
+	  };
+	  xhr.send();
+	});
+  
+	// Start the file upload process
+	document.getElementById('uploadButton').addEventListener('click', function() {
+	  const fileInput = document.getElementById('fileInput');
+	  if (fileInput.files.length === 0) {
+		alert('Please select a file.');
+		return;
+	  }
+	  const file = fileInput.files[0];
+	  // Store the file for later use in making the final embed URL
+	  currentFile = file;
+	  handleFile(file);
+	});
+  
+	// Start the upload by calling /initiateupload to get a session hash
+	function handleFile(file) {
+	  document.getElementById('fileLink').innerHTML = '';
+	  document.getElementById('progressBar').style.display = 'block';
+	  document.getElementById('progressBarFill').style.width = '0%';
+  
+	  const xhr = new XMLHttpRequest();
+	  let userKey = localStorage.getItem('userkey'); // Required user key
+	  let url = 'https://anondrop.net/initiateupload?filename=' + encodeURIComponent(file.name);
+	  url += '&key=' + userKey;
+	  xhr.open('GET', url, true);
+	  xhr.onload = function() {
+		if (xhr.status === 200) {
+		  const sessionHash = xhr.responseText;
+		  uploadChunks(sessionHash, file);
+		} else {
+		  alert('Error initiating upload. Status code: ' + xhr.status);
+		}
+	  };
+	  xhr.send();
+	}
+  
+	// Split the file into chunks and upload each chunk. This is how AnonDrop does it
+	function uploadChunks(sessionHash, file) {
+	  const CHUNK_SIZE = 9 * 1024 * 1024; // 9 MB per chunk
+	  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+	  let chunkIndex = 0;
+  
+	  function uploadNextChunk() {
+		const start = chunkIndex * CHUNK_SIZE;
+		const end = Math.min(start + CHUNK_SIZE, file.size);
+		const chunk = file.slice(start, end);
+  
+		const formData = new FormData();
+		formData.append('file', chunk);
+		formData.append('session_hash', sessionHash);
+  
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', 'https://anondrop.net/uploadchunk?session_hash=' + sessionHash, true);
+		xhr.upload.onprogress = function(e) {
+		  if (e.lengthComputable) {
+			const progress = ((start + e.loaded) / file.size) * 100;
+			document.getElementById('progressBarFill').style.width = progress + '%';
+		  }
+		};
+		xhr.onload = function() {
+		  if (xhr.status === 200) {
+			chunkIndex++;
+			if (chunkIndex < totalChunks) {
+			  uploadNextChunk();
+			} else {
+			  endUpload(sessionHash);
+			}
+		  } else if (xhr.status === 502) {
+			// On a 502 error, retry uploading the same chunk
+			console.log('502 error occurred, retrying chunk upload...');
+			uploadNextChunk();
+		  } else {
+			alert('Error uploading chunk. Status code: ' + xhr.status);
+		  }
+		};
+		xhr.send(formData);
+	  }
+	  uploadNextChunk();
+	}
+  
+	// Finalize the upload by calling /endupload and display the file link
+	function endUpload(sessionHash) {
+	  const xhr = new XMLHttpRequest();
+	  xhr.open('GET', 'https://anondrop.net//endupload?session_hash=' + sessionHash, true);
+	  xhr.onload = function() {
+		if (xhr.status === 200) {
+		  // Do some jank stuff to extract the base URL from the response
+		  var response = xhr.responseText.trim();
+		  var tempDiv = document.createElement('div');
+		  tempDiv.innerHTML = response;
+		  var anchor = tempDiv.querySelector('a');
+		  var baseUrl;
+		  if (anchor) {
+			baseUrl = anchor.getAttribute('href');
+		  } else {
+			baseUrl = response;
+		  }
+		  // This is the full embed URL of the uploaded file, we can use this for videos
+		  const newUrl = baseUrl.replace("https://anondrop.net/", "https://anondrop.net/embed/") +
+						 "/" + encodeURIComponent(currentFile.name);
+		  console.log('File uploaded: ' + newUrl);
+		  document.getElementById('fileLink').innerHTML = 'File link: <a href="' + newUrl + '">' + newUrl + '</a>';
+		  document.getElementById('progressBar').style.display = 'none';
+		} else {
+		  alert('Error ending upload. Status code: ' + xhr.status);
+		}
+	  };
+	  xhr.send();
+	}
+  </script>  
+</body>
+</html>
