@@ -55,10 +55,12 @@ try:
     cur.execute(create_categories_table)
     cur.execute(create_votes_table)
 
-    # Alter the streams table
+    # Alter the streams table, adding likes disklies and category_id
     alter_streams_table = """
     ALTER TABLE streams
     ADD COLUMN IF NOT EXISTS category_id INT REFERENCES categories(id);
+    ADD COLUMN IF NOT EXISTS likes INT DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS dislikes INT DEFAULT 0;
     """
 
     cur.execute(alter_streams_table)
