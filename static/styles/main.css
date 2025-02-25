@@ -23,8 +23,10 @@
 /* Menu part */
 #menu{
     transition: all 0.8s ease;
-    padding-right:1rem;
+    padding-right:2rem;
+    border-right: 1px solid #202020;
 }
+
 .menuItem{
     display:flex;
     align-items:center;
@@ -343,4 +345,19 @@ textarea {
 }
 textarea::placeholder {
   font-size: 0.9em;
+}
+/*Create Stream page*/
+input[type=file]::file-selector-button {
+  margin-right: 20px;
+  border: none;
+  background: #2a0d4f;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+input[type=file]::file-selector-button:hover,input[type=file]::file-selector-button:focus{
+  background: #5e29a3
 }

@@ -326,8 +326,8 @@ def get_video(filename):
 
 @app.route("/createstream", methods=['POST'])
 def createstream():
-    stream_name = request.form.get('name')
-    stream_description = request.form.get('description')
+    stream_name = request.form.get('stream-title')
+    stream_description = request.form.get('stream-desc')
     
     if not stream_name or not stream_description:
         return jsonify({"success": False, "message": "Stream name and description are required."}), 400

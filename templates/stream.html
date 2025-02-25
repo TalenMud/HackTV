@@ -6,10 +6,10 @@
 {% endblock %}
 
 {% block content%}
-    <div class="container relative top-[20vh] mx-auto h-full p-6 flex flex-col justify-center items-center">
+    <div class="container relative top-[20vh] w-full h-full flex flex-col justify-center items-center">
 
       <!--Stream form-->
-      <form method="POST" id="stream-start-form" class="flex flex-col items-center justify-center">
+      <form method="POST" action="/createstream" id="stream-start-form" class="flex flex-col items-center justify-center">
 
             <h1 class="font-[Silkscreen] text-3xl underline text-white mb-4">Create Stream</h1>
 
@@ -25,7 +25,7 @@
 
   <label class="m-4 flex items-center font-[Varela]">
       Stream Thumbnail<span class="text-red-400">*</span>:
-      <input type="file" id="stream-thumb" name="stream-thumb" class="mx-4 "></input>
+      <input type="file" id="stream-thumb" value="browse" name="stream-thumb" class="mx-4 "></input>
     </label>
 
     <!--<button id="view-stream" class="bg-green-500 text-white p-3 rounded-lg mt-5 hidden">View Stream</button>-->
@@ -38,7 +38,7 @@
 
       <!--Video upload form-->
 
-            <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
+        <hr class="text-[#202020] bg-[#202020] border-2 border-[#202020] my-8" height="2px" width="100%">
 
       <form class="flex flex-col items-center justify-center">
 
