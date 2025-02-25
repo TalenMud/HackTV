@@ -405,9 +405,6 @@ def watch(stream_id):
         cur.close()
         conn.close()
 
-@app.route("/stream/<stream_id>")
-def stream(stream_id):
-    pass
 
 current_image = None
 
