@@ -21,6 +21,13 @@ try:
         settings JSONB DEFAULT '{"ads_enabled": true}'
     );
     """
+    create_categories_table = """
+    CREATE TABLE IF NOT EXISTS categories (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+    );
+    """
+
     create_streams_table = """
     CREATE TABLE IF NOT EXISTS streams (
         id SERIAL PRIMARY KEY,
@@ -34,7 +41,6 @@ try:
     );
     """
 
-
     create_votes_table = """
     CREATE TABLE IF NOT EXISTS votes (
         user_id INT REFERENCES users(id),
@@ -44,15 +50,9 @@ try:
     );
     """
 
-    create_categories_table = """
-    CREATE TABLE IF NOT EXISTS categories (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL
-    );
-    """
-
     cur.execute(create_users_table)
     cur.execute(create_categories_table)
+    cur.execute(create_streams_table) 
     cur.execute(create_votes_table)
 
     # Alter the streams table, adding likes disklies and category_id
@@ -65,7 +65,7 @@ try:
 
     cur.execute(alter_streams_table)
 
-    # Insert initial data (only categories)
+    # Insert data (only categories)
     insert_categories = """
     INSERT INTO categories (name) VALUES ('Gamedev'), ('3D Printing'), ('PCB'), ('YSWS');
     """
