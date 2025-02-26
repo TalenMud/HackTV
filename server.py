@@ -318,7 +318,7 @@ def create():
         flash('stream created successfully', 'success')
         return redirect(url_for('home'))
     
-    return send_file("create.html")
+    return render_template("create.html")
 
 @app.route('/videos/<filename>')
 def get_video(filename):
@@ -502,10 +502,6 @@ def get_votes(stream_id):
         cur.close()
         conn.close()
     
-
-
-
-
 @app.route('/categories')
 def get_categories():
     conn = get_db_connection()
