@@ -8,6 +8,8 @@ import psycopg2
 import yaml
 import uuid
 from werkzeug.utils import secure_filename
+import json
+from datetime import datetime
 
 load_dotenv()
 
@@ -19,18 +21,91 @@ SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
 
-#get psql connection
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
 
-#upload settings for videos
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads', 'videos')
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024 #1GB limit. for 100MB use 100 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}
+
+VIDEOS_JSON = 'videos.json'
+
+if not os.path.exists(VIDEOS_JSON):
+    with open(VIDEOS_JSON, 'w') as f:
+        json.dump([], f)
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
+@app.route('/create-video', methods=['POST'])
+def create_video():
+    if 'title' not in request.form or 'url' not in request.form:
+        flash('Missing required fields', 'error')
+        return redirect(url_for('create_video'))
+
+    title = request.form['title']
+    url = request.form['url']
+
+    video_id = str(uuid.uuid4())
+    video_data = {
+        'id': video_id,
+        'title': title,
+        'url': url,
+        'upload_date': datetime.now().isoformat()
+    }
+
+    with open(VIDEOS_JSON, 'r') as f:
+        videos = json.load(f)
+
+    videos.append(video_data)
+
+    with open(VIDEOS_JSON, 'w') as f:
+        json.dump(videos, f, indent=2)
+
+    flash('Video stream created successfully!', 'success')
+    return redirect(url_for('create_video'))
+
+
+@app.route('/get-videos', methods=['GET'])
+def get_videos():
+    try:
+        with open(VIDEOS_JSON, 'r') as f:
+            videos = json.load(f)
+        return jsonify({
+            'status': 'success',
+            'videos': videos
+        })
+    except FileNotFoundError:
+        return jsonify({
+            'status': 'success',
+            'videos': []
+        })
+    except json.JSONDecodeError:
+        return jsonify({
+            'status': 'error',
+            'message': 'Error reading video data'
+        }), 500
+
+@app.route('/stream/<video_id>')
+def stream_video(video_id):
+    try:
+        with open(VIDEOS_JSON, 'r') as f:
+            videos = json.load(f)
+        video = next((v for v in videos if v['id'] == video_id), None)
+        if video:
+            return jsonify({
+                'status': 'success',
+                'video': video
+            })
+        return jsonify({
+            'status': 'error',
+            'message': 'Video not found'
+        }), 404
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 @app.route('/index.html')
 def index():
@@ -44,7 +119,6 @@ def account():
     user_id = session["user"]["id"]
 
     if request.method == 'POST':
-        #update ad prefrence
         ads_enabled = 'ads_enabled' in request.form
         conn = get_db_connection()
         cur = conn.cursor()
@@ -67,7 +141,6 @@ def account():
             cur.close()
             conn.close()
     
-    #get current settings
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -78,7 +151,7 @@ def account():
         """, (user_id,))
         ads_enabled = cur.fetchone()[0]
     except psycopg2.Error as e:
-        ads_enabled = True #default to true if error occurs
+        ads_enabled = True
     finally:
         cur.close()
         conn.close()
@@ -88,6 +161,7 @@ def account():
 @app.route('/history')  
 def history():
     return render_template("history.html") 
+
 @app.route('/beta/stream')  
 def newstream():
     return render_template("newstream.html") 
@@ -118,24 +192,22 @@ def fetch_ysws_ads():
         data = yaml.safe_load(response.content)
 
         ads = []
-        #process limited time yswses
         for entry in data.get('limitedTime', []):
             if entry.get('status', '') == 'active':
                 ads.append({
                     "ad": entry['name'],
                     "description": entry['description'],
                     "url": entry.get('website', '#'),
-                    "image": "https://hackclub.com/stickers/orpheus.png" #default image, there is no image url in the yaml :(
+                    "image": "https://hackclub.com/stickers/orpheus.png"
                 })
 
-        #process indefinite yswses
         for entry in data.get('indefinite', []):
             if entry.get('status', '') == 'active':
                 ads.append({
                     "ad": entry['name'],
                     "description": entry['description'],
                     "url": entry.get('website', '#'),
-                    "image": "https://hackclub.com/stickers/orpheus.png" #default image
+                    "image": "https://hackclub.com/stickers/orpheus.png"
                 })
 
         return ads
@@ -145,7 +217,6 @@ def fetch_ysws_ads():
 
 @app.route("/getad")
 def getad():
-    #check if user has ads disabled
     if "user" in session:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -157,15 +228,13 @@ def getad():
             """, (session["user"]["id"],))
             ads_enabled = cur.fetchone()[0]
             if not ads_enabled:
-                return '', 204 #no content
+                return '', 204
         finally:
             cur.close()
             conn.close()
 
-    #fetch ysws ads
     ysws_ads = fetch_ysws_ads()
 
-    #use default ads if ysws ads in the yaml are not available
     ads = ysws_ads if ysws_ads else [
         {"ad": "Put the you in CPU today", "image": "https://hackclub.com/stickers/inside.png", "url": "https://www.cpu.land"},
         {"ad": "A Game about Love & Graphing, Made By Hack Clubbers", "image": "https://sinerider.com/Assets/Images/loading-screen.png", "url": "https://sinerider.com/"},
@@ -176,8 +245,8 @@ def getad():
         {"ad": "Blot: Online Drawing Machine", "image": "https://hackclub.com/stickers/Blot.png", "url": "https://blot.hackclub.com/editor"},
         {"ad": "Design your own 3D printer, Get a Grant to Build It, get flown to a Hack Club event!", "image": "https://infill.hackclub.com/_astro/houston.CZZyCf7p_Z2wV2f.webp", "url": "https://infill.hackclub.com/"},
         {"ad": "Build a IOS App, Get $100 to Ship it to the App Store", "image": "https://cider.hackclub.com/logo.svg", "url": "https://cider.hackclub.com/"},
-        {"ad": "Juice: Code a game for 100 hours, get a steam grant, get a stipend to the event!", "image": "ADD ME PLEASE ADD ME I BEG YOU", "url": "https://juice.hackclub.com/"}, #incomplete
-        {"ad": "Jungle: Code a game, recieve tokens to be spent on assets for your game!", "image": "PLEASE ADD ME I NEED TO BE ADDED PLEASE", "url": "uhh idfk tbh"} #incomplete
+        {"ad": "Juice: Code a game for 100 hours, get a steam grant, get a stipend to the event!", "image": "ADD ME PLEASE ADD ME I BEG YOU", "url": "https://juice.hackclub.com/"},
+        {"ad": "Jungle: Code a game, recieve tokens to be spent on assets for your game!", "image": "PLEASE ADD ME I NEED TO BE ADDED PLEASE", "url": "uhh idfk tbh"}
     ]
 
     selected_ad = random.choice(ads)
@@ -189,7 +258,6 @@ def home():
 
 @app.route("/login")
 def login():
-    """redirects user to Slack OAuth login"""
     slack_auth_url = (
         f"https://slack.com/openid/connect/authorize?"
         f"response_type=code&"
@@ -217,7 +285,6 @@ def slack_callback():
     if "access_token" not in token_response:
         return f"error: {token_response.get('error', 'no token recieved')}", 401
     
-    #get user info
     user_response = requests.get(
         "https://slack.com/api/openid.connect.userInfo",
         headers={"Authorization": f"Bearer {token_response['access_token']}"}
@@ -226,11 +293,9 @@ def slack_callback():
     if "sub" not in user_response:
         return "unable to get user info", 401
 
-    #authorize user
     if (slack_id := user_response["sub"]) not in ALLOWED_SLACK_IDS:
         return "unauthorized", 403
 
-    #put user in db
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -244,7 +309,6 @@ def slack_callback():
             user_id = cur.fetchone()[0]
             conn.commit()
 
-    #create user session
     session["user"] = {
         "db_id": user_id,
         "id": slack_id,
@@ -266,7 +330,6 @@ def allowed_file(filename):
 @app.route("/create", methods=['POST', 'GET'])
 def create():
     if request.method == 'POST':
-        #check if user is logged in
         if 'user' not in session:
             flash("Login to create streams", "error")
             return redirect(url_for("login"))
@@ -283,12 +346,10 @@ def create():
             flash('invalid file type', 'error')
             return redirect(url_for('create'))
         
-        #generate secure filename
         filename = secure_filename(video_file.filename)
         unique_filename = f"{uuid.uuid4().hex}_{filename}"
         save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
 
-        #create upload directory if needed
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
         try:
@@ -297,7 +358,6 @@ def create():
             flash('error saving video', 'error')
             return redirect(url_for('create'))
         
-        #save video to db
         conn = get_db_connection()
         cur = conn.cursor()
         try:
@@ -343,7 +403,6 @@ def createstream():
     conn.close()
 
     return jsonify({"success": True, "message": "Stream created successfully!"}), 200
-
 
 @app.route("/search/<keywords>")
 def search(keywords):
@@ -405,7 +464,6 @@ def watch(stream_id):
         cur.close()
         conn.close()
 
-
 current_image = None
 
 @app.route("/watchtest")
@@ -442,7 +500,6 @@ def get_image():
         return send_file(io.BytesIO(current_image), mimetype='image/jpeg')
     return 'No image available', 200
 
-#likes/dislikes route
 @app.route("/stream/<int:stream_id>/like", methods=['POST'])
 def handle_vote(stream_id):
     if "user" not in session:
@@ -458,14 +515,12 @@ def handle_vote(stream_id):
     cur = conn.cursor()
 
     try:
-        #record vote
         cur.execute("""
             INSERT INTO votes (user_id, stream_id, vote_type)
             VALUES (%s, %s, %s)
             ON CONFLICT (user_id, stream_id) DO UPDATE SET vote_type = EXCLUDED.vote_type
             """, (user_id, stream_id, vote_type))
         
-        #update stream vote count
         cur.execute("""
             UPDATE streams SET
                     likes = (SELECT COUNT(*) FROM votes WHERE stream_id = %s AND vote_type = "like"),
@@ -485,7 +540,6 @@ def handle_vote(stream_id):
 
 @app.route("/stream/<int:stream_id>/votes")
 def get_votes(stream_id):
-    """get current vote counts"""
     conn = get_db_connection()
     cur = conn.cursor()
 

@@ -5,31 +5,36 @@
 <div class="hidden" id="sidebar_selected">homeContainer</div>
 {% endblock %}
 
-{% block content%}
-<div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto "></div>
-{% endblock%}
+{% block content %}
+<div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto"></div>
+{% endblock %}
 
-{% block script%}
+{% block script %}
 <script>
     const cardsContainer = document.getElementById('cards-container');
 
-    function generateUUID() {
-      
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0;
-            const v = (c === 'x' ? r : (r & 0x3 | 0x8));
-            return v.toString(16);
-        });
-    }
-    
     function fetchActiveStreams() {
-        fetch('/activestreams')
+        fetch('/get-videos')
             .then(response => response.json())
             .then(data => {
-                const streams = data.streams;
-                createCards(streams);
+                if (data.status === 'success') {
+                    const streams = data.videos;
+                    createCards(streams);
+                } else {
+                    console.error('Failed to fetch videos:', data);
+                    const errorMessage = document.createElement('div');
+                    errorMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+                    errorMessage.textContent = "Failed to load streams.";
+                    cardsContainer.appendChild(errorMessage);
+                }
             })
-            .catch(err => console.error('Error fetching active streams:', err));
+            .catch(err => {
+                console.error('Error fetching active streams:', err);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+                errorMessage.textContent = "Error loading streams.";
+                cardsContainer.appendChild(errorMessage);
+            });
     }
     
     function createCards(streams) {
@@ -42,15 +47,13 @@
         }
     
         streams.forEach(stream => {
-            const { name, description } = stream;
+            const { id, title, url } = stream;
     
             const card = document.createElement('div');
             card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
     
-            const randomUUID = generateUUID();
-    
             card.addEventListener('click', () => {
-                window.location.href = `/watch/${randomUUID}`;
+                window.location.href = url;
             });
     
             const image = document.createElement('img');
@@ -63,11 +66,11 @@
     
             const titleElement = document.createElement('h3');
             titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
-            titleElement.textContent = name;
+            titleElement.textContent = title;
     
             const descriptionElement = document.createElement('p');
             descriptionElement.classList.add('text-sm', 'text-gray-600');
-            descriptionElement.textContent = description || "No description available";
+            descriptionElement.textContent = "No description available";
     
             textContainer.appendChild(titleElement);
             textContainer.appendChild(descriptionElement);
@@ -79,6 +82,5 @@
     }
     
     fetchActiveStreams();
-    </script>
-
+</script>
 {% endblock %}
