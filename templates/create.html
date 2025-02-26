@@ -55,9 +55,57 @@
                     <svg class="w-12 h-12 text-white/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                     </svg>
+                    <span class="text-white/80 text-lg">Click to upload, or drag and drop</span>
+                    <span class="text-white/50 text-sm mt-2">.mp4, .mov, .avi, .mkv (Max 1GB)</span>
                 </div>
-
-            </label>
+            </div>
         </div>
 
-</form></main>
+        <button
+            type="submit"
+            class="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.01] active:scale-95"
+        >
+            Create Stream
+        </button>
+    </form>
+</main>
+
+<script>
+    const bg = document.getElementById("background");
+    const cols = Math.ceil(window.innerWidth / 40);
+    const rows = Math.ceil(window.innerHeight / 40);
+
+    for (let i = 0; i < cols * rows -270; i++) {
+        let dot = document.createElement("div");
+        dot.classList.add("circle");
+        bg.appendChild(dot);
+    }
+
+    const dots = document.querySelectorAll(".circle");
+
+    document.addEventListener("mousemove", (e) => {
+        const rect = bg.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        dots.forEach((dot) => {
+            const dotX = dot.offsetLeft + dot.clientWidth / 2;
+            const dotY = dot.offsetTop + dot.clientHeight / 2;
+            const distance = Math.sqrt((mouseX - dotX) ** 2 + (mouseY - dotY) ** 2);
+
+            dot.classList.toggle("glow", distance < 100);
+        });
+    });
+</script>
+
+<style>
+    .circle {
+        @apply w-1 h-1 bg-white/10 rounded-full absolute transition-all duration-300;
+        transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .cirlce.glow {
+        @apply bg-blue/400/80 shadow-[0_0_15px_5px_rgba(96,165,250,0.3)] scale-150;
+    }
+</style>
+{% endblock %}
