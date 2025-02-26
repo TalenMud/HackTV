@@ -6,24 +6,31 @@
 {% endblock %}
 
 {% block content%}
+<div id ="category-buttons" class="flex justify-center p-4">
+    
+</div>
 <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto "></div>
 {% endblock%}
 
 {% block script%}
 <script>
     const cardsContainer = document.getElementById('cards-container');
+    const categoryButtonsContainer = document.getElementById('category-buttons');
 
     function generateUUID() {
-      
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
             const v = (c === 'x' ? r : (r & 0x3 | 0x8));
             return v.toString(16);
         });
     }
-    
-    function fetchActiveStreams() {
-        fetch('/activestreams')
+
+    function fetchActiveStreams(categoryId = '') {
+        let url = '/activestreams';
+        if (categoryId) {
+            url += `?category_id=${categoryId}`; 
+        }
+        fetch(url)
             .then(response => response.json())
             .then(data => {
                 const streams = data.streams;
@@ -31,8 +38,10 @@
             })
             .catch(err => console.error('Error fetching active streams:', err));
     }
-    
+
     function createCards(streams) {
+        cardsContainer.innerHTML = ''; // Clear previous cards
+
         if (streams.length === 0) {
             const noStreamsMessage = document.createElement('div');
             noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
@@ -40,45 +49,82 @@
             cardsContainer.appendChild(noStreamsMessage);
             return;
         }
-    
+
         streams.forEach(stream => {
             const { name, description } = stream;
-    
+
             const card = document.createElement('div');
             card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
-    
+
             const randomUUID = generateUUID();
-    
+
             card.addEventListener('click', () => {
                 window.location.href = `/watch/${randomUUID}`;
             });
-    
+
             const image = document.createElement('img');
             image.src = "https://placehold.co/300x200/EEE/31343C";
             image.alt = "Card Image";
             image.classList.add('w-full', 'h-48', 'object-cover');
-    
+
             const textContainer = document.createElement('div');
             textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
-    
+
             const titleElement = document.createElement('h3');
             titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
             titleElement.textContent = name;
-    
+
             const descriptionElement = document.createElement('p');
             descriptionElement.classList.add('text-sm', 'text-gray-600');
             descriptionElement.textContent = description || "No description available";
-    
+
             textContainer.appendChild(titleElement);
             textContainer.appendChild(descriptionElement);
             card.appendChild(image);
             card.appendChild(textContainer);
-    
+
             cardsContainer.appendChild(card);
         });
     }
-    
+
+    function createCategoryButtons() {
+        fetch('/categories')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const categories = data.categories;
+
+                // Add "All" button first
+                const allButton = document.createElement('button');
+                allButton.classList.add('category-button', 'bg-gray-200', 'px-4', 'py-2', 'rounded-lg', 'mr-2');
+                allButton.textContent = 'All';
+                allButton.addEventListener('click', () => {
+                    fetchActiveStreams();
+                });
+                categoryButtonsContainer.appendChild(allButton);
+
+                categories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.classList.add('category-button', 'bg-gray-200', 'px-4', 'py-2', 'rounded-lg', 'mr-2');
+                    button.textContent = category.name;
+                    button.dataset.categoryId = category.id;
+                    button.addEventListener('click', () => {
+                        fetchActiveStreams(category.id);
+                    });
+                    categoryButtonsContainer.appendChild(button);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching categories:', error);
+            });
+    }
+
     fetchActiveStreams();
-    </script>
+    createCategoryButtons();
+</script>
 
 {% endblock %}

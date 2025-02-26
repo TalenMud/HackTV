@@ -506,8 +506,13 @@ def get_votes(stream_id):
 def get_categories():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id FROM categories")
-    categories = [{"id": row[0], "name": row[1]} for row in cur.fetchall()]
+    cur.execute("SELECT id, name FROM categories") #select both id and name.
+    categories = []
+    for row in cur.fetchall():
+        if len(row) >= 2: #make sure the row has enough data.
+            categories.append({"id": row[0], "name": row[1]})
+        else:
+            print(f"warning: category row missing data: {row}")
     cur.close()
     conn.close()
     return jsonify({"categories": categories})
