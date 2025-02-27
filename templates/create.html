@@ -3,12 +3,12 @@
 
 {% block content %}
 
-<main class="min-h-screen flex items-center justify-center p-4">
+<main class="min-h-screen h-auto flex justify-center p-4 relative top-[9rem]">
     <form method="POST" action="/create-video" enctype="multipart/form-data" id="streamForm"
-        class="w-full max-w-2xl bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-        <h1 class="text-4xl font-bold text-white mb-4 text-center">Create New Stream</h1>
+        class="flex flex-col justify-center w-full h-auto max-w-2xl bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
+        <h1 class="text-4xl font-bold font-[Silkscreen] text-white mb-4 text-center">Upload New Video</h1>
         <p class="text-white/60 text-sm mb-8 text-center">
-            Note: If an alert or error appears (e.g., "Please select a video file" or "Failed to upload stream"), 
+            Note: If an alert or error appears (e.g., "Please select a video file" or "Failed to upload video"), 
             it reflects a client-side issue. The server-side process may still have succeeded. 
         </p>
 
@@ -23,25 +23,26 @@
         {% endwith %}
 
         <div class="mb-6">
-            <label class="block text-white/80 mb-2 text-lg font-medium">Stream Title</label>
+            <label class="block text-white/80 mb-2 text-lg font-medium">Video Title</label>
             <input type="text" name="title" required
-                class="w-full px-4 py-3 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white placeholder-white/30"
-                placeholder="Enter stream title">
+                class="w-full px-4 py-3 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#9546fc] text-white placeholder-white/30"
+                placeholder="Enter video title">
         </div>
 
         <div class="mb-6">
-            <label class="block text-white/80 mb-2 text-lg font-medium">Description</label>
+            <label class="block text-white/80 mb-2 text-lg font-medium">Video Description</label>
             <textarea name="stream_description" rows="3"
-                class="w-full px-4 py-3 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white placeholder-white/30"
-                placeholder="Enter stream description"></textarea>
+                class="w-full px-4 py-3 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#9546fc] text-white placeholder-white/30"
+                placeholder="Enter video description"></textarea>
         </div>
 
         <div class="mb-8">
-            <div id="upload-container">
-                <label class="relative group">
+            <label class="block text-white/80 mb-2 text-lg font-medium">Video</label>
+            <div id="upload-container" class="flex items-center justify-center">
+                <label class="relative group w-full">
                     <input type="file" name="video" id="video-upload" required accept="video/*"
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                    <div id="upload-area" class="flex flex-col items-center justify-center px-4 py-12 bg-white/5 border-2 border-dashed border-white/20 rounded-lg transition-all group-hover:border-blue-400 group-hover:bg-white/10">
+                    <div id="upload-area" class="w-full flex flex-col items-center justify-center px-4 py-12 bg-white/5 border-2 border-dashed border-white/20 rounded-lg transition-all group-hover:border-[#9546fc] group-hover:bg-white/10">
                         <svg class="w-12 h-12 text-white/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -72,19 +73,21 @@
             </div>
             <div id="progress-container" class="mt-4 hidden">
                 <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    <div id="progress-bar" class="bg-[#9546fc] h-2.5 rounded-full" style="width: 0%"></div>
                 </div>
             </div>
+
             <div id="url-container" class="mt-4 hidden">
                 <p class="text-white/80">Stream URL:</p>
                 <a id="stream-url" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 break-all"></a>
             </div>
             <input type="hidden" name="url" id="video-url">
+
         </div>
 
         <button type="submit"
-            class="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.01] active:scale-95">
-            Upload Stream
+            class="w-full py-3 px-6 bg-[#9546fc] hover:bg-[#2a0d4f] text-white font-semibold rounded-lg transition-all transform hover:scale-[1.01] active:scale-95">
+            Upload Video 
         </button>
     </form>
 </main>
