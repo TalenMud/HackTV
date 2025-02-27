@@ -6,12 +6,19 @@
 {% endblock %}
 
 {% block content %}
+<div id ="category-buttons" class="flex justify-center p-4">
+    
+</div>
+{% endblock %}
+
+{% block content %}
 <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto"></div>
 {% endblock %}
 
 {% block script %}
 <script>
     const cardsContainer = document.getElementById('cards-container');
+    const categoryButtonsContainer = document.getElementById('category-buttons');
 
     function fetchActiveStreams() {
         fetch('/get-videos')
@@ -38,10 +45,11 @@
     }
     
     function createCards(streams) {
+        cardsContainer.innerHTML = ''; 
         if (streams.length === 0) {
             const noStreamsMessage = document.createElement('div');
             noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
-            noStreamsMessage.textContent = "No active streams available at the moment.";
+            noStreamsMessage.textContent = "No videos or streams available at the moment, maybe try again later?";
             cardsContainer.appendChild(noStreamsMessage);
             return;
         }
@@ -80,7 +88,44 @@
             cardsContainer.appendChild(card);
         });
     }
+
+    function createCategoryButtons() {
+        fetch('/categories')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const categories = data.categories;
+
+                // Add "All" button first
+                const allButton = document.createElement('button');
+                allButton.classList.add('category-button', 'bg-gray-200', 'px-4', 'py-2', 'rounded-lg', 'mr-2');
+                allButton.textContent = 'All';
+                allButton.addEventListener('click', () => {
+                    fetchActiveStreams();
+                });
+                categoryButtonsContainer.appendChild(allButton);
+
+                categories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.classList.add('category-button', 'bg-gray-200', 'px-4', 'py-2', 'rounded-lg', 'mr-2');
+                    button.textContent = category.name;
+                    button.dataset.categoryId = category.id;
+                    button.addEventListener('click', () => {
+                        fetchActiveStreams(category.id);
+                    });
+                    categoryButtonsContainer.appendChild(button);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching categories:', error);
+            });
+    }
     
     fetchActiveStreams();
+    createCategoryButtons();
 </script>
 {% endblock %}
