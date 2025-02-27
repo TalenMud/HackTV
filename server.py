@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, jsonify, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
+from flask import Flask, jsonify, render_template_string, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
 from dotenv import load_dotenv
 import io
 import random
@@ -8,6 +8,9 @@ import psycopg2
 import yaml
 import uuid
 from werkzeug.utils import secure_filename
+import json
+from datetime import datetime
+from functools import wraps
 
 load_dotenv()
 
@@ -19,24 +22,424 @@ SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
 
-#get psql connection
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
 
-#upload settings for videos
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads', 'videos')
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024 #1GB limit. for 100MB use 100 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}
+
+VIDEOS_JSON = 'videos.json'
+
+if not os.path.exists(VIDEOS_JSON):
+    with open(VIDEOS_JSON, 'w') as f:
+        json.dump([], f)
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for("login", next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/video')
+@login_required
+def video():
+    url_param = request.args.get('url', '')
+    
+    if url_param:
+        clean_url = url_param.replace('/embed', '')
+        return render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <script>
+                localStorage.setItem('videoUrl', '{{ url }}');
+                window.location.href = '/video';
+            </script>
+        </head>
+        <body></body>
+        </html>
+        ''', url=clean_url)
+    
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Video Player</title>
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #1a1a1a;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .video-container {
+                width: 100%;
+                max-width: 1200px;
+                position: relative;
+                background: #000;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            video {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+            :fullscreen .video-container {
+                max-width: none;
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            :fullscreen video {
+                height: 100%;
+                object-fit: contain;
+            }
+            .controls {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+                padding: 10px 15px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                z-index: 2;
+            }
+            .video-container:hover .controls {
+                opacity: 1;
+            }
+            .control-bar {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            .play-btn, .fullscreen-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 20px;
+                cursor: pointer;
+                padding: 5px;
+                transition: transform 0.2s ease;
+            }
+            .play-btn:hover, .fullscreen-btn:hover {
+                transform: scale(1.1);
+            }
+            .progress-container {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                position: relative;
+            }
+            .time {
+                color: #fff;
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                min-width: 40px;
+            }
+            .progress-bar {
+                flex: 1;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+                position: relative;
+                cursor: pointer;
+            }
+            .progress {
+                height: 100%;
+                background: #00aaff;
+                border-radius: 2px;
+                width: 0;
+                transition: width 0.1s linear;
+            }
+            .volume-container {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .volume-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 16px;
+                cursor: pointer;
+                padding: 5px;
+            }
+            .volume-bar {
+                width: 60px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+                position: relative;
+                cursor: pointer;
+            }
+            .volume-level {
+                height: 100%;
+                background: #00aaff;
+                border-radius: 2px;
+                width: 100%;
+            }
+            .preview {
+                position: absolute;
+                bottom: 40px;
+                width: 160px;
+                height: 90px;
+                background: #000;
+                border: 1px solid #fff;
+                border-radius: 4px;
+                display: none;
+                pointer-events: none;
+                z-index: 3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="video-container">
+            <video id="videoPlayer">
+                <source src="" type="video/mp4">
+            </video>
+            <div class="controls">
+                <div class="control-bar">
+                    <button class="play-btn">▶</button>
+                    <div class="progress-container">
+                        <span class="time current-time">0:00</span>
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                            <canvas class="preview" width="160" height="90"></canvas>
+                        </div>
+                        <span class="time duration">0:00</span>
+                    </div>
+                    <div class="volume-container">
+                        <button class="volume-btn">🔊</button>
+                        <div class="volume-bar">
+                            <div class="volume-level"></div>
+                        </div>
+                    </div>
+                    <button class="fullscreen-btn">⛶</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            const videoUrl = localStorage.getItem('videoUrl');
+            const video = document.getElementById('videoPlayer');
+            const playBtn = document.querySelector('.play-btn');
+            const progressBar = document.querySelector('.progress-bar');
+            const progress = document.querySelector('.progress');
+            const currentTime = document.querySelector('.current-time');
+            const durationTime = document.querySelector('.duration');
+            const volumeBtn = document.querySelector('.volume-btn');
+            const volumeBar = document.querySelector('.volume-bar');
+            const volumeLevel = document.querySelector('.volume-level');
+            const fullscreenBtn = document.querySelector('.fullscreen-btn');
+            const preview = document.querySelector('.preview');
+            let thumbnails = {};
+
+            if (!videoUrl) {
+                document.body.innerHTML = 'No video URL provided';
+            } else {
+                video.querySelector('source').src = videoUrl;
+                video.load();
+
+                video.addEventListener('loadedmetadata', () => {
+                    durationTime.textContent = formatTime(video.duration);
+                    generateThumbnails();
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play();
+                        playBtn.textContent = '⏸';
+                    } else {
+                        video.pause();
+                        playBtn.textContent = '▶';
+                    }
+                });
+
+                video.addEventListener('timeupdate', () => {
+                    const percent = (video.currentTime / video.duration) * 100;
+                    progress.style.width = percent + '%';
+                    currentTime.textContent = formatTime(video.currentTime);
+                });
+
+                progressBar.addEventListener('click', (e) => {
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    video.currentTime = percent * video.duration;
+                });
+
+                progressBar.addEventListener('mousemove', (e) => {
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    const time = percent * video.duration;
+                    const previewTime = Math.floor(time / 10) * 10;
+                    
+                    if (thumbnails[previewTime]) {
+                        const ctx = preview.getContext('2d');
+                        ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
+                        preview.style.left = Math.min(
+                            Math.max(e.clientX - rect.left - 80, 0),
+                            rect.width - 160
+                        ) + 'px';
+                        preview.style.display = 'block';
+                    }
+                });
+
+                progressBar.addEventListener('mouseleave', () => {
+                    preview.style.display = 'none';
+                });
+
+                volumeBtn.addEventListener('click', () => {
+                    video.muted = !video.muted;
+                    volumeBtn.textContent = video.muted ? '🔇' : '🔊';
+                    volumeLevel.style.width = video.muted ? '0%' : (video.volume * 100) + '%';
+                });
+
+                volumeBar.addEventListener('click', (e) => {
+                    const rect = volumeBar.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    video.volume = percent;
+                    video.muted = false;
+                    volumeBtn.textContent = '🔊';
+                    volumeLevel.style.width = (percent * 100) + '%';
+                });
+
+                fullscreenBtn.addEventListener('click', () => {
+                    if (!document.fullscreenElement) {
+                        document.querySelector('.video-container').requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+
+                function formatTime(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }
+
+                function generateThumbnails() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 160;
+                    canvas.height = 90;
+                    const ctx = canvas.getContext('2d');
+                    const duration = video.duration;
+                    const interval = 10;
+
+                    function capture(time) {
+                        video.currentTime = time;
+                        video.addEventListener('seeked', function onSeeked() {
+                            ctx.drawImage(video, 0, 0, 160, 90);
+                            thumbnails[time] = new Image();
+                            thumbnails[time].src = canvas.toDataURL();
+                            video.removeEventListener('seeked', onSeeked);
+                            if (time + interval < duration) {
+                                capture(time + interval);
+                            }
+                        }, { once: true });
+                    }
+                    capture(0);
+                }
+            }
+        </script>
+    </body>
+    </html>
+    ''', user=session.get("user"))
+
+@app.route('/create-video', methods=['POST'])
+def create_video():
+    if 'title' not in request.form or 'url' not in request.form:
+        flash('Missing required fields', 'error')
+        return redirect(url_for('create_video'))
+
+    title = request.form['title']
+    url = request.form['url']
+
+    video_id = str(uuid.uuid4())
+    video_data = {
+        'id': video_id,
+        'title': title,
+        'url': url,
+        'upload_date': datetime.now().isoformat()
+    }
+
+    with open(VIDEOS_JSON, 'r') as f:
+        videos = json.load(f)
+
+    videos.append(video_data)
+
+    with open(VIDEOS_JSON, 'w') as f:
+        json.dump(videos, f, indent=2)
+
+    flash('Video stream created successfully!', 'success')
+    return redirect(url_for('create_video'))
+
+
+@app.route('/get-videos', methods=['GET'])
+def get_videos():
+    try:
+        with open(VIDEOS_JSON, 'r') as f:
+            videos = json.load(f)
+        return jsonify({
+            'status': 'success',
+            'videos': videos
+        })
+    except FileNotFoundError:
+        return jsonify({
+            'status': 'success',
+            'videos': []
+        })
+    except json.JSONDecodeError:
+        return jsonify({
+            'status': 'error',
+            'message': 'Error reading video data'
+        }), 500
+
+@app.route('/stream/<video_id>')
+@login_required
+def stream_video(video_id):
+    try:
+        with open(VIDEOS_JSON, 'r') as f:
+            videos = json.load(f)
+        video = next((v for v in videos if v['id'] == video_id), None)
+        if video:
+            return jsonify({
+                'status': 'success',
+                'video': video
+            })
+        return jsonify({
+            'status': 'error',
+            'message': 'Video not found'
+        }), 404
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 @app.route('/index.html')
 def index():
     return redirect(url_for('home'))
 
-@app.route('/settings')  
+@app.route('/settings', methods=['GET', 'POST']) 
 def account():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -44,7 +447,6 @@ def account():
     user_id = session["user"]["id"]
 
     if request.method == 'POST':
-        #update ad prefrence
         ads_enabled = 'ads_enabled' in request.form
         conn = get_db_connection()
         cur = conn.cursor()
@@ -55,10 +457,9 @@ def account():
                 SET settings = JSONB_SET(
                     COALESCE(settings, '{}'::jsonb),
                     '{ads_enabled}',
-                    %s::jsonb)
-                )
+                    to_jsonb(%s::boolean)
                 WHERE slack_id = %s
-            """, (str(ads_enabled).lower(), user_id))
+            """, (ads_enabled, user_id))
             conn.commit()
             flash("Settings updated", "success")
         except psycopg2.Error as e:
@@ -67,7 +468,6 @@ def account():
             cur.close()
             conn.close()
     
-    #get current settings
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -78,27 +478,28 @@ def account():
         """, (user_id,))
         ads_enabled = cur.fetchone()[0]
     except psycopg2.Error as e:
-        ads_enabled = True #default to true if error occurs
+        ads_enabled = True
     finally:
         cur.close()
         conn.close()
 
-    return render_template("settings.html", ads_enabled=ads_enabled)
+    return render_template("settings.html", ads_enabled=ads_enabled, user=session.get("user"))
 
 @app.route('/history')  
 def history():
-    return render_template("history.html") 
+    return render_template("history.html", user=session.get("user")) 
+
 @app.route('/beta/stream')  
 def newstream():
-    return render_template("newstream.html") 
+    return render_template("newstream.html", user=session.get("user")) 
 
 @app.route("/explore")
 def explore():
-    return render_template("explore.html")
+    return render_template("explore.html", user=session.get("user"))
 
 @app.route("/feedback")
 def feedback():
-    return render_template("feedback.html")
+    return render_template("feedback.html", user=session.get("user"))
 
 @app.route("/stream",methods=["POST","GET"])
 def streams():
@@ -109,7 +510,7 @@ def streams():
         return render_template("watch.html",data=data)
 
     data={"title":None,"desc":None,"streamer":False}
-    return render_template("stream.html",data=data)
+    return render_template("stream.html",data=data, user=session.get("user"))
 
 def fetch_ysws_ads():
     try:
@@ -118,24 +519,22 @@ def fetch_ysws_ads():
         data = yaml.safe_load(response.content)
 
         ads = []
-        #process limited time yswses
         for entry in data.get('limitedTime', []):
             if entry.get('status', '') == 'active':
                 ads.append({
                     "ad": entry['name'],
                     "description": entry['description'],
                     "url": entry.get('website', '#'),
-                    "image": "https://hackclub.com/stickers/orpheus.png" #default image, there is no image url in the yaml :(
+                    "image": "https://hackclub.com/stickers/orpheus.png"
                 })
 
-        #process indefinite yswses
         for entry in data.get('indefinite', []):
             if entry.get('status', '') == 'active':
                 ads.append({
                     "ad": entry['name'],
                     "description": entry['description'],
                     "url": entry.get('website', '#'),
-                    "image": "https://hackclub.com/stickers/orpheus.png" #default image
+                    "image": "https://hackclub.com/stickers/orpheus.png"
                 })
 
         return ads
@@ -145,7 +544,6 @@ def fetch_ysws_ads():
 
 @app.route("/getad")
 def getad():
-    #check if user has ads disabled
     if "user" in session:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -157,15 +555,13 @@ def getad():
             """, (session["user"]["id"],))
             ads_enabled = cur.fetchone()[0]
             if not ads_enabled:
-                return '', 204 #no content
+                return '', 204
         finally:
             cur.close()
             conn.close()
 
-    #fetch ysws ads
     ysws_ads = fetch_ysws_ads()
 
-    #use default ads if ysws ads in the yaml are not available
     ads = ysws_ads if ysws_ads else [
         {"ad": "Put the you in CPU today", "image": "https://hackclub.com/stickers/inside.png", "url": "https://www.cpu.land"},
         {"ad": "A Game about Love & Graphing, Made By Hack Clubbers", "image": "https://sinerider.com/Assets/Images/loading-screen.png", "url": "https://sinerider.com/"},
@@ -176,8 +572,8 @@ def getad():
         {"ad": "Blot: Online Drawing Machine", "image": "https://hackclub.com/stickers/Blot.png", "url": "https://blot.hackclub.com/editor"},
         {"ad": "Design your own 3D printer, Get a Grant to Build It, get flown to a Hack Club event!", "image": "https://infill.hackclub.com/_astro/houston.CZZyCf7p_Z2wV2f.webp", "url": "https://infill.hackclub.com/"},
         {"ad": "Build a IOS App, Get $100 to Ship it to the App Store", "image": "https://cider.hackclub.com/logo.svg", "url": "https://cider.hackclub.com/"},
-        {"ad": "Juice: Code a game for 100 hours, get a steam grant, get a stipend to the event!", "image": "ADD ME PLEASE ADD ME I BEG YOU", "url": "https://juice.hackclub.com/"}, #incomplete
-        {"ad": "Jungle: Code a game, recieve tokens to be spent on assets for your game!", "image": "PLEASE ADD ME I NEED TO BE ADDED PLEASE", "url": "uhh idfk tbh"} #incomplete
+        {"ad": "Juice: Code a game for 100 hours, get a steam grant, get a stipend to the event!", "image": "ADD ME PLEASE ADD ME I BEG YOU", "url": "https://juice.hackclub.com/"},
+        {"ad": "Jungle: Code a game, recieve tokens to be spent on assets for your game!", "image": "PLEASE ADD ME I NEED TO BE ADDED PLEASE", "url": "uhh idfk tbh"}
     ]
 
     selected_ad = random.choice(ads)
@@ -185,11 +581,10 @@ def getad():
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", user=session.get("user"))
 
 @app.route("/login")
 def login():
-    """redirects user to Slack OAuth login"""
     slack_auth_url = (
         f"https://slack.com/openid/connect/authorize?"
         f"response_type=code&"
@@ -214,23 +609,21 @@ def slack_callback():
         },
     ).json()
 
-    if "access_token" not in token_response:
+    if not token_response.get("ok", False):
         return f"error: {token_response.get('error', 'no token recieved')}", 401
     
-    #get user info
     user_response = requests.get(
         "https://slack.com/api/openid.connect.userInfo",
         headers={"Authorization": f"Bearer {token_response['access_token']}"}
     ).json()
 
-    if "sub" not in user_response:
+    if not user_response.get("ok", False):
         return "unable to get user info", 401
 
-    #authorize user
-    if (slack_id := user_response["sub"]) not in ALLOWED_SLACK_IDS:
+    user_info = user_response.get("https://slack.com/user_id")
+    if not user_info or (slack_id := user_info.get("sub")) not in ALLOWED_SLACK_IDS:
         return "unauthorized", 403
 
-    #put user in db
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -238,13 +631,13 @@ def slack_callback():
                 VALUES (%s, %s, %s, "{ads_enabled: true}"::jsonb)
                 ON CONFLICT (slack_id) DO UPDATE SET
                 name = EXCLUDED.name,
-                email = EXCLUDED.email""",
+                email = EXCLUDED.email
+                RETURNING id""",
                 (slack_id, user_response.get("name", ""), user_response.get("email", ""))
             )
             user_id = cur.fetchone()[0]
             conn.commit()
 
-    #create user session
     session["user"] = {
         "db_id": user_id,
         "id": slack_id,
@@ -266,7 +659,6 @@ def allowed_file(filename):
 @app.route("/create", methods=['POST', 'GET'])
 def create():
     if request.method == 'POST':
-        #check if user is logged in
         if 'user' not in session:
             flash("Login to create streams", "error")
             return redirect(url_for("login"))
@@ -283,12 +675,10 @@ def create():
             flash('invalid file type', 'error')
             return redirect(url_for('create'))
         
-        #generate secure filename
         filename = secure_filename(video_file.filename)
         unique_filename = f"{uuid.uuid4().hex}_{filename}"
         save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
 
-        #create upload directory if needed
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
         try:
@@ -297,7 +687,6 @@ def create():
             flash('error saving video', 'error')
             return redirect(url_for('create'))
         
-        #save video to db
         conn = get_db_connection()
         cur = conn.cursor()
         try:
@@ -318,7 +707,7 @@ def create():
         flash('stream created successfully', 'success')
         return redirect(url_for('home'))
     
-    return render_template("create.html")
+    return render_template("create.html", user=session.get("user"))
 
 @app.route('/videos/<filename>')
 def get_video(filename):
@@ -343,7 +732,6 @@ def createstream():
     conn.close()
 
     return jsonify({"success": True, "message": "Stream created successfully!"}), 200
-
 
 @app.route("/search/<keywords>")
 def search(keywords):
@@ -380,9 +768,10 @@ def search(keywords):
 
     print("Results before rendering:", results)
 
-    return render_template("search.html", search_keywords=keywords, results=results)
+    return render_template("search.html", search_keywords=keywords, results=results, user=session.get("user"))
 
 @app.route("/watch/<int:stream_id>")
+@login_required
 def watch(stream_id):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -405,12 +794,11 @@ def watch(stream_id):
         cur.close()
         conn.close()
 
-
 current_image = None
 
 @app.route("/watchtest")
 def watchtest():
-    return render_template("watchtesting.html")
+    return render_template("watchtesting.html", user=session.get("user"))
 
 @app.route('/stream/sendimg', methods=['POST'])
 def receive_image():
@@ -442,7 +830,6 @@ def get_image():
         return send_file(io.BytesIO(current_image), mimetype='image/jpeg')
     return 'No image available', 200
 
-#likes/dislikes route
 @app.route("/stream/<int:stream_id>/like", methods=['POST'])
 def handle_vote(stream_id):
     if "user" not in session:
@@ -458,14 +845,12 @@ def handle_vote(stream_id):
     cur = conn.cursor()
 
     try:
-        #record vote
         cur.execute("""
             INSERT INTO votes (user_id, stream_id, vote_type)
             VALUES (%s, %s, %s)
             ON CONFLICT (user_id, stream_id) DO UPDATE SET vote_type = EXCLUDED.vote_type
             """, (user_id, stream_id, vote_type))
         
-        #update stream vote count
         cur.execute("""
             UPDATE streams SET
                     likes = (SELECT COUNT(*) FROM votes WHERE stream_id = %s AND vote_type = "like"),
@@ -485,7 +870,6 @@ def handle_vote(stream_id):
 
 @app.route("/stream/<int:stream_id>/votes")
 def get_votes(stream_id):
-    """get current vote counts"""
     conn = get_db_connection()
     cur = conn.cursor()
 

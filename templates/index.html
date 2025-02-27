@@ -5,54 +5,70 @@
 <div class="hidden" id="sidebar_selected">homeContainer</div>
 {% endblock %}
 
-{% block content%}
-<div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto "></div>
-{% endblock%}
+{% block content %}
+<div id ="category-buttons" class="flex justify-center p-4">
+    
+</div>
 
-{% block script%}
+<div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto"></div>
+
+{% if user %} <!--add this to other htmls as well-->
+<div class="user-display text-white ml-4">
+    Logged in as {{ user.name }}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block script %}
 <script>
     const cardsContainer = document.getElementById('cards-container');
+    const categoryButtonsContainer = document.getElementById('category-buttons');
 
-    function generateUUID() {
-      
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0;
-            const v = (c === 'x' ? r : (r & 0x3 | 0x8));
-            return v.toString(16);
-        });
-    }
-    
     function fetchActiveStreams() {
-        fetch('/activestreams')
+        fetch('/get-videos')
             .then(response => response.json())
             .then(data => {
-                const streams = data.streams;
-                createCards(streams);
+                if (data.status === 'success') {
+                    const streams = data.videos;
+                    createCards(streams);
+                } else {
+                    console.error('Failed to fetch videos:', data);
+                    const errorMessage = document.createElement('div');
+                    errorMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+                    errorMessage.textContent = "Failed to load streams.";
+                    cardsContainer.appendChild(errorMessage);
+                }
             })
-            .catch(err => console.error('Error fetching active streams:', err));
+            .catch(err => {
+                console.error('Error fetching active streams:', err);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+                errorMessage.textContent = "Error loading streams.";
+                cardsContainer.appendChild(errorMessage);
+            });
     }
     
     function createCards(streams) {
+        cardsContainer.innerHTML = ''; 
         if (streams.length === 0) {
             const noStreamsMessage = document.createElement('div');
             noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
-            noStreamsMessage.textContent = "No active streams available at the moment.";
+            noStreamsMessage.textContent = "No videos or streams available at the moment, maybe try again later?";
             cardsContainer.appendChild(noStreamsMessage);
             return;
         }
     
         streams.forEach(stream => {
-            const { name, description } = stream;
+            const { id, title, url } = stream;
     
             const card = document.createElement('div');
             card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
     
-            const randomUUID = generateUUID();
-    
             card.addEventListener('click', () => {
-                window.location.href = `/watch/${randomUUID}`;
-            });
-    
+    window.location.href = `/video?url=${url}`;
+});
+
             const image = document.createElement('img');
             image.src = "https://placehold.co/300x200/EEE/31343C";
             image.alt = "Card Image";
@@ -63,11 +79,11 @@
     
             const titleElement = document.createElement('h3');
             titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
-            titleElement.textContent = name;
+            titleElement.textContent = title;
     
             const descriptionElement = document.createElement('p');
             descriptionElement.classList.add('text-sm', 'text-gray-600');
-            descriptionElement.textContent = description || "No description available";
+            descriptionElement.textContent = "No description available";
     
             textContainer.appendChild(titleElement);
             textContainer.appendChild(descriptionElement);
@@ -77,8 +93,44 @@
             cardsContainer.appendChild(card);
         });
     }
+
+    function createCategoryButtons() {
+        fetch('/categories')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const categories = data.categories;
+
+                // Add "All" button first
+                const allButton = document.createElement('button');
+                allButton.classList.add('category-button', 'bg-gray-200', 'px-4', 'py-2', 'rounded-lg', 'mr-2');
+                allButton.textContent = 'All';
+                allButton.addEventListener('click', () => {
+                    fetchActiveStreams();
+                });
+                categoryButtonsContainer.appendChild(allButton);
+
+                categories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.classList.add('category-button', 'bg-gray-200', 'px-4', 'py-2', 'rounded-lg', 'mr-2');
+                    button.textContent = category.name;
+                    button.dataset.categoryId = category.id;
+                    button.addEventListener('click', () => {
+                        fetchActiveStreams(category.id);
+                    });
+                    categoryButtonsContainer.appendChild(button);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching categories:', error);
+            });
+    }
     
     fetchActiveStreams();
-    </script>
-
+    createCategoryButtons();
+</script>
 {% endblock %}
