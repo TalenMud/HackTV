@@ -2,7 +2,6 @@
 {% block title %}HackTV - Create stream{% endblock %}
 
 {% block content %}
-<div id="background" class="fixed inset-0 -z-10 bg-slate-900"></div>
 
 <main class="min-h-screen flex items-center justify-center p-4">
     <form method="POST" action="/create-video" enctype="multipart/form-data" id="streamForm"
@@ -91,32 +90,6 @@
 </main>
 
 <script>
-    const bg = document.getElementById("background");
-    const cols = Math.ceil(window.innerWidth / 40);
-    const rows = Math.ceil(window.innerHeight / 40);
-
-    for (let i = 0; i < cols * rows - 270; i++) {
-        let dot = document.createElement("div");
-        dot.classList.add("circle");
-        dot.style.left = `${Math.random() * 100}%`;
-        dot.style.top = `${Math.random() * 100}%`;
-        bg.appendChild(dot);
-    }
-
-    const dots = document.querySelectorAll(".circle");
-    document.addEventListener("mousemove", (e) => {
-        const rect = bg.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        dots.forEach((dot) => {
-            const dotX = dot.offsetLeft + dot.clientWidth / 2;
-            const dotY = dot.offsetTop + dot.clientHeight / 2;
-            const distance = Math.sqrt((mouseX - dotX) ** 2 + (mouseY - dotY) ** 2);
-            dot.classList.toggle("glow", distance < 100);
-        });
-    });
-
     let currentFile = null;
     const form = document.getElementById('streamForm');
     const fileInput = document.getElementById('video-upload');
@@ -268,21 +241,4 @@
             "/" + encodeURIComponent(file.name);
     }
 </script>
-
-<style>
-    .circle {
-        position: absolute;
-        width: 4px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-
-    .circle.glow {
-        background: rgba(96, 165, 250, 0.8);
-        box-shadow: 0 0 15px 5px rgba(96, 165, 250, 0.3);
-        transform: scale(1.5);
-    }
-</style>
 {% endblock %}
