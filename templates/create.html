@@ -53,7 +53,12 @@
                 </label>
             </div>
             <div id="preview-container" class="hidden">
-                <video id="video-preview" controls class="w-full rounded-lg" style="max-height: 300px;"></video>
+                <div class="video-wrapper relative rounded-lg overflow-hidden" style="max-height: 300px;">
+                    <video id="video-preview" controls class="w-full" preload="metadata">
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
                 <div class="mt-3 flex justify-between items-center">
                     <button type="button" id="change-video" 
                         class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all flex items-center gap-2">
@@ -143,7 +148,9 @@
         if (fileInput.files.length > 0) {
             currentFile = fileInput.files[0];
             const videoURL = URL.createObjectURL(currentFile);
-            videoPreview.src = videoURL;
+            const source = videoPreview.querySelector('source');
+            source.src = videoURL;
+            videoPreview.load();
             uploadContainer.classList.add('hidden');
             previewContainer.classList.remove('hidden');
             fileSizeSpan.textContent = `Size: ${(currentFile.size / (1024 * 1024)).toFixed(2)} MB`;
@@ -153,7 +160,8 @@
     changeVideoBtn.addEventListener('click', () => {
         previewContainer.classList.add('hidden');
         uploadContainer.classList.remove('hidden');
-        videoPreview.src = '';
+        videoPreview.querySelector('source').src = '';
+        videoPreview.load();
         fileInput.value = '';
         currentFile = null;
         URL.revokeObjectURL(videoPreview.src);
@@ -177,7 +185,7 @@
             videoUrlInput.value = videoUrl;
 
             const formData = new FormData(form);
-            formData.delete('video'); // Remove the file object, we only want the URL
+            formData.delete('video');
 
             const response = await fetch('/create-video', {
                 method: 'POST',
