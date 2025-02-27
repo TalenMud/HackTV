@@ -53,9 +53,9 @@
             card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
     
             card.addEventListener('click', () => {
-                window.location.href = url;
-            });
-    
+    window.location.href = `/video?url=${url}`;
+});
+
             const image = document.createElement('img');
             image.src = "https://placehold.co/300x200/EEE/31343C";
             image.alt = "Card Image";

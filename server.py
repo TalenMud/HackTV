@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, jsonify, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
+from flask import Flask, jsonify, render_template_string, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
 from dotenv import load_dotenv
 import io
 import random
@@ -37,6 +37,61 @@ if not os.path.exists(VIDEOS_JSON):
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
+@app.route('/video')
+def video():
+    url_param = request.args.get('url', '')
+    
+    if url_param:
+        return render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <script>
+                localStorage.setItem('videoUrl', '{{ url }}');
+                window.location.href = '/video';
+            </script>
+        </head>
+        <body></body>
+        </html>
+        ''', url=url_param)
+    
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fullscreen Video</title>
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: black;
+            }
+            iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+        </style>
+    </head>
+    <body>
+        <iframe id="videoFrame" allowfullscreen></iframe>
+        <script>
+            const videoUrl = localStorage.getItem('videoUrl');
+            if (videoUrl) {
+                document.getElementById('videoFrame').src = videoUrl;
+            } else {
+                document.body.innerHTML = 'No video URL provided';
+            }
+        </script>
+    </body>
+    </html>
+    ''')
 @app.route('/create-video', methods=['POST'])
 def create_video():
     if 'title' not in request.form or 'url' not in request.form:
