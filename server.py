@@ -10,6 +10,7 @@ import uuid
 from werkzeug.utils import secure_filename
 import json
 from datetime import datetime
+from functools import wraps
 
 load_dotenv()
 
@@ -37,7 +38,17 @@ if not os.path.exists(VIDEOS_JSON):
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for("login", next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/video')
+@login_required
 def video():
     url_param = request.args.get('url', '')
     
@@ -351,7 +362,8 @@ def video():
         </script>
     </body>
     </html>
-    ''')
+    ''', user=session.get("user"))
+
 @app.route('/create-video', methods=['POST'])
 def create_video():
     if 'title' not in request.form or 'url' not in request.form:
@@ -402,6 +414,7 @@ def get_videos():
         }), 500
 
 @app.route('/stream/<video_id>')
+@login_required
 def stream_video(video_id):
     try:
         with open(VIDEOS_JSON, 'r') as f:
@@ -426,7 +439,7 @@ def stream_video(video_id):
 def index():
     return redirect(url_for('home'))
 
-@app.route('/settings')  
+@app.route('/settings', methods=['GET', 'POST']) 
 def account():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -444,10 +457,9 @@ def account():
                 SET settings = JSONB_SET(
                     COALESCE(settings, '{}'::jsonb),
                     '{ads_enabled}',
-                    %s::jsonb)
-                )
+                    to_jsonb(%s::boolean)
                 WHERE slack_id = %s
-            """, (str(ads_enabled).lower(), user_id))
+            """, (ads_enabled, user_id))
             conn.commit()
             flash("Settings updated", "success")
         except psycopg2.Error as e:
@@ -471,23 +483,23 @@ def account():
         cur.close()
         conn.close()
 
-    return render_template("settings.html", ads_enabled=ads_enabled)
+    return render_template("settings.html", ads_enabled=ads_enabled, user=session.get("user"))
 
 @app.route('/history')  
 def history():
-    return render_template("history.html") 
+    return render_template("history.html", user=session.get("user")) 
 
 @app.route('/beta/stream')  
 def newstream():
-    return render_template("newstream.html") 
+    return render_template("newstream.html", user=session.get("user")) 
 
 @app.route("/explore")
 def explore():
-    return render_template("explore.html")
+    return render_template("explore.html", user=session.get("user"))
 
 @app.route("/feedback")
 def feedback():
-    return render_template("feedback.html")
+    return render_template("feedback.html", user=session.get("user"))
 
 @app.route("/stream",methods=["POST","GET"])
 def streams():
@@ -498,7 +510,7 @@ def streams():
         return render_template("watch.html",data=data)
 
     data={"title":None,"desc":None,"streamer":False}
-    return render_template("stream.html",data=data)
+    return render_template("stream.html",data=data, user=session.get("user"))
 
 def fetch_ysws_ads():
     try:
@@ -569,7 +581,7 @@ def getad():
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", user=session.get("user"))
 
 @app.route("/login")
 def login():
@@ -597,7 +609,7 @@ def slack_callback():
         },
     ).json()
 
-    if "access_token" not in token_response:
+    if not token_response.get("ok", False):
         return f"error: {token_response.get('error', 'no token recieved')}", 401
     
     user_response = requests.get(
@@ -605,10 +617,11 @@ def slack_callback():
         headers={"Authorization": f"Bearer {token_response['access_token']}"}
     ).json()
 
-    if "sub" not in user_response:
+    if not user_response.get("ok", False):
         return "unable to get user info", 401
 
-    if (slack_id := user_response["sub"]) not in ALLOWED_SLACK_IDS:
+    user_info = user_response.get("https://slack.com/user_id")
+    if not user_info or (slack_id := user_info.get("sub")) not in ALLOWED_SLACK_IDS:
         return "unauthorized", 403
 
     with get_db_connection() as conn:
@@ -618,7 +631,8 @@ def slack_callback():
                 VALUES (%s, %s, %s, "{ads_enabled: true}"::jsonb)
                 ON CONFLICT (slack_id) DO UPDATE SET
                 name = EXCLUDED.name,
-                email = EXCLUDED.email""",
+                email = EXCLUDED.email
+                RETURNING id""",
                 (slack_id, user_response.get("name", ""), user_response.get("email", ""))
             )
             user_id = cur.fetchone()[0]
@@ -693,7 +707,7 @@ def create():
         flash('stream created successfully', 'success')
         return redirect(url_for('home'))
     
-    return render_template("create.html")
+    return render_template("create.html", user=session.get("user"))
 
 @app.route('/videos/<filename>')
 def get_video(filename):
@@ -754,9 +768,10 @@ def search(keywords):
 
     print("Results before rendering:", results)
 
-    return render_template("search.html", search_keywords=keywords, results=results)
+    return render_template("search.html", search_keywords=keywords, results=results, user=session.get("user"))
 
 @app.route("/watch/<int:stream_id>")
+@login_required
 def watch(stream_id):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -783,7 +798,7 @@ current_image = None
 
 @app.route("/watchtest")
 def watchtest():
-    return render_template("watchtesting.html")
+    return render_template("watchtesting.html", user=session.get("user"))
 
 @app.route('/stream/sendimg', methods=['POST'])
 def receive_image():
