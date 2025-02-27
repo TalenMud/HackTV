@@ -198,6 +198,7 @@ input[type="checkbox"]:checked {
   width:0.5rem;
   height:0.5rem;
   transition:all 0.6s;
+  justify-self: center;
 }
 
 .glow{
