@@ -83,6 +83,12 @@
 
       <!--Main content(videos)-->
       <div class="mainContent w-full h-full flex flex-col items-center justify-center overflow-y-scroll overflow-x-hidden">
+
+{% if user %} <!--add this to other htmls as well-->
+<div class="user-display text-white ml-4 w-full">
+    Logged in as {{ user.name }}
+</div>
+{% endif %}
         {% block content %}
         {% endblock %}
 

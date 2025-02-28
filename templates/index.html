@@ -7,16 +7,10 @@
 
 {% block content %}
 <div id ="category-buttons" class="flex justify-center p-4">
-    
 </div>
 
 <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto"></div>
 
-{% if user %} <!--add this to other htmls as well-->
-<div class="user-display text-white ml-4">
-    Logged in as {{ user.name }}
-</div>
-{% endif %}
 
 {% endblock %}
 
@@ -53,7 +47,7 @@
         cardsContainer.innerHTML = ''; 
         if (streams.length === 0) {
             const noStreamsMessage = document.createElement('div');
-            noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold');
+            noStreamsMessage.classList.add('text-center', 'text-gray-600', 'text-xl', 'font-semibold','w-[100rem]');
             noStreamsMessage.textContent = "No videos or streams available at the moment, maybe try again later?";
             cardsContainer.appendChild(noStreamsMessage);
             return;
