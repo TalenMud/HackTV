@@ -24,6 +24,7 @@
             </div>
             <div>
                 <input type="password" id="loginPassword" name="password" placeholder="Password" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required minlength="6">
+                <div id="loginPasswordAlert" class="hidden mt-2 p-2 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-md text-sm transition-all duration-200"></div>
             </div>
             <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">Login</button>
         </form>
@@ -34,9 +35,11 @@
             </div>
             <div>
                 <input type="email" id="signupEmail" name="email" placeholder="Email" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required>
+                <div id="emailAlert" class="hidden mt-2 p-2 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-md text-sm transition-all duration-200"></div>
             </div>
             <div>
                 <input type="password" id="signupPassword" name="password" placeholder="Password (min 6 characters)" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required minlength="6">
+                <div id="signupPasswordAlert" class="hidden mt-2 p-2 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-md text-sm transition-all duration-200"></div>
                 <div id="passwordStrength" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></div>
                 <div id="strengthBar" class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 mt-1">
                     <div id="strengthFill" class="h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
@@ -59,10 +62,14 @@
     const signoutButton = document.getElementById('signoutButton');
     const loginUsername = document.getElementById('loginUsername');
     const loginPassword = document.getElementById('loginPassword');
+    const signupEmail = document.getElementById('signupEmail');
     const signupPassword = document.getElementById('signupPassword');
     const authTabs = document.getElementById('authTabs');
     const passwordStrength = document.getElementById('passwordStrength');
     const strengthFill = document.getElementById('strengthFill');
+    const loginPasswordAlert = document.getElementById('loginPasswordAlert');
+    const signupPasswordAlert = document.getElementById('signupPasswordAlert');
+    const emailAlert = document.getElementById('emailAlert');
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -128,6 +135,10 @@
         strengthFill.className = `h-full rounded-full transition-all duration-300 ${color}`;
     }
 
+    function validateEmail(email) {
+        return email.includes('@');
+    }
+
     checkLoginStatus();
     loadLoginData();
 
@@ -157,7 +168,31 @@
         }
     });
 
+    loginPassword.addEventListener('input', () => {
+        if (loginPassword.value.length < 6) {
+            loginPasswordAlert.textContent = 'Password must be at least 6 characters long';
+            loginPasswordAlert.classList.remove('hidden');
+        } else {
+            loginPasswordAlert.classList.add('hidden');
+        }
+    });
+
+    signupEmail.addEventListener('input', () => {
+        if (!validateEmail(signupEmail.value)) {
+            emailAlert.textContent = 'Email must contain an "@" symbol';
+            emailAlert.classList.remove('hidden');
+        } else {
+            emailAlert.classList.add('hidden');
+        }
+    });
+
     signupPassword.addEventListener('input', () => {
+        if (signupPassword.value.length < 6) {
+            signupPasswordAlert.textContent = 'Password must be at least 6 characters long';
+            signupPasswordAlert.classList.remove('hidden');
+        } else {
+            signupPasswordAlert.classList.add('hidden');
+        }
         calculatePasswordStrength(signupPassword.value);
     });
 
@@ -166,13 +201,11 @@
         const username = loginUsername.value;
         const password = loginPassword.value;
         if (password.length < 6) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Password',
-                text: 'Password must be at least 6 characters long'
-            });
+            loginPasswordAlert.textContent = 'Password must be at least 6 characters long';
+            loginPasswordAlert.classList.remove('hidden');
             return;
         }
+        loginPasswordAlert.classList.add('hidden');
         fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -218,16 +251,20 @@
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = document.getElementById('signupUsername').value;
-        const email = document.getElementById('signupEmail').value;
+        const email = signupEmail.value;
         const password = signupPassword.value;
-        if (password.length < 6) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Password',
-                text: 'Password must be at least 6 characters long'
-            });
+        if (!validateEmail(email)) {
+            emailAlert.textContent = 'Email must contain an "@" symbol';
+            emailAlert.classList.remove('hidden');
             return;
         }
+        if (password.length < 6) {
+            signupPasswordAlert.textContent = 'Password must be at least 6 characters long';
+            signupPasswordAlert.classList.remove('hidden');
+            return;
+        }
+        emailAlert.classList.add('hidden');
+        signupPasswordAlert.classList.add('hidden');
         fetch('/api/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
