@@ -2,7 +2,6 @@
 {% block title %}HackTV - Create stream{% endblock %}
 
 {% block content %}
-
 <main class="min-h-screen h-auto flex items-center justify-center p-4 relative top-[9rem]">
     <form method="POST" action="/create-video" enctype="multipart/form-data" id="streamForm"
         class="flex flex-col justify-center w-full h-auto max-w-2xl bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
@@ -92,6 +91,7 @@
     </form>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let currentFile = null;
     const form = document.getElementById('streamForm');
@@ -108,6 +108,20 @@
     const videoUrlInput = document.getElementById('video-url');
 
     window.addEventListener('load', async () => {
+        const loginData = localStorage.getItem('loginforhacktv');
+        if (!loginData) {
+            Swal.fire({
+                icon: 'error',
+                title: 'User is not logged in',
+                timer: 1000,
+                showConfirmButton: false
+            });
+            setTimeout(() => {
+                window.location.href = '/loginorsignup';
+            }, 1000);
+            return;
+        }
+
         try {
             const response = await fetch('https://anondrop.net/register');
             const text = await response.text();

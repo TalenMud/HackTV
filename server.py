@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, jsonify, render_template_string, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
+from flask import Flask, jsonify, make_response, render_template_string, send_file, request, redirect, url_for, session, flash, render_template, send_from_directory
 from dotenv import load_dotenv
 import io
 import random
@@ -11,12 +11,71 @@ from werkzeug.utils import secure_filename
 import json
 from datetime import datetime
 from functools import wraps
+LOGIN_FILE = 'logins.json'
+if not os.path.exists(LOGIN_FILE):
+    with open(LOGIN_FILE, 'w') as f:
+        json.dump({}, f)
+
+def load_logins():
+    with open(LOGIN_FILE, 'r') as f:
+        return json.load(f)
+
+def save_logins(logins):
+    with open(LOGIN_FILE, 'w') as f:
+        json.dump(logins, f, indent=4)
 
 load_dotenv()
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
+@app.route('/api/login', methods=['POST'])
+def loginsignup():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
 
+    if not username or not password:
+        return jsonify({'status': 'error', 'message': 'Username and password are required'}), 400
+
+    logins = load_logins()
+    if username in logins and logins[username] == password:
+        response = make_response(jsonify({'status': 'success', 'message': 'Login successful'}))
+        response.set_cookie('username', username, max_age=3600, httponly=True, secure=False)  # 1-hour cookie, secure=False for local dev
+        return response
+    return jsonify({'status': 'error', 'message': 'Invalid username or password'}), 401
+
+@app.route('/api/signup', methods=['POST'])
+def signuplogin():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not username or not email or not password:
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    logins = load_logins()
+    if username in logins:
+        return jsonify({'status': 'error', 'message': 'Username already exists'}), 409
+
+    logins[username] = password
+    save_logins(logins)
+    return jsonify({'status': 'success', 'message': 'Signup successful'})
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not username or not email or not password:
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    logins = load_logins()
+    if username in logins:
+        return jsonify({'status': 'error', 'message': 'Username already exists'}), 409
+
+    logins[username] = password  
+    save_logins(logins)
+    return jsonify({'status': 'success', 'message': 'Signup successful'})
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
@@ -39,16 +98,9 @@ if not os.path.exists(VIDEOS_JSON):
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "user" not in session:
-            return redirect(url_for("login", next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
+
 
 @app.route('/video')
-@login_required
 def video():
     url_param = request.args.get('url', '')
     
@@ -414,7 +466,6 @@ def get_videos():
         }), 500
 
 @app.route('/stream/<video_id>')
-@login_required
 def stream_video(video_id):
     try:
         with open(VIDEOS_JSON, 'r') as f:
@@ -646,7 +697,9 @@ def slack_callback():
     }
 
     return redirect(url_for("home"))
-
+@app.route("/loginorsignup")
+def loginorsignup():
+    return render_template("login.html")
 @app.route("/logout")
 def logout():
     session.pop("user", None)
@@ -657,7 +710,6 @@ def allowed_file(filename):
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/create", methods=['POST', 'GET'])
-@login_required
 def create():
     if request.method == 'POST':
         if 'user' not in session:
