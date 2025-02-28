@@ -451,40 +451,8 @@ def createstream():
 
 @app.route("/search/<keywords>")
 def search(keywords):
-    search_terms = keywords.split("+")
-    search_patterns = [f'%{term}%' for term in search_terms]
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    try:
-        cur.execute("""
-            SELECT name, description
-            FROM streams
-            WHERE name ILIKE ANY(%s)
-                OR description ILIKE ANY(%s)
-            ORDER BY name
-            LIMIT 50
-        """, (search_patterns, search_patterns))
-        
-        results = []
-        for row in cur.fetchall():
-            if len(row) == 2:  
-                results.append({
-                    'name': row[0] if row[0] is not None else '',
-                    'description': row[1] if row[1] is not None else ''
-                })
-
-    except psycopg2.Error as e:
-        print(f"Database error: {e}")
-        results = []
-    finally:
-        cur.close()
-        conn.close()
-
-    print("Results before rendering:", results)
-
-    return render_template("search.html", search_keywords=keywords, results=results, user=session.get("user"))
+   
+    return render_template("search.html", search_keywords=keywords)
 
 @app.route("/watch/<int:stream_id>")
 def watch(stream_id):

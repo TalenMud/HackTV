@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% block title %}HackTV - Search{% endblock %}
 
@@ -6,80 +5,135 @@
 <div class="hidden" id="sidebar_selected">homeContainer</div>
 {% endblock %}
 
-{% block content%}
-            <div class="flex flex-col items-center justify-center w-full h-full text-center">
-                <div id="no-results" class="hidden text-center text-white text-xl mt-8">
-                    <i class="fas fa-frown text-4xl mb-4"></i>
-                    <p>No Streams Found</p>
-                </div>
+{% block content %}
+<div class="flex flex-col items-center justify-center w-full h-full text-center">
+    <div id="no-results" class="hidden text-center text-gray-400 dark:text-gray-500 text-xl mt-8">
+        <svg class="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8m-4-4v8"></path>
+        </svg>
+        <p>No Streams Found</p>
+    </div>
 
-                <div id="cards-container" class="mt-40 p-4 grid grid-cols-3 gap-6">
-                    <!-- Cards will be dynamically injected here -->
-                </div>
-            </div>
-{% endblock%}
+    <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto"></div>
+</div>
+{% endblock %}
 
-{% block script%}
+{% block script %}
+<script>
+    const cardsContainer = document.getElementById('cards-container');
+    const noResultsMessage = document.getElementById('no-results');
+    const keywords = "{{keywords}}"
 
+    function fetchActiveStreams() {
+        fetch('/get-videos')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    createCards(data.videos);
+                } else {
+                    console.error('Failed to fetch videos:', data);
+                    showError("Failed to load streams.");
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching active streams:', err);
+                showError("Error loading streams.");
+            });
+    }
 
-    <script>
-        const cardsContainer = document.getElementById('cards-container');
-        const noResultsMessage = document.getElementById('no-results');
+    function showError(message) {
+        cardsContainer.innerHTML = '';
+        const errorMessage = document.createElement('div');
+        errorMessage.classList.add('text-center', 'text-gray-400', 'dark:text-gray-500', 'text-xl', 'font-semibold');
+        errorMessage.textContent = message;
+        cardsContainer.appendChild(errorMessage);
+    }
 
-        const searchResults = "{{ results|tojson }}";
+    function calculateWordMatchPercentage(title, keywords) {
+        const titleWords = title.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+        const keywordArray = Array.isArray(keywords) ? keywords : keywords.split(/\s+/);
+        const keywordSet = new Set(keywordArray.map(kw => kw.toLowerCase()));
         
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0,
-                    v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
+        if (keywordSet.size === 0) return 100; // If no keywords, show all
+        
+        const matchingWords = titleWords.filter(word => keywordSet.has(word)).length;
+        const matchPercentage = (matchingWords / keywordSet.size) * 100;
+        return matchPercentage;
+    }
 
-        function createCards() {
-            cardsContainer.innerHTML = '';
-            if (searchResults.length === 0) {
-                noResultsMessage.classList.remove('hidden');
-                return;
+    function createCards(streams) {
+        cardsContainer.innerHTML = '';
+        
+        const filteredStreams = streams.filter(stream => 
+            calculateWordMatchPercentage(stream.title, keywords) >= 60
+        );
+
+        if (filteredStreams.length === 0) {
+            noResultsMessage.classList.remove('hidden');
+            if (!keywords || (Array.isArray(keywords) && keywords.length === 0)) {
+                const noStreamsContainer = document.createElement('div');
+                noStreamsContainer.classList.add(
+                    'flex', 'flex-col', 'items-center', 'justify-center', 
+                    'w-full', 'min-h-[50vh]', 'bg-gray-100', 'dark:bg-gray-800',
+                    'rounded-lg', 'p-8', 'text-center'
+                );
+                const messageText = document.createElement('div');
+                messageText.classList.add(
+                    'text-gray-600', 'dark:text-gray-300', 'text-xl', 
+                    'font-medium', 'max-w-md'
+                );
+                messageText.innerHTML = `
+                    <p>No videos or streams available at the moment</p>
+                    <p class="text-base text-gray-500 dark:text-gray-400 mt-2">Please check back later or try refreshing</p>
+                `;
+                noStreamsContainer.appendChild(messageText);
+                cardsContainer.appendChild(noStreamsContainer);
             }
-            noResultsMessage.classList.add('hidden');
-            searchResults.forEach(data => {
-                const title = data.name;
-                const description = data.description;
-                const card = document.createElement('div');
-                card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
-
-                const randomUUID = generateUUID();
-
-                card.addEventListener('click', () => {
-                    window.location.href = `/watch/${randomUUID}`;
-                });
-
-                const image = document.createElement('img');
-                image.src = "https://placehold.co/300x200/EEE/31343C";
-                image.alt = "Card Image";
-                image.classList.add('w-full', 'h-48', 'object-cover');
-
-                const textContainer = document.createElement('div');
-                textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'to-transparent', 'p-4');
-
-                const titleElem = document.createElement('h3');
-                titleElem.classList.add('text-xl', 'font-semibold', 'text-gray-800');
-                titleElem.textContent = title;
-
-                const descriptionElem = document.createElement('p');
-                descriptionElem.classList.add('text-sm', 'text-gray-600');
-                descriptionElem.textContent = description;
-
-                textContainer.appendChild(titleElem);
-                textContainer.appendChild(descriptionElem);
-                card.appendChild(image);
-                card.appendChild(textContainer);
-
-                cardsContainer.appendChild(card);
-            });
+            return;
         }
-        createCards();
-    </script>
 
+        noResultsMessage.classList.add('hidden');
+
+        filteredStreams.forEach(stream => {
+            const { id, title, url } = stream;
+            const card = document.createElement('div');
+            card.classList.add(
+                'relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 
+                'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer'
+            );
+            card.addEventListener('click', () => {
+                window.location.href = `/video?url=${url}`;
+            });
+
+            const image = document.createElement('img');
+            image.src = "https://placehold.co/300x200/EEE/31343C";
+            image.alt = "Card Image";
+            image.classList.add('w-full', 'h-48', 'object-cover');
+
+            const textContainer = document.createElement('div');
+            textContainer.classList.add(
+                'absolute', 'bottom-0', 'left-0', 'right-0', 
+                'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 
+                'to-transparent', 'p-4'
+            );
+
+            const titleElement = document.createElement('h3');
+            titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800', 'dark:text-gray-100');
+            titleElement.textContent = title;
+
+            const descriptionElement = document.createElement('p');
+            descriptionElement.classList.add('text-sm', 'text-gray-600', 'dark:text-gray-300');
+            descriptionElement.textContent = "No description available";
+
+            textContainer.appendChild(titleElement);
+            textContainer.appendChild(descriptionElement);
+            card.appendChild(image);
+            card.appendChild(textContainer);
+            cardsContainer.appendChild(card);
+        });
+    }
+
+    fetchActiveStreams();
+</script>
 {% endblock %}
