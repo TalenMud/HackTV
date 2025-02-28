@@ -657,6 +657,7 @@ def allowed_file(filename):
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/create", methods=['POST', 'GET'])
+@login_required
 def create():
     if request.method == 'POST':
         if 'user' not in session:
@@ -771,7 +772,6 @@ def search(keywords):
     return render_template("search.html", search_keywords=keywords, results=results, user=session.get("user"))
 
 @app.route("/watch/<int:stream_id>")
-@login_required
 def watch(stream_id):
     conn = get_db_connection()
     cur = conn.cursor()
