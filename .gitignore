@@ -12,4 +12,9 @@ venv/
 Thumbs.db
 
 setup_db.py
+postgre.sql
+logins.json
+videos.json
+
+
 
