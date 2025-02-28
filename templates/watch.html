@@ -7,162 +7,203 @@
 
 {% block content%}
 
-        <style>
-            .video-container {
-                width: 100%;
-                max-width: 1200px;
-                position: relative;
-                background: #000;
-                border-radius: 8px;
-                overflow: hidden;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            }
-            video {
-                width: 100%;
-                height: auto;
-                display: block;
-            }
-            :fullscreen .video-container {
-                max-width: none;
-                width: 100%;
-                height: 100%;
-                border-radius: 0;
-                box-shadow: none;
-            }
-            :fullscreen video {
-                height: 100%;
-                object-fit: contain;
-            }
-            .controls {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-                padding: 10px 15px;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-                z-index: 2;
-            }
-            .video-container:hover .controls {
-                opacity: 1;
-            }
-            .control-bar {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-            .play-btn, .fullscreen-btn {
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 20px;
-                cursor: pointer;
-                padding: 5px;
-                transition: transform 0.2s ease;
-            }
-            .play-btn:hover, .fullscreen-btn:hover {
-                transform: scale(1.1);
-            }
-            .progress-container {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                position: relative;
-            }
-            .time {
-                color: #fff;
-                font-family: Arial, sans-serif;
-                font-size: 12px;
-                min-width: 40px;
-            }
-            .progress-bar {
-                flex: 1;
-                height: 4px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 2px;
-                position: relative;
-                cursor: pointer;
-            }
-            .progress {
-                height: 100%;
-                background: #00aaff;
-                border-radius: 2px;
-                width: 0;
-                transition: width 0.1s linear;
-            }
-            .volume-container {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-            .volume-btn {
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 16px;
-                cursor: pointer;
-                padding: 5px;
-            }
-            .volume-bar {
-                width: 60px;
-                height: 4px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 2px;
-                position: relative;
-                cursor: pointer;
-            }
-            .volume-level {
-                height: 100%;
-                background: #00aaff;
-                border-radius: 2px;
-                width: 100%;
-            }
-            .preview {
-                position: absolute;
-                bottom: 40px;
-                width: 160px;
-                height: 90px;
-                background: #000;
-                border: 1px solid #fff;
-                border-radius: 4px;
-                display: none;
-                pointer-events: none;
-                z-index: 3;
-            }
-        </style>
+<style>
+    .video-container {
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    video {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    :fullscreen .video-container {
+        max-width: none;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    :fullscreen video {
+        height: 100%;
+        object-fit: contain;
+    }
+    .controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        padding: 10px 15px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+    }
+    .video-container:hover .controls {
+        opacity: 1;
+    }
+    .control-bar {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .play-btn, .fullscreen-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px;
+        transition: transform 0.2s ease;
+    }
+    .play-btn:hover, .fullscreen-btn:hover {
+        transform: scale(1.1);
+    }
+    .progress-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+    .time {
+        color: #fff;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        min-width: 40px;
+    }
+    .progress-bar {
+        flex: 1;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        position: relative;
+        cursor: pointer;
+    }
+    .progress {
+        height: 100%;
+        background: #00aaff;
+        border-radius: 2px;
+        width: 0;
+        transition: width 0.1s linear;
+    }
+    .volume-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .volume-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 5px;
+    }
+    .volume-bar {
+        width: 60px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        position: relative;
+        cursor: pointer;
+    }
+    .volume-level {
+        height: 100%;
+        background: #00aaff;
+        border-radius: 2px;
+        width: 100%;
+    }
+    .preview {
+        position: absolute;
+        bottom: 40px;
+        width: 160px;
+        height: 90px;
+        background: #000;
+        border: 1px solid #fff;
+        border-radius: 4px;
+        display: none;
+        pointer-events: none;
+        z-index: 3;
+    }
+    .share-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #1a1a1a;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        width: 300px;
+    }
+    .share-modal.active {
+        display: block;
+    }
+    .share-modal input {
+        width: 100%;
+        padding: 8px;
+        margin: 10px 0;
+        background: #333;
+        border: none;
+        border-radius: 4px;
+        color: white;
+    }
+    .share-modal button {
+        background: #00aaff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    .share-modal button:hover {
+        background: #0088cc;
+    }
+    .share-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+    .share-overlay.active {
+        display: block;
+    }
+</style>
 
+<div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[15rem]">
+    <div id="peer-id-display" class="text-white mt-4"><span id="peer-id"></span></div>
+    <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
+    <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
+    <a id="ad-link" href="#" target="_blank">
+        <img id="ad-image" src="" alt="ad image" class="mb-4 w-64 mx-auto">
+    </a>
+    <button id="ad-button" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
+        Loading...
+    </button>
+</div>
 
-      <!--Main content(stream,chat etc.)-->
-
-      <!--Ad section-->
-
-        <div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[15rem]">
-
-      <div id="peer-id-display" class="text-white mt-4"><span id="peer-id"></span></div>
-            <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
-            <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
-            <a id="ad-link" href="#" target="_blank">
-                <img id="ad-image" src="" alt="ad image" class="mb-4 w-64 mx-auto">
-            </a>
-            <button id="ad-button" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
-                Loading...
-            </button>
-        </div>
-        
-        <div class="ml-24 w-full p-8 flex flex-row">
-
-        <!--Video/Stream section-->
-        <div class="w-[75%] overflow-y-scroll">
-
+<div class="ml-24 w-full p-8 flex flex-row">
+    <div class="w-[75%] overflow-y-scroll">
         <div class="video-container">
             <video id="videoPlayer">
                 <source src="" type="video/mp4">
             </video>
             <div class="controls">
                 <div class="control-bar">
-                    <button class="play-btn">▶</button>
+                    <button class="play-btn"><i class="fas fa-play"></i></button>
                     <div class="progress-container">
                         <span class="time current-time">0:00</span>
                         <div class="progress-bar">
@@ -172,64 +213,57 @@
                         <span class="time duration">0:00</span>
                     </div>
                     <div class="volume-container">
-                        <button class="volume-btn">🔊</button>
+                        <button class="volume-btn"><i class="fas fa-volume-up"></i></button>
                         <div class="volume-bar">
                             <div class="volume-level"></div>
                         </div>
                     </div>
-                    <button class="fullscreen-btn">⛶</button>
+                    <button class="fullscreen-btn"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
         </div>
 
         <h1 class="font-[Silkscreen] text-3xl text-white m-4"> data.title </h1>
         <div class="w-full h-[6rem] flex flex-row justify-evenly items-center">
-          <!--Like button-->
-          <button class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300 reactButton">
-<svg viewBox="0 0 24 24" width="3rem" height="3rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M15.0501 7.04419C15.4673 5.79254 14.5357 4.5 13.2163 4.5C12.5921 4.5 12.0062 4.80147 11.6434 5.30944L8.47155 9.75H5.85748L5.10748 10.5V18L5.85748 18.75H16.8211L19.1247 14.1428C19.8088 12.7747 19.5406 11.1224 18.4591 10.0408C17.7926 9.37439 16.8888 9 15.9463 9H14.3981L15.0501 7.04419ZM9.60751 10.7404L12.864 6.1813C12.9453 6.06753 13.0765 6 13.2163 6C13.5118 6 13.7205 6.28951 13.627 6.56984L12.317 10.5H15.9463C16.491 10.5 17.0133 10.7164 17.3984 11.1015C18.0235 11.7265 18.1784 12.6814 17.7831 13.472L15.8941 17.25H9.60751V10.7404ZM8.10751 17.25H6.60748V11.25H8.10751V17.25Z"></path> </g></svg>
-<p class="text-white font-[Varela] ">0 likes</p>
-          </button>
-
-          <!--Dislike button-->
-          <button class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300 reactButton">
-<svg viewBox="0 0 24 24" height="3rem" width="3rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M15.0501 16.9558C15.4673 18.2075 14.5357 19.5 13.2164 19.5C12.5921 19.5 12.0063 19.1985 11.6435 18.6906L8.47164 14.25L5.85761 14.25L5.10761 13.5L5.10761 6L5.85761 5.25L16.8211 5.25L19.1247 9.85722C19.8088 11.2253 19.5407 12.8776 18.4591 13.9592C17.7927 14.6256 16.8888 15 15.9463 15L14.3982 15L15.0501 16.9558ZM9.60761 13.2596L12.8641 17.8187C12.9453 17.9325 13.0765 18 13.2164 18C13.5119 18 13.7205 17.7105 13.6271 17.4302L12.317 13.5L15.9463 13.5C16.491 13.5 17.0133 13.2836 17.3984 12.8985C18.0235 12.2735 18.1784 11.3186 17.7831 10.528L15.8941 6.75L9.60761 6.75L9.60761 13.2596ZM8.10761 6.75L6.60761 6.75L6.60761 12.75L8.10761 12.75L8.10761 6.75Z"></path> </g></svg>
-<p class="text-white font-[Varela] ">0 dislikes</p>
-          </button>
-
-          <!--Share-->
-          <button class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300 reactButton">
-<svg viewBox="0 0 24 24" height="3rem" width="3rem" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z"></path> </g></svg>
-<p class="text-white font-[Varela] ">share</p>
-          </button>
-
+            <button id="shareButton" class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="3rem" width="3rem"><path fill="#ffffff" d="M307 34.8c-11.5 5.1-19 16.6-19 29.2l0 64-112 0C78.8 128 0 206.8 0 304C0 417.3 81.5 467.9 100.2 478.1c2.5 1.4 5.3 1.9 8.1 1.9c10.9 0 19.7-8.9 19.7-19.7c0-7.5-4.3-14.4-9.8-19.5C108.8 431.9 96 414.4 96 384c0-53 43-96 96-96l96 0 0 64c0 12.6 7.4 24.1 19 29.2s25 3 34.4-5.4l160-144c6.7-6.1 10.6-14.7 10.6-23.8s-3.8-17.7-10.6-23.8l-160-144c-9.4-8.5-22.9-10.6-34.4-5.4z"/></svg>
+                <p class="text-white font-[Varela]">share</p>
+            </button>
         </div>
         <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
-        <p class="font-[Varela] text-xl text-[#777777] m-4"> data.desc
+        <p class="font-[Varela] text-xl text-[#777777] m-4"> data.desc </p>
+    </div>
 
-        </p>
+    <div id="comment-section" class="p-4 mt-16">
+        <div class="flex items-center mb-4">
+            <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" onkeyup="handleKeyUp(event)">
+            <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendcomment()">
+                <i class="fas fa-paper-plane text-xl"></i>
+            </button>
         </div>
-
-        <!--Comment Section-->
-
-          <div id="comment-section" class="p-4 mt-16">
-              <div class="flex items-center mb-4">
-                  <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" onkeyup="handleKeyUp(event)">
-                  <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendcomment()">
-                      <i class="fas fa-paper-plane text-xl"></i>
-                  </button>
-              </div>
-              <div id="comments">
-                  <div>
-                      <h1 class="text-white text-sm">@User_1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
-                      <p class="text-gray-400 text-xs">Loved it</p>
-                  </div>
-                  <div>
-                      <h1 class="text-white text-sm">@User_2 <span class="text-gray-400 text-xs">24 hours ago</span></h1>
-                      <p class="text-gray-400 text-xs">Here from day 1</p>
-                  </div>
-              </div>
-          </div>
+        <div id="comments">
+            <div>
+                <h1 class="text-white text-sm">@User_1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
+                <p class="text-gray-400 text-xs">Loved it</p>
+            </div>
+            <div>
+                <h1 class="text-white text-sm">@User_2 <span class="text-gray-400 text-xs">24 hours ago</span></h1>
+                <p class="text-gray-400 text-xs">Here from day 1</p>
+            </div>
         </div>
+    </div>
+</div>
+
+<div class="share-overlay" id="shareOverlay"></div>
+<div class="share-modal" id="shareModal">
+    <h2 class="text-white font-[Silkscreen] mb-4">Share Video</h2>
+    <input type="text" id="shareUrl" readonly>
+    <div class="mt-4">
+        <button id="copyButton">Copy</button>
+        <button id="closeButton">Close</button>
+    </div>
+</div>
+
 {% endblock%}
 
 {% block script%}
@@ -260,7 +294,6 @@
         }
     }
 
-
     function addVideoToLocalStorage() {
         const videoId = crypto.randomUUID();
         const videoDetails = {
@@ -280,138 +313,163 @@
         addVideoToLocalStorage();
     });
 
-    //Like/dislike/share button click
-    const btns=document.querySelectorAll(".reactButton");
-    btns.forEach((btn) =>{
-      btn.addEventListener("click",()=>{
-          btn.classList.toggle("clicked");
-      })
+    const shareButton = document.getElementById('shareButton');
+    const shareModal = document.getElementById('shareModal');
+    const shareOverlay = document.getElementById('shareOverlay');
+    const shareUrl = document.getElementById('shareUrl');
+    const copyButton = document.getElementById('copyButton');
+    const closeButton = document.getElementById('closeButton');
+
+    shareButton.addEventListener('click', () => {
+        shareUrl.value = window.location.href;
+        shareModal.classList.add('active');
+        shareOverlay.classList.add('active');
     });
-    
+
+    copyButton.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(shareUrl.value);
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = 'Copy';
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    });
+
+    closeButton.addEventListener('click', () => {
+        shareModal.classList.remove('active');
+        shareOverlay.classList.remove('active');
+    });
+
+    shareOverlay.addEventListener('click', () => {
+        shareModal.classList.remove('active');
+        shareOverlay.classList.remove('active');
+    });
 </script>
 
-        <script>
-            const videoUrl = localStorage.getItem('videoUrl');
-            const video = document.getElementById('videoPlayer');
-            const playBtn = document.querySelector('.play-btn');
-            const progressBar = document.querySelector('.progress-bar');
-            const progress = document.querySelector('.progress');
-            const currentTime = document.querySelector('.current-time');
-            const durationTime = document.querySelector('.duration');
-            const volumeBtn = document.querySelector('.volume-btn');
-            const volumeBar = document.querySelector('.volume-bar');
-            const volumeLevel = document.querySelector('.volume-level');
-            const fullscreenBtn = document.querySelector('.fullscreen-btn');
-            const preview = document.querySelector('.preview');
-            console.log(videoUrl);
-            let thumbnails = {};
+<script>
+    const videoUrl = localStorage.getItem('videoUrl');
+    const video = document.getElementById('videoPlayer');
+    const playBtn = document.querySelector('.play-btn');
+    const progressBar = document.querySelector('.progress-bar');
+    const progress = document.querySelector('.progress');
+    const currentTime = document.querySelector('.current-time');
+    const durationTime = document.querySelector('.duration');
+    const volumeBtn = document.querySelector('.volume-btn');
+    const volumeBar = document.querySelector('.volume-bar');
+    const volumeLevel = document.querySelector('.volume-level');
+    const fullscreenBtn = document.querySelector('.fullscreen-btn');
+    const preview = document.querySelector('.preview');
+    let thumbnails = {};
 
-            if (!videoUrl) {
-                document.body.innerHTML = 'No video URL provided';
+    if (!videoUrl) {
+        document.body.innerHTML = 'No video URL provided';
+    } else {
+        video.querySelector('source').src = videoUrl;
+        video.load();
+
+        video.addEventListener('loadedmetadata', () => {
+            durationTime.textContent = formatTime(video.duration);
+            generateThumbnails();
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
             } else {
-                video.querySelector('source').src = videoUrl;
-                video.load();
-
-                video.addEventListener('loadedmetadata', () => {
-                    durationTime.textContent = formatTime(video.duration);
-                    generateThumbnails();
-                });
-
-                playBtn.addEventListener('click', () => {
-                    if (video.paused) {
-                        video.play();
-                        playBtn.textContent = '⏸';
-                    } else {
-                        video.pause();
-                        playBtn.textContent = '▶';
-                    }
-                });
-
-                video.addEventListener('timeupdate', () => {
-                    const percent = (video.currentTime / video.duration) * 100;
-                    progress.style.width = percent + '%';
-                    currentTime.textContent = formatTime(video.currentTime);
-                });
-
-                progressBar.addEventListener('click', (e) => {
-                    const rect = progressBar.getBoundingClientRect();
-                    const percent = (e.clientX - rect.left) / rect.width;
-                    video.currentTime = percent * video.duration;
-                });
-
-                progressBar.addEventListener('mousemove', (e) => {
-                    const rect = progressBar.getBoundingClientRect();
-                    const percent = (e.clientX - rect.left) / rect.width;
-                    const time = percent * video.duration;
-                    const previewTime = Math.floor(time / 10) * 10;
-                    
-                    if (thumbnails[previewTime]) {
-                        const ctx = preview.getContext('2d');
-                        ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
-                        preview.style.left = Math.min(
-                            Math.max(e.clientX - rect.left - 80, 0),
-                            rect.width - 160
-                        ) + 'px';
-                        preview.style.display = 'block';
-                    }
-                });
-
-                progressBar.addEventListener('mouseleave', () => {
-                    preview.style.display = 'none';
-                });
-
-                volumeBtn.addEventListener('click', () => {
-                    video.muted = !video.muted;
-                    volumeBtn.textContent = video.muted ? '🔇' : '🔊';
-                    volumeLevel.style.width = video.muted ? '0%' : (video.volume * 100) + '%';
-                });
-
-                volumeBar.addEventListener('click', (e) => {
-                    const rect = volumeBar.getBoundingClientRect();
-                    const percent = (e.clientX - rect.left) / rect.width;
-                    video.volume = percent;
-                    video.muted = false;
-                    volumeBtn.textContent = '🔊';
-                    volumeLevel.style.width = (percent * 100) + '%';
-                });
-
-                fullscreenBtn.addEventListener('click', () => {
-                    if (!document.fullscreenElement) {
-                        document.querySelector('.video-container').requestFullscreen();
-                    } else {
-                        document.exitFullscreen();
-                    }
-                });
-
-                function formatTime(seconds) {
-                    const mins = Math.floor(seconds / 60);
-                    const secs = Math.floor(seconds % 60);
-                    return mins + ':' + (secs < 10 ? '0' + secs : secs);
-                }
-
-                function generateThumbnails() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 160;
-                    canvas.height = 90;
-                    const ctx = canvas.getContext('2d');
-                    const duration = video.duration;
-                    const interval = 10;
-
-                    function capture(time) {
-                        video.currentTime = time;
-                        video.addEventListener('seeked', function onSeeked() {
-                            ctx.drawImage(video, 0, 0, 160, 90);
-                            thumbnails[time] = new Image();
-                            thumbnails[time].src = canvas.toDataURL();
-                            video.removeEventListener('seeked', onSeeked);
-                            if (time + interval < duration) {
-                                capture(time + interval);
-                            }
-                        }, { once: true });
-                    }
-                    capture(0);
-                }
+                video.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
-        </script>
+        });
+
+        video.addEventListener('timeupdate', () => {
+            const percent = (video.currentTime / video.duration) * 100;
+            progress.style.width = percent + '%';
+            currentTime.textContent = formatTime(video.currentTime);
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            video.currentTime = percent * video.duration;
+        });
+
+        progressBar.addEventListener('mousemove', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const time = percent * video.duration;
+            const previewTime = Math.floor(time / 10) * 10;
+            
+            if (thumbnails[previewTime]) {
+                const ctx = preview.getContext('2d');
+                ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
+                preview.style.left = Math.min(
+                    Math.max(e.clientX - rect.left - 80, 0),
+                    rect.width - 160
+                ) + 'px';
+                preview.style.display = 'block';
+            }
+        });
+
+        progressBar.addEventListener('mouseleave', () => {
+            preview.style.display = 'none';
+        });
+
+        volumeBtn.addEventListener('click', () => {
+            video.muted = !video.muted;
+            volumeBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            volumeLevel.style.width = video.muted ? '0%' : (video.volume * 100) + '%';
+        });
+
+        volumeBar.addEventListener('click', (e) => {
+            const rect = volumeBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            video.volume = percent;
+            video.muted = false;
+            volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            volumeLevel.style.width = (percent * 100) + '%';
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.querySelector('.video-container').requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' + secs : secs);
+        }
+
+        function generateThumbnails() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 90;
+            const ctx = canvas.getContext('2d');
+            const duration = video.duration;
+            const interval = 10;
+
+            function capture(time) {
+                video.currentTime = time;
+                video.addEventListener('seeked', function onSeeked() {
+                    ctx.drawImage(video, 0, 0, 160, 90);
+                    thumbnails[time] = new Image();
+                    thumbnails[time].src = canvas.toDataURL();
+                    video.removeEventListener('seeked', onSeeked);
+                    if (time + interval < duration) {
+                        capture(time + interval);
+                    }
+                }, { once: true });
+            }
+            capture(0);
+        }
+    }
+</script>
 
 {% endblock %}
