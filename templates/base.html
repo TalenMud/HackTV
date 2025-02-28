@@ -80,7 +80,7 @@
       </div>
 
       <!--Main content(videos)-->
-      <div class="mainContent w-full h-full flex flex-col items-center justify-center overflow-y-scroll overflow-x-hidden">
+      <div class="mainContent w-full h-full flex flex-col items-center justify-center overflow-y-scroll overflow-x-hidden" id="main-content">
 
 {% if user %} <!--add this to other htmls as well-->
 <div class="user-display text-white ml-4 w-full">
@@ -90,7 +90,7 @@
         {% block content %}
         {% endblock %}
 
-        <div class="w-full flex flex-col items-center h-auto justify-center relative top-[20rem]">
+        <div class="w-full flex flex-col items-center h-auto justify-center relative top-[20rem]" id="feedback-part">
         <hr class="text-[#202020] bg-[#202020] border-2 border-[#202020]" height="2px" width="100%">
         <p class="font-[Varela] text-xl text-center text-[#888888] my-8">Thank you for using HackTV 💖! <br>Please take a minute to <a class="underline text-[#9546fc]" href="/feedback">give us some feedback</a> !</p>
         </div>

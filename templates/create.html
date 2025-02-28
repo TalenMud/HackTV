@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}HackTV - Create stream{% endblock %}
 
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">homeContainer</div>
+{% endblock %}
+
 {% block content %}
-<main class="min-h-screen h-auto flex items-center justify-center p-4 relative top-[9rem]">
+<main class="min-h-screen h-auto flex items-center justify-center p-4 relative top-[14rem]">
     <form method="POST" action="/create-video" enctype="multipart/form-data" id="streamForm"
         class="flex flex-col justify-center w-full h-auto max-w-2xl bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
         <h1 class="text-4xl font-bold font-[Silkscreen] text-white mb-4 text-center">Upload New Video</h1>
@@ -51,6 +55,9 @@
                     </div>
                 </label>
             </div>
+
+
+
             <div id="preview-container" class="hidden">
                 <div class="video-wrapper relative rounded-lg overflow-hidden" style="max-height: 300px;">
                     <video id="video-preview" controls class="w-full" preload="metadata">
@@ -81,15 +88,50 @@
                 <a id="stream-url" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 break-all"></a>
             </div>
             <input type="hidden" name="url" id="video-url">
-
         </div>
 
+        <div class="mb-8 mt-4">
+            <label class="block text-white/80 mb-2 text-lg font-medium">Video Thumbnail</label>
+            <div id="upload-container-thumb" class="flex items-center justify-center">
+                <label class="relative group w-full">
+                    <input type="file" name="video-thumb" id="video-upload-thumb" required accept="image/*"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <div id="upload-area-thumb" class="w-full flex flex-col items-center justify-center px-4 py-12 bg-white/5 border-2 border-dashed border-white/20 rounded-lg transition-all group-hover:border-[#9546fc] group-hover:bg-white/10">
+                        <svg class="w-12 h-12 text-white/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <span class="text-white/80 text-lg">Click to upload, or drag and drop</span>
+                        <span class="text-white/50 text-sm mt-2">.png, .jpeg, .jpg</span>
+                    </div>
+                </label>
+            </div>
+
+            <img class="hidden" id="preview-image" src="">
+
+            <div class="mt-3 flex justify-between items-center hidden" id="changeThumbContainer">
+                <button type="button" id="change-video-thumb" 
+                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Change Thumbnail 
+                </button>
+                <span id="file-size-thumb" class="text-white/60 text-sm"></span>
+            </div>
+
         <button type="submit"
-            class="w-full py-3 px-6 bg-[#9546fc] hover:bg-[#2a0d4f] text-white font-semibold rounded-lg transition-all transform hover:scale-[1.01] active:scale-95">
+            class="w-full py-3 mt-4 px-6 bg-[#9546fc] hover:bg-[#2a0d4f] text-white font-semibold rounded-lg transition-all transform hover:scale-[1.01] active:scale-95">
             Upload Video 
         </button>
     </form>
 </main>
+
+{% endblock %}
+
+
+{% block script %}
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -97,15 +139,27 @@
     const form = document.getElementById('streamForm');
     const fileInput = document.getElementById('video-upload');
     const uploadContainer = document.getElementById('upload-container');
+
+    const fileInputThumb = document.getElementById('video-upload-thumb');
+    const uploadContainerThumb = document.getElementById('upload-container-thumb');
+    const previewImage=document.getElementById('preview-image');
+    const changeThumbBtn=document.getElementById('change-video-thumb');
+
+    const changeThumbContainer=document.getElementById('changeThumbContainer');
+
     const previewContainer = document.getElementById('preview-container');
     const videoPreview = document.getElementById('video-preview');
     const changeVideoBtn = document.getElementById('change-video');
     const fileSizeSpan = document.getElementById('file-size');
+    const fileSizeThumbSpan = document.getElementById('file-size-thumb');
     const progressBar = document.getElementById('progress-bar');
     const progressContainer = document.getElementById('progress-container');
     const urlContainer = document.getElementById('url-container');
     const streamUrl = document.getElementById('stream-url');
     const videoUrlInput = document.getElementById('video-url');
+
+    const feedbackPart=document.getElementById('feedback-part');
+    feedbackPart.classList.add('hidden');
 
     window.addEventListener('load', async () => {
         const loginData = localStorage.getItem('loginforhacktv');
@@ -134,6 +188,19 @@
         }
     });
 
+    fileInputThumb.addEventListener('change', () => {
+        if (fileInputThumb.files.length > 0) {
+            currentFile = fileInputThumb.files[0];
+            const imageURL= URL.createObjectURL(currentFile);
+            previewImage.src=imageURL;
+            uploadContainerThumb.classList.add('hidden');
+            previewImage.classList.remove('hidden');
+            changeThumbContainer.classList.remove('hidden');
+            fileSizeThumbSpan.textContent = `Size: ${(currentFile.size / (1024 * 1024)).toFixed(2)} MB`;
+        }
+    });
+
+
     fileInput.addEventListener('change', () => {
         if (fileInput.files.length > 0) {
             currentFile = fileInput.files[0];
@@ -157,6 +224,16 @@
         URL.revokeObjectURL(videoPreview.src);
         urlContainer.classList.add('hidden');
         videoUrlInput.value = '';
+    });
+
+    changeThumbBtn.addEventListener('click', () => {
+        previewImage.classList.add('hidden');
+        uploadContainerThumb.classList.remove('hidden');
+        fileSizeThumbSpan.innerText='';
+        previewImage.src = '';
+        fileInputThumb.value = '';
+        currentFile = null;
+        URL.revokeObjectURL(videoPreview.src);
     });
 
     form.addEventListener('submit', async (e) => {
