@@ -136,6 +136,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let currentFile = null;
+    let currentImg= null;
     const form = document.getElementById('streamForm');
     const fileInput = document.getElementById('video-upload');
     const uploadContainer = document.getElementById('upload-container');
@@ -190,13 +191,13 @@
 
     fileInputThumb.addEventListener('change', () => {
         if (fileInputThumb.files.length > 0) {
-            currentFile = fileInputThumb.files[0];
-            const imageURL= URL.createObjectURL(currentFile);
+            currentImg= fileInputThumb.files[0];
+            const imageURL= URL.createObjectURL(currentImg);
             previewImage.src=imageURL;
             uploadContainerThumb.classList.add('hidden');
             previewImage.classList.remove('hidden');
             changeThumbContainer.classList.remove('hidden');
-            fileSizeThumbSpan.textContent = `Size: ${(currentFile.size / (1024 * 1024)).toFixed(2)} MB`;
+            fileSizeThumbSpan.textContent = `Size: ${(currentImg.size / (1024 * 1024)).toFixed(2)} MB`;
         }
     });
 

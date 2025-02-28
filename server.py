@@ -98,8 +98,6 @@ if not os.path.exists(VIDEOS_JSON):
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
-
-
 @app.route('/video')
 def video():
     url_param = request.args.get('url', '')
