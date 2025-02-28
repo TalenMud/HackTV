@@ -492,49 +492,8 @@ def index():
 
 @app.route('/settings', methods=['GET', 'POST']) 
 def account():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    
-    user_id = session["user"]["id"]
 
-    if request.method == 'POST':
-        ads_enabled = 'ads_enabled' in request.form
-        conn = get_db_connection()
-        cur = conn.cursor()
-
-        try:
-            cur.execute("""
-                UPDATE users
-                SET settings = JSONB_SET(
-                    COALESCE(settings, '{}'::jsonb),
-                    '{ads_enabled}',
-                    to_jsonb(%s::boolean)
-                WHERE slack_id = %s
-            """, (ads_enabled, user_id))
-            conn.commit()
-            flash("Settings updated", "success")
-        except psycopg2.Error as e:
-            flash("failed to update settings", "error")
-        finally:
-            cur.close()
-            conn.close()
-    
-    conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT COALESCE(settings->>'ads_enabled', 'true')::boolean
-            FROM users
-            WHERE slack_id = %s
-        """, (user_id,))
-        ads_enabled = cur.fetchone()[0]
-    except psycopg2.Error as e:
-        ads_enabled = True
-    finally:
-        cur.close()
-        conn.close()
-
-    return render_template("settings.html", ads_enabled=ads_enabled, user=session.get("user"))
+    return render_template("settings.html", ads_enabled=True, user="Test")
 
 @app.route('/history')  
 def history():
