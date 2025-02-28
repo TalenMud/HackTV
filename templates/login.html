@@ -10,8 +10,29 @@
     <div class="w-full max-w-md rounded-2xl p-8 shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
         <div id="welcomeMessage" class="hidden text-center text-gray-900 dark:text-gray-100 mb-6"></div>
         <div id="loggedInMessage" class="hidden text-center text-gray-900 dark:text-gray-100 mb-6 flex flex-col items-center">
-            <span id="loggedInText" class="mb-4 text-lg font-semibold"></span>
-            <button id="signoutButton" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">Sign Out</button>
+            <div class="w-full flex flex-col items-center">
+                <div class="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4 shadow-md">
+                    <svg class="w-12 h-12 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">Welcome Back!</h2>
+                <span id="loggedInText" class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-6"></span>
+                <div class="flex space-x-4">
+                    <button id="dashboardButton" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        Create Videos
+                    </button>
+                    <button id="signoutButton" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
         </div>
         <div id="authTabs" class="flex mb-6 rounded-md bg-gray-100 dark:bg-gray-700 p-1">
             <button id="loginTab" class="flex-1 py-2 text-gray-600 dark:text-gray-300 font-medium text-center rounded-md bg-white dark:bg-gray-800 shadow-sm text-blue-500 dark:text-blue-400 transition-colors">Login</button>
@@ -326,5 +347,19 @@
             }
         });
     });
+    const dashboardButton = document.getElementById('dashboardButton');
+
+dashboardButton.addEventListener('click', () => {
+    Swal.fire({
+        icon: 'info',
+        title: 'Create',
+        text: 'Redirecting to create page...',
+        timer: 1500,
+        showConfirmButton: false
+    });
+    setTimeout(() => {
+        window.location.href = '/create';
+    }, 1500);
+});
 </script>
 {% endblock %}
