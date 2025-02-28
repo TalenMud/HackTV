@@ -6,37 +6,41 @@
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-    <div class="w-full max-w-md rounded-2xl p-8">
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-2xl p-8 shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
         <div id="welcomeMessage" class="hidden text-center text-gray-900 dark:text-gray-100 mb-6"></div>
         <div id="loggedInMessage" class="hidden text-center text-gray-900 dark:text-gray-100 mb-6 flex flex-col items-center">
-            <span id="loggedInText" class="mb-4"></span>
+            <span id="loggedInText" class="mb-4 text-lg font-semibold"></span>
             <button id="signoutButton" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">Sign Out</button>
         </div>
-        <div id="authTabs" class="flex mb-8 border-b border-gray-200 dark:border-gray-700">
-            <button id="loginTab" class="flex-1 py-3 text-gray-600 dark:text-gray-300 font-medium text-center border-b-2 border-blue-500 text-blue-500 dark:text-blue-400 dark:border-blue-400 transition-colors tab-button active">Login</button>
-            <button id="signupTab" class="flex-1 py-3 text-gray-600 dark:text-gray-300 font-medium text-center hover:text-blue-500 dark:hover:text-blue-400 transition-colors tab-button">Signup</button>
+        <div id="authTabs" class="flex mb-6 rounded-md bg-gray-100 dark:bg-gray-700 p-1">
+            <button id="loginTab" class="flex-1 py-2 text-gray-600 dark:text-gray-300 font-medium text-center rounded-md bg-white dark:bg-gray-800 shadow-sm text-blue-500 dark:text-blue-400 transition-colors">Login</button>
+            <button id="signupTab" class="flex-1 py-2 text-gray-600 dark:text-gray-300 font-medium text-center rounded-md hover:text-blue-500 dark:hover:text-blue-400 transition-colors">Signup</button>
         </div>
 
         <form id="loginForm" class="space-y-6">
             <div>
-                <input type="text" id="loginUsername" name="username" placeholder="Username" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required>
+                <input type="text" id="loginUsername" name="username" placeholder="Username" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required>
             </div>
             <div>
-                <input type="password" id="loginPassword" name="password" placeholder="Password" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required>
+                <input type="password" id="loginPassword" name="password" placeholder="Password" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required minlength="6">
             </div>
             <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">Login</button>
         </form>
 
         <form id="signupForm" class="space-y-6 hidden">
             <div>
-                <input type="text" id="signupUsername" name="username" placeholder="Username" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required>
+                <input type="text" id="signupUsername" name="username" placeholder="Username" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required>
             </div>
             <div>
-                <input type="email" id="signupEmail" name="email" placeholder="Email" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required>
+                <input type="email" id="signupEmail" name="email" placeholder="Email" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required>
             </div>
             <div>
-                <input type="password" id="signupPassword" name="password" placeholder="Password" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required>
+                <input type="password" id="signupPassword" name="password" placeholder="Password (min 6 characters)" class="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" required minlength="6">
+                <div id="passwordStrength" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></div>
+                <div id="strengthBar" class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 mt-1">
+                    <div id="strengthFill" class="h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                </div>
             </div>
             <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">Signup</button>
         </form>
@@ -55,7 +59,10 @@
     const signoutButton = document.getElementById('signoutButton');
     const loginUsername = document.getElementById('loginUsername');
     const loginPassword = document.getElementById('loginPassword');
+    const signupPassword = document.getElementById('signupPassword');
     const authTabs = document.getElementById('authTabs');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const strengthFill = document.getElementById('strengthFill');
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -77,8 +84,8 @@
             signupForm.classList.add('hidden');
             welcomeMessage.classList.add('hidden');
             authTabs.classList.add('hidden');
-            loginTab.classList.remove('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
-            signupTab.classList.remove('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
+            loginTab.classList.remove('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
+            signupTab.classList.remove('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
         } else {
             loggedInMessage.classList.add('hidden');
             loginForm.classList.remove('hidden');
@@ -95,15 +102,41 @@
         }
     }
 
+    function calculatePasswordStrength(password) {
+        let score = 0;
+        if (password.length >= 6) score += 20;
+        if (password.length >= 10) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[^A-Za-z0-9]/.test(password)) score += 20;
+
+        let strengthText = '';
+        let color = '';
+        if (score <= 20) {
+            strengthText = 'Weak';
+            color = 'bg-red-500';
+        } else if (score <= 60) {
+            strengthText = 'Moderate';
+            color = 'bg-yellow-500';
+        } else {
+            strengthText = 'Strong';
+            color = 'bg-green-500';
+        }
+
+        passwordStrength.textContent = `Password Strength: ${strengthText}`;
+        strengthFill.style.width = `${score}%`;
+        strengthFill.className = `h-full rounded-full transition-all duration-300 ${color}`;
+    }
+
     checkLoginStatus();
     loadLoginData();
 
     loginTab.addEventListener('click', () => {
         if (!localStorage.getItem('loginforhacktv')) {
-            loginTab.classList.add('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
-            loginTab.classList.remove('border-transparent', 'text-gray-600', 'dark:text-gray-300');
-            signupTab.classList.remove('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
-            signupTab.classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-300');
+            loginTab.classList.add('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
+            loginTab.classList.remove('text-gray-600', 'dark:text-gray-300');
+            signupTab.classList.remove('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
+            signupTab.classList.add('text-gray-600', 'dark:text-gray-300');
             loginForm.classList.remove('hidden');
             signupForm.classList.add('hidden');
             welcomeMessage.classList.add('hidden');
@@ -113,10 +146,10 @@
 
     signupTab.addEventListener('click', () => {
         if (!localStorage.getItem('loginforhacktv')) {
-            signupTab.classList.add('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
-            signupTab.classList.remove('border-transparent', 'text-gray-600', 'dark:text-gray-300');
-            loginTab.classList.remove('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
-            loginTab.classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-300');
+            signupTab.classList.add('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
+            signupTab.classList.remove('text-gray-600', 'dark:text-gray-300');
+            loginTab.classList.remove('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
+            loginTab.classList.add('text-gray-600', 'dark:text-gray-300');
             signupForm.classList.remove('hidden');
             loginForm.classList.add('hidden');
             welcomeMessage.classList.add('hidden');
@@ -124,10 +157,22 @@
         }
     });
 
+    signupPassword.addEventListener('input', () => {
+        calculatePasswordStrength(signupPassword.value);
+    });
+
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = loginUsername.value;
         const password = loginPassword.value;
+        if (password.length < 6) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Password',
+                text: 'Password must be at least 6 characters long'
+            });
+            return;
+        }
         fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -150,8 +195,8 @@
                     loginForm.classList.add('hidden');
                     signupForm.classList.add('hidden');
                     authTabs.classList.add('hidden');
-                    loginTab.classList.remove('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
-                    signupTab.classList.remove('border-blue-500', 'text-blue-500', 'dark:text-blue-400', 'dark:border-blue-400');
+                    loginTab.classList.remove('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
+                    signupTab.classList.remove('bg-white', 'text-blue-500', 'dark:text-blue-400', 'dark:bg-gray-800');
                 }, 1500);
             } else {
                 Swal.fire({
@@ -174,7 +219,15 @@
         e.preventDefault();
         const username = document.getElementById('signupUsername').value;
         const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
+        const password = signupPassword.value;
+        if (password.length < 6) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Password',
+                text: 'Password must be at least 6 characters long'
+            });
+            return;
+        }
         fetch('/api/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
