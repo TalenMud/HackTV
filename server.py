@@ -215,10 +215,30 @@ def newstream():
 @app.route("/explore")
 def explore():
     return render_template("explore.html", user=session.get("user"))
+SLACK_HOOK_URL = "https://hooks.slack.com/triggers/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"
 
-@app.route("/feedback")
+@app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
-    return render_template("feedback.html", user=session.get("user"))
+    if request.method == 'POST':
+        email = request.form.get('email')
+        message = request.form.get('message')
+        
+  
+        payload = {
+            "email": email,
+            "feedback": message,
+        }
+        
+        response = requests.post(SLACK_HOOK_URL, json=payload)
+        
+        if response.status_code == 200:
+            flash('Thank you for your feedback!', 'success')
+        else:
+            flash('There was an error sending your feedback. Please try again later.', 'error')
+        
+        return redirect(url_for('feedback'))
+    
+    return render_template('feedback.html')
 
 @app.route("/stream", methods=["POST", "GET"])
 def streams():
