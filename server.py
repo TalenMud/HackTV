@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 import json
 from datetime import datetime
 from functools import wraps
+
 LOGIN_FILE = 'logins.json'
 if not os.path.exists(LOGIN_FILE):
     with open(LOGIN_FILE, 'w') as f:
@@ -28,19 +29,18 @@ load_dotenv()
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
 @app.route('/api/login', methods=['POST'])
 def loginsignup():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-
     if not username or not password:
         return jsonify({'status': 'error', 'message': 'Username and password are required'}), 400
-
     logins = load_logins()
     if username in logins and logins[username] == password:
         response = make_response(jsonify({'status': 'success', 'message': 'Login successful'}))
-        response.set_cookie('username', username, max_age=3600, httponly=True, secure=False)  # 1-hour cookie, secure=False for local dev
+        response.set_cookie('username', username, max_age=3600, httponly=True, secure=False)
         return response
     return jsonify({'status': 'error', 'message': 'Invalid username or password'}), 401
 
@@ -50,39 +50,20 @@ def signuplogin():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-
     if not username or not email or not password:
         return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
-
     logins = load_logins()
     if username in logins:
         return jsonify({'status': 'error', 'message': 'Username already exists'}), 409
-
     logins[username] = password
     save_logins(logins)
     return jsonify({'status': 'success', 'message': 'Signup successful'})
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
 
-    if not username or not email or not password:
-        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
-
-    logins = load_logins()
-    if username in logins:
-        return jsonify({'status': 'error', 'message': 'Username already exists'}), 409
-
-    logins[username] = password  
-    save_logins(logins)
-    return jsonify({'status': 'success', 'message': 'Signup successful'})
 SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
 SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
 SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 streams_data = "Test.Test:Test2.Test"
-
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 ALLOWED_SLACK_IDS = os.getenv("ALLOWED_SLACK_IDS", "").split(",")
 
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads', 'videos')
@@ -95,37 +76,33 @@ if not os.path.exists(VIDEOS_JSON):
     with open(VIDEOS_JSON, 'w') as f:
         json.dump([], f)
 
+# Update existing videos with empty comments array
+with open(VIDEOS_JSON, 'r') as f:
+    videos = json.load(f)
+for video in videos:
+    if 'comments' not in video:
+        video['comments'] = []
+with open(VIDEOS_JSON, 'w') as f:
+    json.dump(videos, f, indent=2)
+
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
 @app.route('/video')
-# checkpoint
 def video():
     url_param = request.args.get('url', '')
-
     with open(VIDEOS_JSON, 'r') as f:
         videos = json.load(f)
-
-    title="Some cool video"
-    desc="Some cool description"
-    thumbUrl="test.com/test.img"
-
+    title = "Some cool video"
+    desc = "Some cool description"
+    thumbUrl = "test.com/test.img"
     for i in videos:
-        if i['url']==url_param:
+        if i['url'] == url_param:
             title = i['title']
-            desc= i['desc']
-            thumbUrl= i['url_thumb']
-            print(desc)
-            print(title)
-            print("This ran!")
-
-    
+            desc = i['desc']
+            thumbUrl = i['url_thumb']
     if url_param:
         clean_url = url_param.replace('/embed', '')
-        print(desc)
-        print(title)
-        print(thumbUrl)
-        print(url_param)
         return render_template_string('''
         <!DOCTYPE html>
         <html>
@@ -141,64 +118,47 @@ def video():
         </head>
         <body></body>
         </html>
-        ''', url=clean_url,thumbUrl=thumbUrl,title=title,desc=desc)
-    
-    return render_template('watch.html',user=session.get("user"))
+        ''', url=clean_url, thumbUrl=thumbUrl, title=title, desc=desc)
+    return render_template('watch.html', user=session.get("user"))
 
 @app.route('/create-video', methods=['POST'])
 def create_video():
-    for i in ['title','url','desc','thumb-url']:
+    for i in ['title', 'url', 'desc', 'thumb-url']:
         if i not in request.form:
             flash('Missing required fields', 'error')
-            print(i)
             return redirect(url_for('create_video'))
-
     title = request.form['title']
-    desc=request.form['desc']
+    desc = request.form['desc']
     url = request.form['url']
-    url_thumb=request.form['thumb-url']
-
+    url_thumb = request.form['thumb-url']
     video_id = str(uuid.uuid4())
     video_data = {
         'id': video_id,
         'title': title,
-        'desc':desc,
+        'desc': desc,
         'url': url,
-        'url_thumb':url_thumb,
-        'upload_date': datetime.now().isoformat()
+        'url_thumb': url_thumb,
+        'upload_date': datetime.now().isoformat(),
+        'comments': []
     }
-
     with open(VIDEOS_JSON, 'r') as f:
         videos = json.load(f)
-
     videos.append(video_data)
-
     with open(VIDEOS_JSON, 'w') as f:
         json.dump(videos, f, indent=2)
-
     flash('Video stream created successfully!', 'success')
     return redirect(url_for('create_video'))
-
 
 @app.route('/get-videos', methods=['GET'])
 def get_videos():
     try:
         with open(VIDEOS_JSON, 'r') as f:
             videos = json.load(f)
-        return jsonify({
-            'status': 'success',
-            'videos': videos
-        })
+        return jsonify({'status': 'success', 'videos': videos})
     except FileNotFoundError:
-        return jsonify({
-            'status': 'success',
-            'videos': []
-        })
+        return jsonify({'status': 'success', 'videos': []})
     except json.JSONDecodeError:
-        return jsonify({
-            'status': 'error',
-            'message': 'Error reading video data'
-        }), 500
+        return jsonify({'status': 'error', 'message': 'Error reading video data'}), 500
 
 @app.route('/stream/<video_id>')
 def stream_video(video_id):
@@ -207,19 +167,34 @@ def stream_video(video_id):
             videos = json.load(f)
         video = next((v for v in videos if v['id'] == video_id), None)
         if video:
-            return jsonify({
-                'status': 'success',
-                'video': video
-            })
-        return jsonify({
-            'status': 'error',
-            'message': 'Video not found'
-        }), 404
+            return jsonify({'status': 'success', 'video': video})
+        return jsonify({'status': 'error', 'message': 'Video not found'}), 404
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/create-comment', methods=['POST'])
+def create_comment():
+    data = request.get_json()
+    video_id = data.get('video_id')
+    comment_text = data.get('comment')
+    username = "Guest"
+    if not video_id or not comment_text or not username:
+        return jsonify({'status': 'error', 'message': 'Video ID, comment, and logged-in user are required'}), 400
+    with open(VIDEOS_JSON, 'r') as f:
+        videos = json.load(f)
+    video = next((v for v in videos if v['id'] == video_id), None)
+    if not video:
+        return jsonify({'status': 'error', 'message': 'Video not found'}), 404
+    comment = {
+        'id': str(uuid.uuid4()),
+        'username': username,
+        'text': comment_text,
+        'timestamp': datetime.now().isoformat()
+    }
+    video['comments'].append(comment)
+    with open(VIDEOS_JSON, 'w') as f:
+        json.dump(videos, f, indent=2)
+    return jsonify({'status': 'success', 'message': 'Comment added successfully', 'comment': comment}), 201
 
 @app.route('/index.html')
 def index():
@@ -227,7 +202,6 @@ def index():
 
 @app.route('/settings', methods=['GET', 'POST']) 
 def account():
-
     return render_template("settings.html", ads_enabled=True, user="Test")
 
 @app.route('/history')  
@@ -246,23 +220,21 @@ def explore():
 def feedback():
     return render_template("feedback.html", user=session.get("user"))
 
-@app.route("/stream",methods=["POST","GET"])
+@app.route("/stream", methods=["POST", "GET"])
 def streams():
-    if request.method=="POST":
-        title=request.form['stream-title']
-        description=request.form['stream-desc']
-        data={"title":title,"desc":description,"streamer":True}
-        return render_template("watch.html",data=data)
-
-    data={"title":None,"desc":None,"streamer":False}
-    return render_template("stream.html",data=data, user=session.get("user"))
+    if request.method == "POST":
+        title = request.form['stream-title']
+        description = request.form['stream-desc']
+        data = {"title": title, "desc": description, "streamer": True}
+        return render_template("watch.html", data=data)
+    data = {"title": None, "desc": None, "streamer": False}
+    return render_template("stream.html", data=data, user=session.get("user"))
 
 def fetch_ysws_ads():
     try:
         response = requests.get("https://ysws.hackclub.com/data.yml", timeout=5)
         response.raise_for_status()
         data = yaml.safe_load(response.content)
-
         ads = []
         for entry in data.get('limitedTime', []):
             if entry.get('status', '') == 'active':
@@ -272,7 +244,6 @@ def fetch_ysws_ads():
                     "url": entry.get('website', '#'),
                     "image": "https://hackclub.com/stickers/orpheus.png"
                 })
-
         for entry in data.get('indefinite', []):
             if entry.get('status', '') == 'active':
                 ads.append({
@@ -281,7 +252,6 @@ def fetch_ysws_ads():
                     "url": entry.get('website', '#'),
                     "image": "https://hackclub.com/stickers/orpheus.png"
                 })
-
         return ads
     except Exception as e:
         print(f"error fetching ysws data: {e}")
@@ -304,9 +274,7 @@ def getad():
         finally:
             cur.close()
             conn.close()
-
     ysws_ads = fetch_ysws_ads()
-
     ads = ysws_ads if ysws_ads else [
         {"ad": "Put the you in CPU today", "image": "https://hackclub.com/stickers/inside.png", "url": "https://www.cpu.land"},
         {"ad": "A Game about Love & Graphing, Made By Hack Clubbers", "image": "https://sinerider.com/Assets/Images/loading-screen.png", "url": "https://sinerider.com/"},
@@ -320,7 +288,6 @@ def getad():
         {"ad": "Juice: Code a game for 100 hours, get a steam grant, get a stipend to the event!", "image": "ADD ME PLEASE ADD ME I BEG YOU", "url": "https://juice.hackclub.com/"},
         {"ad": "Jungle: Code a game, recieve tokens to be spent on assets for your game!", "image": "PLEASE ADD ME I NEED TO BE ADDED PLEASE", "url": "uhh idfk tbh"}
     ]
-
     selected_ad = random.choice(ads)
     return selected_ad
 
@@ -343,7 +310,6 @@ def login():
 def slack_callback():
     if not (code := request.args.get("code")):
         return "missing auth code", 400
-    
     token_response = requests.post(
         "https://slack.com/api/openid.connect.token",
         data={
@@ -353,22 +319,17 @@ def slack_callback():
             "redirect_uri": SLACK_REDIRECT_URI
         },
     ).json()
-
     if not token_response.get("ok", False):
         return f"error: {token_response.get('error', 'no token recieved')}", 401
-    
     user_response = requests.get(
         "https://slack.com/api/openid.connect.userInfo",
         headers={"Authorization": f"Bearer {token_response['access_token']}"}
     ).json()
-
     if not user_response.get("ok", False):
         return "unable to get user info", 401
-
     user_info = user_response.get("https://slack.com/user_id")
     if not user_info or (slack_id := user_info.get("sub")) not in ALLOWED_SLACK_IDS:
         return "unauthorized", 403
-
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -382,26 +343,25 @@ def slack_callback():
             )
             user_id = cur.fetchone()[0]
             conn.commit()
-
     session["user"] = {
         "db_id": user_id,
         "id": slack_id,
         "name": user_response.get("name", ""),
         "email": user_response.get("email", "")
     }
-
     return redirect(url_for("home"))
+
 @app.route("/loginorsignup")
 def loginorsignup():
     return render_template("login.html")
+
 @app.route("/logout")
 def logout():
     session.pop("user", None)
     return redirect(url_for("home"))
 
 def allowed_file(filename):
-    return '.' in filename and \
-            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/create", methods=['POST', 'GET'])
 def create():
@@ -409,31 +369,24 @@ def create():
         if 'user' not in session:
             flash("Login to create streams", "error")
             return redirect(url_for("login"))
-        
         stream_name = request.form.get('stream_name')
         stream_description = request.form.get('stream_description')
         video_file = request.files.get('video')
-
         if not all([stream_name, stream_description, video_file]):
             flash('all fields are required', 'error')
             return redirect(url_for('create'))
-        
         if not allowed_file(video_file.filename):
             flash('invalid file type', 'error')
             return redirect(url_for('create'))
-        
         filename = secure_filename(video_file.filename)
         unique_filename = f"{uuid.uuid4().hex}_{filename}"
         save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
         try:
             video_file.save(save_path)
         except Exception as e:
             flash('error saving video', 'error')
             return redirect(url_for('create'))
-        
         conn = get_db_connection()
         cur = conn.cursor()
         try:
@@ -450,10 +403,8 @@ def create():
         finally:
             cur.close()
             conn.close()
-
         flash('stream created successfully', 'success')
         return redirect(url_for('home'))
-    
     return render_template("create.html", user=session.get("user"))
 
 @app.route('/videos/<filename>')
@@ -464,10 +415,8 @@ def get_video(filename):
 def createstream():
     stream_name = request.form.get('stream-title')
     stream_description = request.form.get('stream-desc')
-    
     if not stream_name or not stream_description:
         return jsonify({"success": False, "message": "Stream name and description are required."}), 400
-
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
@@ -477,12 +426,10 @@ def createstream():
     conn.commit()
     cur.close()
     conn.close()
-
     return jsonify({"success": True, "message": "Stream created successfully!"}), 200
 
 @app.route("/search/<keywords>")
 def search(keywords):
-   
     return render_template("search.html", search_keywords=keywords)
 
 @app.route("/watch/<int:stream_id>")
@@ -495,15 +442,12 @@ def watch(stream_id):
             FROM streams WHERE id = %s
         """, (stream_id,))
         stream_data = cur.fetchone()
-
         if not stream_data:
             return "Stream not found", 404
-        
         return render_template("watch.html",
             stream_name=stream_data[0],
             description=stream_data[1],
             video_url=url_for('get_video', filename=stream_data[2]))
-    
     finally:
         cur.close()
         conn.close()
@@ -527,12 +471,10 @@ def active_streams():
     category_id = request.args.get('category_id')
     conn = get_db_connection()
     cur = conn.cursor()
-
     if category_id:
         cur.execute("SELECT streams.name, streams.description, streams.likes, streams.dislikes FROM streams WHERE category_id = %s", (category_id,))
     else:
         cur.execute("SELECT streams.name, streams.description, streams.likes, streams.dislikes FROM streams")
-
     streams = [{"name": row[0], "description": row[1], "likes": row[2], "dislikes": row[3]} for row in cur.fetchall()]
     cur.close()
     conn.close()
@@ -548,33 +490,26 @@ def get_image():
 def handle_vote(stream_id):
     if "user" not in session:
         return "unauthorized", 401
-    
     vote_type = request.form.get("type")
     if vote_type not in ("like", "dislike"):
         return "invalid vote type", 400
-    
     user_id = session["user"]["id"]
-
     conn = get_db_connection()
     cur = conn.cursor()
-
     try:
         cur.execute("""
             INSERT INTO votes (user_id, stream_id, vote_type)
             VALUES (%s, %s, %s)
             ON CONFLICT (user_id, stream_id) DO UPDATE SET vote_type = EXCLUDED.vote_type
             """, (user_id, stream_id, vote_type))
-        
         cur.execute("""
             UPDATE streams SET
                     likes = (SELECT COUNT(*) FROM votes WHERE stream_id = %s AND vote_type = "like"),
                     dislikes = (SELECT COUNT(*) FROM votes WHERE stream_id = %s AND vote_type = "dislike")
             WHERE id = %s
         """), (stream_id, stream_id, stream_id)
-
         conn.commit()
         return "vote recorded", 200
-    
     except psycopg2.Error as e:
         conn.rollback()
         return f"database error: {e}", 500
@@ -586,7 +521,6 @@ def handle_vote(stream_id):
 def get_votes(stream_id):
     conn = get_db_connection()
     cur = conn.cursor()
-
     try:
         cur.execute("""
             SELECT likes, dislikes FROM streams WHERE id = %s
@@ -599,7 +533,7 @@ def get_votes(stream_id):
     finally:
         cur.close()
         conn.close()
-    
+
 @app.route('/categories')
 def get_categories():
     conn = get_db_connection()

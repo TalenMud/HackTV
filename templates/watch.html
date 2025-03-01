@@ -219,7 +219,7 @@
             </div>
         </div>
 
-        <h1 class="font-[Silkscreen] text-3xl text-white m-4" id="vidTitle"> Some Cool vid</h1>
+        <h1 class="font-[Silkscreen] text-3xl text-white m-4" id="vidTitle">Some Cool vid</h1>
         <div class="w-full h-[6rem] flex flex-row justify-evenly items-center">
             <div class="share-container">
                 <button id="shareButton" class="flex flex-col text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300">
@@ -251,26 +251,17 @@
             </div>
         </div>
         <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
-        <p class="font-[Varela] text-xl text-[#777777] m-4" id="vidDesc"> Hey this is a cool video! Watch it and share it with your friends please:3</p>
+        <p class="font-[Varela] text-xl text-[#777777] m-4" id="vidDesc">Hey this is a cool video! Watch it and share it with your friends please:3</p>
     </div>
 
     <div id="comment-section" class="p-4 mt-16">
         <div class="flex items-center mb-4">
-            <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" onkeyup="handleKeyUp(event)">
-            <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendcomment()">
+            <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" onkeyup="handleKeyUp(event)" class="w-full px-4 py-2 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#9546fc] text-white placeholder-white/30">
+            <button id="send-comment" class="text-white ml-2 hover:text-gray-400 cursor-pointer transition-all duration-300" onclick="sendComment()">
                 <i class="fas fa-paper-plane text-xl"></i>
             </button>
         </div>
-        <div id="comments">
-            <div>
-                <h1 class="text-white text-sm">@User_1 <span class="text-gray-400 text-xs">12 hours ago</span></h1>
-                <p class="text-gray-400 text-xs">Loved it</p>
-            </div>
-            <div>
-                <h1 class="text-white text-sm">@User_2 <span class="text-gray-400 text-xs">24 hours ago</span></h1>
-                <p class="text-gray-400 text-xs">Here from day 1</p>
-            </div>
-        </div>
+        <div id="comments" class="space-y-4"></div>
     </div>
 </div>
 
@@ -283,9 +274,10 @@
     const adImage = document.getElementById('ad-image');
     const adLink = document.getElementById('ad-link');
     const adButton = document.getElementById('ad-button');
+    const commentsContainer = document.getElementById('comments');
 
-    document.getElementById('vidTitle').innerText=localStorage.getItem('title');
-    document.getElementById('vidDesc').innerText=localStorage.getItem('desc');
+    document.getElementById('vidTitle').innerText = localStorage.getItem('title');
+    document.getElementById('vidDesc').innerText = localStorage.getItem('desc');
 
     let streaming = false;
 
@@ -293,7 +285,6 @@
         try {
             const response = await fetch('/getad');
             const ad = await response.json();
-
             adTitle.textContent = ad.ad;
             adImage.src = ad.image;
             adLink.href = ad.url;
@@ -311,19 +302,121 @@
         const videoId = crypto.randomUUID();
         const videoDetails = {
             id: videoId,
-            title: "Sample Video Title",
-            url: "https://example.com/video.mp4",
-            thumbnail: "https://via.placeholder.com/150"
+            title: localStorage.getItem('title'),
+            url: localStorage.getItem('videoUrl'),
+            thumbnail: localStorage.getItem('thumbUrl')
         };
-
         let history = JSON.parse(localStorage.getItem('history')) || [];
         history.push(videoDetails);
         localStorage.setItem('history', JSON.stringify(history));
     }
 
+    function findClosestVideo(videos, targetUrl) {
+        if (!videos || videos.length === 0) return null;
+        let closestVideo = videos[0];
+        let maxOverlap = 0;
+
+        const targetParts = targetUrl.split('/').filter(part => part);
+        videos.forEach(video => {
+            const videoParts = video.url.split('/').filter(part => part);
+            let overlap = 0;
+            targetParts.forEach(part => {
+                if (videoParts.includes(part)) overlap++;
+            });
+            if (overlap > maxOverlap) {
+                maxOverlap = overlap;
+                closestVideo = video;
+            }
+        });
+        return closestVideo;
+    }
+
+    async function fetchComments() {
+        const videoUrl = localStorage.getItem('videoUrl');
+        try {
+            const response = await fetch('/get-videos');
+            const data = await response.json();
+            if (data.status === 'success') {
+                const exactMatch = data.videos.find(v => v.url === videoUrl);
+                const video = exactMatch || findClosestVideo(data.videos, videoUrl);
+                if (video && video.comments) {
+                    renderComments(video.comments);
+                } else {
+                    commentsContainer.innerHTML = '<p class="text-gray-400 text-sm">No comments yet.</p>';
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            commentsContainer.innerHTML = '<p class="text-gray-400 text-sm">Failed to load comments.</p>';
+        }
+    }
+
+    function renderComments(comments) {
+        commentsContainer.innerHTML = '';
+        comments.forEach(comment => {
+            const timeAgo = new Date(comment.timestamp).toLocaleString();
+            const commentDiv = document.createElement('div');
+            commentDiv.innerHTML = `
+                <h1 class="text-white text-sm">@${comment.username} <span class="text-gray-400 text-xs">${timeAgo}</span></h1>
+                <p class="text-gray-400 text-xs">${comment.text}</p>
+            `;
+            commentsContainer.appendChild(commentDiv);
+        });
+    }
+
+    async function sendComment() {
+        const commentInput = document.getElementById('comment-input');
+        const commentText = commentInput.value.trim();
+        const videoUrl = localStorage.getItem('videoUrl');
+
+        if (!commentText || !videoUrl) {
+            alert('Please enter a comment and ensure a video is loaded.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/get-videos');
+            const data = await response.json();
+            const exactMatch = data.videos.find(v => v.url === videoUrl);
+            const video = exactMatch || findClosestVideo(data.videos, videoUrl);
+            if (!video) {
+                alert('No matching video found.');
+                return;
+            }
+
+            const commentData = {
+                video_id: video.id,
+                comment: commentText
+            };
+            const createResponse = await fetch('/create-comment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(commentData)
+            });
+            const result = await createResponse.json();
+
+            if (result.status === 'success') {
+                commentInput.value = '';
+                await fetchComments();
+            } else {
+                alert('Failed to post comment: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error posting comment:', error);
+            alert('Error posting comment.');
+        }
+    }
+
+    function handleKeyUp(event) {
+        if (event.key === 'Enter') {
+            sendComment();
+        }
+    }
+
     window.addEventListener('load', () => {
         getAd();
         addVideoToLocalStorage();
+        fetchComments();
 
         const shareButton = document.getElementById('shareButton');
         const shareDropdown = document.getElementById('shareDropdown');
@@ -349,7 +442,6 @@
                 whatsapp: `https://api.whatsapp.com/send?text=${shareTitle}%20${shareUrl}`,
                 email: `mailto:?subject=${shareTitle}&body=Check%20this%20out:%20${shareUrl}`
             };
-
             if (urlMap[platform]) {
                 window.open(urlMap[platform], '_blank', 'width=600,height=400');
             }
@@ -411,7 +503,6 @@
             const percent = (e.clientX - rect.left) / rect.width;
             const time = percent * video.duration;
             const previewTime = Math.floor(time / 10) * 10;
-            
             if (thumbnails[previewTime]) {
                 const ctx = preview.getContext('2d');
                 ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
