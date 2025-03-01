@@ -73,6 +73,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Custom SweetAlert2 configuration for dark mode with purple scheme
+    const swalDarkPurple = Swal.mixin({
+        customClass: {
+            popup: 'bg-gray-800 text-gray-100 rounded-xl shadow-lg backdrop-blur-sm border border-gray-700',
+            title: 'text-gray-100 font-bold',
+            htmlContainer: 'text-gray-300',
+            confirmButton: 'bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md m-2 transition-all duration-200 shadow-sm hover:shadow-md',
+            cancelButton: 'bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md m-2 transition-all duration-200 shadow-sm hover:shadow-md',
+            denyButton: 'bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md m-2 transition-all duration-200 shadow-sm hover:shadow-md',
+            icon: 'text-purple-400'
+        },
+        buttonsStyling: false,
+        background: 'rgba(31, 41, 55, 0.9)', // Matches dark:bg-gray-800/90
+        backdrop: 'rgba(0, 0, 0, 0.7)'
+    });
+
     const loginTab = document.getElementById('loginTab');
     const signupTab = document.getElementById('signupTab');
     const loginForm = document.getElementById('loginForm');
@@ -236,7 +252,7 @@
         .then(data => {
             if (data.status === 'success') {
                 localStorage.setItem('loginforhacktv', `${username}:${password}`);
-                Swal.fire({
+                swalDarkPurple.fire({
                     icon: 'success',
                     title: 'Login Successful',
                     text: 'Welcome back!',
@@ -253,7 +269,7 @@
                     signupTab.classList.remove('bg-white', 'text-purple-500', 'dark:text-purple-400', 'dark:bg-gray-800');
                 }, 1500);
             } else {
-                Swal.fire({
+                swalDarkPurple.fire({
                     icon: 'error',
                     title: 'Login Failed',
                     text: data.message || 'Invalid credentials'
@@ -261,7 +277,7 @@
             }
         })
         .catch(err => {
-            Swal.fire({
+            swalDarkPurple.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'An error occurred during login'
@@ -294,7 +310,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                Swal.fire({
+                swalDarkPurple.fire({
                     icon: 'success',
                     title: 'Signup Successful',
                     text: 'Please login with your new account!',
@@ -303,7 +319,7 @@
                 });
                 setTimeout(() => signupTab.click(), 1500);
             } else {
-                Swal.fire({
+                swalDarkPurple.fire({
                     icon: 'error',
                     title: 'Signup Failed',
                     text: data.message || 'Something went wrong'
@@ -311,7 +327,7 @@
             }
         })
         .catch(err => {
-            Swal.fire({
+            swalDarkPurple.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'An error occurred during signup'
@@ -320,17 +336,16 @@
     });
 
     signoutButton.addEventListener('click', () => {
-        Swal.fire({
+        swalDarkPurple.fire({
             title: 'Are you sure?',
             text: 'Do you want to sign out?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, sign out!'
+            confirmButtonText: 'Yes, sign out!',
+            cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
+                swalDarkPurple.fire({
                     icon: 'success',
                     title: 'Signed Out',
                     text: 'You have been signed out successfully',
@@ -347,19 +362,19 @@
             }
         });
     });
-    const dashboardButton = document.getElementById('dashboardButton');
 
-dashboardButton.addEventListener('click', () => {
-    Swal.fire({
-        icon: 'info',
-        title: 'Create',
-        text: 'Redirecting to create page...',
-        timer: 1500,
-        showConfirmButton: false
+    const dashboardButton = document.getElementById('dashboardButton');
+    dashboardButton.addEventListener('click', () => {
+        swalDarkPurple.fire({
+            icon: 'info',
+            title: 'Create',
+            text: 'Redirecting to create page...',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        setTimeout(() => {
+            window.location.href = '/create';
+        }, 1500);
     });
-    setTimeout(() => {
-        window.location.href = '/create';
-    }, 1500);
-});
 </script>
 {% endblock %}
