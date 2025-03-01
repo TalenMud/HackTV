@@ -7,15 +7,15 @@
 
 {% block content %}
 <div class="flex flex-col items-center justify-center w-full h-full text-center">
-    <div id="no-results" class="hidden text-center text-gray-400 dark:text-gray-500 text-xl mt-8">
-        <svg class="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <div id="no-results" class="hidden text-center text-gray-400 text-xl mt-8">
+        <svg class="w-20 h-20 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8m-4-4v8"></path>
         </svg>
         <p>No Streams Found</p>
     </div>
 
-    <div id="cards-container" class="p-4 grid grid-cols-3 gap-6 w-full h-auto"></div>
+    <div id="cards-container" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full h-auto"></div>
 </div>
 {% endblock %}
 
@@ -23,21 +23,21 @@
 <script>
     const cardsContainer = document.getElementById('cards-container');
     const noResultsMessage = document.getElementById('no-results');
-    const keywords = "{{keywords}}"
+    const keywords = "{{ search_keywords|default('') }}";
+    console.log("Keywords received:", keywords);
 
     function fetchActiveStreams() {
         fetch('/get-videos')
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
+                    console.log("All streams:", data.videos);
                     createCards(data.videos);
                 } else {
-                    console.error('Failed to fetch videos:', data);
                     showError("Failed to load streams.");
                 }
             })
             .catch(err => {
-                console.error('Error fetching active streams:', err);
                 showError("Error loading streams.");
             });
     }
@@ -45,47 +45,58 @@
     function showError(message) {
         cardsContainer.innerHTML = '';
         const errorMessage = document.createElement('div');
-        errorMessage.classList.add('text-center', 'text-gray-400', 'dark:text-gray-500', 'text-xl', 'font-semibold');
+        errorMessage.classList.add('text-center', 'text-gray-400', 'text-xl', 'font-semibold', 'col-span-full');
         errorMessage.textContent = message;
         cardsContainer.appendChild(errorMessage);
     }
 
     function calculateWordMatchPercentage(title, keywords) {
-        const titleWords = title.toLowerCase().split(/\s+/).filter(word => word.length > 0);
-        const keywordArray = Array.isArray(keywords) ? keywords : keywords.split(/\s+/);
-        const keywordSet = new Set(keywordArray.map(kw => kw.toLowerCase()));
+        const lowerTitle = title.toLowerCase();
+        const lowerKeywords = keywords.toLowerCase().split(/\s+/).filter(kw => kw.length > 0);
         
-        if (keywordSet.size === 0) return 100; // If no keywords, show all
+        console.log("Title:", title);
+        console.log("Lowercase title:", lowerTitle);
+        console.log("Keyword array:", lowerKeywords);
         
-        const matchingWords = titleWords.filter(word => keywordSet.has(word)).length;
-        const matchPercentage = (matchingWords / keywordSet.size) * 100;
+        if (lowerKeywords.length === 0) {
+            console.log("No keywords, returning 100% match");
+            return 100;
+        }
+        
+        const matches = lowerKeywords.filter(keyword => lowerTitle.includes(keyword)).length;
+        const matchPercentage = (matches / lowerKeywords.length) * 100;
+        
+        console.log("Matching keywords:", matches);
+        console.log("Match percentage:", matchPercentage);
+        
         return matchPercentage;
     }
 
     function createCards(streams) {
         cardsContainer.innerHTML = '';
         
-        const filteredStreams = streams.filter(stream => 
-            calculateWordMatchPercentage(stream.title, keywords) >= 60
-        );
+        const filteredStreams = streams.filter(stream => {
+            const matchPercentage = calculateWordMatchPercentage(stream.title, keywords);
+            return matchPercentage >= 50; // Adjust threshold as needed
+        });
+
+        console.log("Filtered streams:", filteredStreams);
 
         if (filteredStreams.length === 0) {
             noResultsMessage.classList.remove('hidden');
-            if (!keywords || (Array.isArray(keywords) && keywords.length === 0)) {
+            cardsContainer.innerHTML = '';
+            if (!keywords || keywords.length === 0) {
                 const noStreamsContainer = document.createElement('div');
                 noStreamsContainer.classList.add(
                     'flex', 'flex-col', 'items-center', 'justify-center', 
-                    'w-full', 'min-h-[50vh]', 'bg-gray-100', 'dark:bg-gray-800',
-                    'rounded-lg', 'p-8', 'text-center'
+                    'w-full', 'min-h-[50vh]', 'bg-gray-100', 
+                    'rounded-lg', 'p-8', 'text-center', 'col-span-full'
                 );
                 const messageText = document.createElement('div');
-                messageText.classList.add(
-                    'text-gray-600', 'dark:text-gray-300', 'text-xl', 
-                    'font-medium', 'max-w-md'
-                );
+                messageText.classList.add('text-gray-600', 'text-xl', 'font-medium', 'max-w-md');
                 messageText.innerHTML = `
                     <p>No videos or streams available at the moment</p>
-                    <p class="text-base text-gray-500 dark:text-gray-400 mt-2">Please check back later or try refreshing</p>
+                    <p class="text-base text-gray-500 mt-2">Please check back later or try refreshing</p>
                 `;
                 noStreamsContainer.appendChild(messageText);
                 cardsContainer.appendChild(noStreamsContainer);
@@ -99,8 +110,9 @@
             const { id, title, url } = stream;
             const card = document.createElement('div');
             card.classList.add(
-                'relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 
-                'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer'
+                'bg-white', 'rounded-lg', 'overflow-hidden', 
+                'shadow-md', 'hover:shadow-lg', 'transition-all', 'duration-300', 
+                'cursor-pointer'
             );
             card.addEventListener('click', () => {
                 window.location.href = `/video?url=${url}`;
@@ -108,22 +120,18 @@
 
             const image = document.createElement('img');
             image.src = "https://placehold.co/300x200/EEE/31343C";
-            image.alt = "Card Image";
+            image.alt = title;
             image.classList.add('w-full', 'h-48', 'object-cover');
 
             const textContainer = document.createElement('div');
-            textContainer.classList.add(
-                'absolute', 'bottom-0', 'left-0', 'right-0', 
-                'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 
-                'to-transparent', 'p-4'
-            );
+            textContainer.classList.add('p-4');
 
             const titleElement = document.createElement('h3');
-            titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800', 'dark:text-gray-100');
+            titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800');
             titleElement.textContent = title;
 
             const descriptionElement = document.createElement('p');
-            descriptionElement.classList.add('text-sm', 'text-gray-600', 'dark:text-gray-300');
+            descriptionElement.classList.add('text-sm', 'text-gray-600', 'mt-1');
             descriptionElement.textContent = "No description available";
 
             textContainer.appendChild(titleElement);
