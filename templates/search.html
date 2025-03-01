@@ -7,12 +7,18 @@
 
 {% block content %}
 <div class="flex flex-col items-center justify-center w-full h-full text-center">
-    <div id="no-results" class="hidden text-center text-gray-400 dark:text-gray-500 text-xl mt-8">
-        <svg class="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <div id="no-results" class="hidden flex flex-col items-center justify-center w-full min-h-[50vh] rounded-lg p-8 text-center">
+        <svg class="w-20 h-20 mx-auto mb-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h8m-4-4v8"></path>
         </svg>
-        <p>No Streams Found</p>
+        <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-6">No Streams Found</h2>
+        <button id="back-button" class="flex items-center px-4 py-2 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Home
+        </button>
     </div>
 
     <div id="cards-container" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full h-auto"></div>
@@ -41,9 +47,9 @@
             .catch(err => {
                 const errorMessage = document.createElement('div');
                 errorMessage.classList.add('text-center', 'text-gray-400', 'dark:text-gray-500', 'text-xl', 'font-semibold', 'col-span-full');
-                errorMessage.textContent = "Error loading streams.";
-                cardsContainer.appendChild(errorMessage);
-            });
+                    errorMessage.textContent = "Error loading streams.";
+                    cardsContainer.appendChild(errorMessage);
+                });
     }
 
     function calculateWordMatchPercentage(title, keywords) {
@@ -67,13 +73,15 @@
 
         if (filteredStreams.length === 0) {
             noResultsMessage.classList.remove('hidden');
+            document.getElementById('back-button').addEventListener('click', () => {
+                window.location.href = '/';
+            });
             cardsContainer.innerHTML = '';
             if (!keywords || keywords.length === 0) {
                 const noStreamsContainer = document.createElement('div');
                 noStreamsContainer.classList.add(
                     'flex', 'flex-col', 'items-center', 'justify-center', 
-                    'w-full', 'min-h-[50vh]', 'bg-gray-100', 'dark:bg-gray-800', 
-                    'rounded-lg', 'p-8', 'text-center', 'col-span-full'
+                    'w-full', 'min-h-[50vh]', 'rounded-lg', 'p-8', 'text-center', 'col-span-full'
                 );
                 const iconContainer = document.createElement('div');
                 iconContainer.classList.add('mb-6');
@@ -85,15 +93,24 @@
                 `;
                 const messageText = document.createElement('div');
                 messageText.classList.add(
-                    'text-gray-600', 'dark:text-gray-300', 'text-xl', 
-                    'font-medium', 'max-w-md'
+                    'text-gray-600', 'dark:text-gray-300', 'text-xl', 'font-medium', 'max-w-md'
                 );
-                messageText.innerHTML = `
-                    <p>No videos or streams available at the moment</p>
-                    <p class="text-base text-gray-500 dark:text-gray-400 mt-2">Please check back later or try refreshing</p>
+                messageText.textContent = "No videos or streams available at the moment";
+                const backButton = document.createElement('button');
+                backButton.id = 'back-button-empty';
+                backButton.classList.add('mt-6', 'flex', 'items-center', 'px-4', 'py-2', 'bg-purple-500', 'text-white', 'font-semibold', 'rounded-lg', 'hover:bg-purple-600', 'transition-colors', 'duration-200');
+                backButton.innerHTML = `
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Home
                 `;
+                backButton.addEventListener('click', () => {
+                    window.location.href = '/';
+                });
                 noStreamsContainer.appendChild(iconContainer);
                 noStreamsContainer.appendChild(messageText);
+                noStreamsContainer.appendChild(backButton);
                 cardsContainer.appendChild(noStreamsContainer);
             }
             return;
