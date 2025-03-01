@@ -98,8 +98,8 @@ def video():
     thumbUrl = "test.com/test.img"
     for i in videos:
         if i['url'] == url_param:
-            title = i['title']
-            desc = i['desc']
+            title = i['title'].replace("\n","\\n")
+            desc = i['desc'].replace("\n","\\n")
             thumbUrl = i['url_thumb']
     if url_param:
         clean_url = url_param.replace('/embed', '')
