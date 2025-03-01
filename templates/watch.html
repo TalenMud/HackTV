@@ -54,9 +54,7 @@
     <a id="ad-link" href="#" target="_blank">
         <img id="ad-image" src="" alt="ad image" class="mb-4 w-64 mx-auto">
     </a>
-    <button id="ad-button" class="border-gray-500 border-2 rounded p-2 w-fit mx-auto text-white hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95">
-        Loading...
-    </button>
+  
 </div>
 
 <div class="ml-24 w-full p-8 flex flex-row">
@@ -168,10 +166,7 @@ async function getAd() {
         adTitle.textContent = ad.ad;
         adImage.src = ad.image;
         adLink.href = ad.url;
-        adButton.textContent = 'Learn More';
-        adButton.addEventListener("click", () => {
-            window.open(adLink.href, "_blank");
-        });
+  
     } catch (error) {
         console.error('Error fetching ad:', error);
         adTitle.textContent = 'Failed to load ad';
