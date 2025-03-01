@@ -2,6 +2,16 @@
     color:white;
     scroll-behavior: smooth;
 }
+
+button, a, img {
+  user-select: none;
+}
+
+::selection {
+  background-color: #5e29a3b2;
+  color: white;
+}
+
 /* Logo part */
 .dot{
     background-color:white;
