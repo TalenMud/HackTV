@@ -177,7 +177,7 @@ def create_comment():
     data = request.get_json()
     video_id = data.get('video_id')
     comment_text = data.get('comment')
-    username = "Guest"
+    username = data.get('username')
     if not video_id or not comment_text or not username:
         return jsonify({'status': 'error', 'message': 'Video ID, comment, and logged-in user are required'}), 400
     with open(VIDEOS_JSON, 'r') as f:

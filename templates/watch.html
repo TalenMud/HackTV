@@ -270,306 +270,313 @@
 {% block script%}
 
 <script>
-    const adTitle = document.getElementById('ad-title');
-    const adImage = document.getElementById('ad-image');
-    const adLink = document.getElementById('ad-link');
-    const adButton = document.getElementById('ad-button');
-    const commentsContainer = document.getElementById('comments');
+const adTitle = document.getElementById('ad-title');
+const adImage = document.getElementById('ad-image');
+const adLink = document.getElementById('ad-link');
+const adButton = document.getElementById('ad-button');
+const commentsContainer = document.getElementById('comments');
 
-    document.getElementById('vidTitle').innerText = localStorage.getItem('title');
-    document.getElementById('vidDesc').innerText = localStorage.getItem('desc');
+document.getElementById('vidTitle').innerText = localStorage.getItem('title');
+document.getElementById('vidDesc').innerText = localStorage.getItem('desc');
 
-    let streaming = false;
+let streaming = false;
 
-    async function getAd() {
-        try {
-            const response = await fetch('/getad');
-            const ad = await response.json();
-            adTitle.textContent = ad.ad;
-            adImage.src = ad.image;
-            adLink.href = ad.url;
-            adButton.textContent = 'Learn More';
-            adButton.addEventListener("click", () => {
-                window.open(adLink.href, "_blank");
-            });
-        } catch (error) {
-            console.error('Error fetching ad:', error);
-            adTitle.textContent = 'Failed to load ad';
-        }
-    }
-
-    function addVideoToLocalStorage() {
-        const videoId = crypto.randomUUID();
-        const videoDetails = {
-            id: videoId,
-            title: localStorage.getItem('title'),
-            url: localStorage.getItem('videoUrl'),
-            thumbnail: localStorage.getItem('thumbUrl')
-        };
-        let history = JSON.parse(localStorage.getItem('history')) || [];
-        history.push(videoDetails);
-        localStorage.setItem('history', JSON.stringify(history));
-    }
-
-    function findClosestVideo(videos, targetUrl) {
-        if (!videos || videos.length === 0) return null;
-        let closestVideo = videos[0];
-        let maxOverlap = 0;
-
-        const targetParts = targetUrl.split('/').filter(part => part);
-        videos.forEach(video => {
-            const videoParts = video.url.split('/').filter(part => part);
-            let overlap = 0;
-            targetParts.forEach(part => {
-                if (videoParts.includes(part)) overlap++;
-            });
-            if (overlap > maxOverlap) {
-                maxOverlap = overlap;
-                closestVideo = video;
-            }
+async function getAd() {
+    try {
+        const response = await fetch('/getad');
+        const ad = await response.json();
+        adTitle.textContent = ad.ad;
+        adImage.src = ad.image;
+        adLink.href = ad.url;
+        adButton.textContent = 'Learn More';
+        adButton.addEventListener("click", () => {
+            window.open(adLink.href, "_blank");
         });
-        return closestVideo;
+    } catch (error) {
+        console.error('Error fetching ad:', error);
+        adTitle.textContent = 'Failed to load ad';
     }
+}
 
-    async function fetchComments() {
-        const videoUrl = localStorage.getItem('videoUrl');
-        try {
-            const response = await fetch('/get-videos');
-            const data = await response.json();
-            if (data.status === 'success') {
-                const exactMatch = data.videos.find(v => v.url === videoUrl);
-                const video = exactMatch || findClosestVideo(data.videos, videoUrl);
-                if (video && video.comments) {
-                    renderComments(video.comments);
-                } else {
-                    commentsContainer.innerHTML = '<p class="text-gray-400 text-sm">No comments yet.</p>';
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-            commentsContainer.innerHTML = '<p class="text-gray-400 text-sm">Failed to load comments.</p>';
-        }
-    }
+function addVideoToLocalStorage() {
+    const videoId = crypto.randomUUID();
+    const videoDetails = {
+        id: videoId,
+        title: localStorage.getItem('title'),
+        url: localStorage.getItem('videoUrl'),
+        thumbnail: localStorage.getItem('thumbUrl')
+    };
+    let history = JSON.parse(localStorage.getItem('history')) || [];
+    history.push(videoDetails);
+    localStorage.setItem('history', JSON.stringify(history));
+}
 
-    function renderComments(comments) {
-        commentsContainer.innerHTML = '';
-        comments.forEach(comment => {
-            const timeAgo = new Date(comment.timestamp).toLocaleString();
-            const commentDiv = document.createElement('div');
-            commentDiv.innerHTML = `
-                <h1 class="text-white text-sm">@${comment.username} <span class="text-gray-400 text-xs">${timeAgo}</span></h1>
-                <p class="text-gray-400 text-xs">${comment.text}</p>
-            `;
-            commentsContainer.appendChild(commentDiv);
+function findClosestVideo(videos, targetUrl) {
+    if (!videos || videos.length === 0) return null;
+    let closestVideo = videos[0];
+    let maxOverlap = 0;
+
+    const targetParts = targetUrl.split('/').filter(part => part);
+    videos.forEach(video => {
+        const videoParts = video.url.split('/').filter(part => part);
+        let overlap = 0;
+        targetParts.forEach(part => {
+            if (videoParts.includes(part)) overlap++;
         });
+        if (overlap > maxOverlap) {
+            maxOverlap = overlap;
+            closestVideo = video;
+        }
+    });
+    return closestVideo;
+}
+
+async function fetchComments() {
+    const videoUrl = localStorage.getItem('videoUrl');
+    try {
+        const response = await fetch('/get-videos');
+        const data = await response.json();
+        if (data.status === 'success') {
+            const exactMatch = data.videos.find(v => v.url === videoUrl);
+            const video = exactMatch || findClosestVideo(data.videos, videoUrl);
+            if (video && video.comments) {
+                renderComments(video.comments);
+            } else {
+                commentsContainer.innerHTML = '<p class="text-gray-400 text-sm">No comments yet.</p>';
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        commentsContainer.innerHTML = '<p class="text-gray-400 text-sm">Failed to load comments.</p>';
+    }
+}
+
+function renderComments(comments) {
+    commentsContainer.innerHTML = '';
+    comments.forEach(comment => {
+        const timeAgo = new Date(comment.timestamp).toLocaleString();
+        const commentDiv = document.createElement('div');
+        commentDiv.innerHTML = `
+            <h1 class="text-white text-sm">@${comment.username} <span class="text-gray-400 text-xs">${timeAgo}</span></h1>
+            <p class="text-gray-400 text-xs">${comment.text}</p>
+        `;
+        commentsContainer.appendChild(commentDiv);
+    });
+}
+
+async function sendComment() {
+    const commentInput = document.getElementById('comment-input');
+    const commentText = commentInput.value.trim();
+    const videoUrl = localStorage.getItem('videoUrl');
+    const loginData = localStorage.getItem('loginforhacktv');
+
+    if (!commentText || !videoUrl) {
+        alert('Please enter a comment and ensure a video is loaded.');
+        return;
+    }
+    if (!loginData) {
+        alert('You must be logged in to comment.');
+        return;
     }
 
-    async function sendComment() {
-        const commentInput = document.getElementById('comment-input');
-        const commentText = commentInput.value.trim();
-        const videoUrl = localStorage.getItem('videoUrl');
+    // Extract username (first part before colon)
+    const username = loginData.split(':')[0];
 
-        if (!commentText || !videoUrl) {
-            alert('Please enter a comment and ensure a video is loaded.');
+    try {
+        const response = await fetch('/get-videos');
+        const data = await response.json();
+        const exactMatch = data.videos.find(v => v.url === videoUrl);
+        const video = exactMatch || findClosestVideo(data.videos, videoUrl);
+        if (!video) {
+            alert('No matching video found.');
             return;
         }
 
-        try {
-            const response = await fetch('/get-videos');
-            const data = await response.json();
-            const exactMatch = data.videos.find(v => v.url === videoUrl);
-            const video = exactMatch || findClosestVideo(data.videos, videoUrl);
-            if (!video) {
-                alert('No matching video found.');
-                return;
-            }
-
-            const commentData = {
-                video_id: video.id,
-                comment: commentText
-            };
-            const createResponse = await fetch('/create-comment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(commentData)
-            });
-            const result = await createResponse.json();
-
-            if (result.status === 'success') {
-                commentInput.value = '';
-                await fetchComments();
-            } else {
-                alert('Failed to post comment: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error posting comment:', error);
-            alert('Error posting comment.');
-        }
-    }
-
-    function handleKeyUp(event) {
-        if (event.key === 'Enter') {
-            sendComment();
-        }
-    }
-
-    window.addEventListener('load', () => {
-        getAd();
-        addVideoToLocalStorage();
-        fetchComments();
-
-        const shareButton = document.getElementById('shareButton');
-        const shareDropdown = document.getElementById('shareDropdown');
-        const shareUrl = encodeURIComponent(window.location.href);
-        const shareTitle = encodeURIComponent(document.querySelector('h1.text-3xl').textContent.trim());
-
-        shareButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            shareDropdown.classList.toggle('active');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!shareButton.contains(e.target) && !shareDropdown.contains(e.target)) {
-                shareDropdown.classList.remove('active');
-            }
-        });
-
-        window.shareTo = function(platform) {
-            const urlMap = {
-                facebook: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
-                twitter: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`,
-                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`,
-                whatsapp: `https://api.whatsapp.com/send?text=${shareTitle}%20${shareUrl}`,
-                email: `mailto:?subject=${shareTitle}&body=Check%20this%20out:%20${shareUrl}`
-            };
-            if (urlMap[platform]) {
-                window.open(urlMap[platform], '_blank', 'width=600,height=400');
-            }
-            shareDropdown.classList.remove('active');
+        const commentData = {
+            video_id: video.id,
+            comment: commentText,
+            username: username
         };
-    });
-</script>
-
-<script>
-    const videoUrl = localStorage.getItem('videoUrl');
-    const video = document.getElementById('videoPlayer');
-    const playBtn = document.querySelector('.play-btn');
-    const progressBar = document.querySelector('.progress-bar');
-    const progress = document.querySelector('.progress');
-    const currentTime = document.querySelector('.current-time');
-    const durationTime = document.querySelector('.duration');
-    const volumeBtn = document.querySelector('.volume-btn');
-    const volumeBar = document.querySelector('.volume-bar');
-    const volumeLevel = document.querySelector('.volume-level');
-    const fullscreenBtn = document.querySelector('.fullscreen-btn');
-    const preview = document.querySelector('.preview');
-    let thumbnails = {};
-
-    if (!videoUrl) {
-        document.body.innerHTML = 'No video URL provided';
-    } else {
-        video.querySelector('source').src = videoUrl;
-        video.load();
-
-        video.addEventListener('loadedmetadata', () => {
-            durationTime.textContent = formatTime(video.duration);
-            generateThumbnails();
+        const createResponse = await fetch('/create-comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(commentData)
         });
+        const result = await createResponse.json();
 
-        playBtn.addEventListener('click', () => {
-            if (video.paused) {
-                video.play();
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                video.pause();
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        });
-
-        video.addEventListener('timeupdate', () => {
-            const percent = (video.currentTime / video.duration) * 100;
-            progress.style.width = percent + '%';
-            currentTime.textContent = formatTime(video.currentTime);
-        });
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            video.currentTime = percent * video.duration;
-        });
-
-        progressBar.addEventListener('mousemove', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            const time = percent * video.duration;
-            const previewTime = Math.floor(time / 10) * 10;
-            if (thumbnails[previewTime]) {
-                const ctx = preview.getContext('2d');
-                ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
-                preview.style.left = Math.min(
-                    Math.max(e.clientX - rect.left - 80, 0),
-                    rect.width - 160
-                ) + 'px';
-                preview.style.display = 'block';
-            }
-        });
-
-        progressBar.addEventListener('mouseleave', () => {
-            preview.style.display = 'none';
-        });
-
-        volumeBtn.addEventListener('click', () => {
-            video.muted = !video.muted;
-            volumeBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-            volumeLevel.style.width = video.muted ? '0%' : (video.volume * 100) + '%';
-        });
-
-        volumeBar.addEventListener('click', (e) => {
-            const rect = volumeBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            video.volume = percent;
-            video.muted = false;
-            volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-            volumeLevel.style.width = (percent * 100) + '%';
-        });
-
-        fullscreenBtn.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.querySelector('.video-container').requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        });
-
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return mins + ':' + (secs < 10 ? '0' + secs : secs);
+        if (result.status === 'success') {
+            commentInput.value = '';
+            await fetchComments();
+        } else {
+            alert('Failed to post comment: ' + result.message);
         }
-
-        function generateThumbnails() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 160;
-            canvas.height = 90;
-            const ctx = canvas.getContext('2d');
-            const duration = video.duration;
-            const interval = 10;
-
-            function capture(time) {
-                video.currentTime = time;
-                video.addEventListener('seeked', function onSeeked() {
-                    ctx.drawImage(video, 0, 0, 160, 90);
-                    thumbnails[time] = new Image();
-                    thumbnails[time].src = canvas.toDataURL();
-                    video.removeEventListener('seeked', onSeeked);
-                    if (time + interval < duration) {
-                        capture(time + interval);
-                    }
-                }, { once: true });
-            }
-            capture(0);
-        }
+    } catch (error) {
+        console.error('Error posting comment:', error);
+        alert('Error posting comment.');
     }
+}
+
+function handleKeyUp(event) {
+    if (event.key === 'Enter') {
+        sendComment();
+    }
+}
+
+window.addEventListener('load', () => {
+    getAd();
+    addVideoToLocalStorage();
+    fetchComments();
+
+    const shareButton = document.getElementById('shareButton');
+    const shareDropdown = document.getElementById('shareDropdown');
+    const shareUrl = encodeURIComponent(window.location.href);
+    const shareTitle = encodeURIComponent(document.querySelector('h1.text-3xl').textContent.trim());
+
+    shareButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        shareDropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!shareButton.contains(e.target) && !shareDropdown.contains(e.target)) {
+            shareDropdown.classList.remove('active');
+        }
+    });
+
+    window.shareTo = function(platform) {
+        const urlMap = {
+            facebook: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
+            twitter: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`,
+            linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`,
+            whatsapp: `https://api.whatsapp.com/send?text=${shareTitle}%20${shareUrl}`,
+            email: `mailto:?subject=${shareTitle}&body=Check%20this%20out:%20${shareUrl}`
+        };
+        if (urlMap[platform]) {
+            window.open(urlMap[platform], '_blank', 'width=600,height=400');
+        }
+        shareDropdown.classList.remove('active');
+    };
+});
+
+const videoUrl = localStorage.getItem('videoUrl');
+const video = document.getElementById('videoPlayer');
+const playBtn = document.querySelector('.play-btn');
+const progressBar = document.querySelector('.progress-bar');
+const progress = document.querySelector('.progress');
+const currentTime = document.querySelector('.current-time');
+const durationTime = document.querySelector('.duration');
+const volumeBtn = document.querySelector('.volume-btn');
+const volumeBar = document.querySelector('.volume-bar');
+const volumeLevel = document.querySelector('.volume-level');
+const fullscreenBtn = document.querySelector('.fullscreen-btn');
+const preview = document.querySelector('.preview');
+let thumbnails = {};
+
+if (!videoUrl) {
+    document.body.innerHTML = 'No video URL provided';
+} else {
+    video.querySelector('source').src = videoUrl;
+    video.load();
+
+    video.addEventListener('loadedmetadata', () => {
+        durationTime.textContent = formatTime(video.duration);
+        generateThumbnails();
+    });
+
+    playBtn.addEventListener('click', () => {
+        if (video.paused) {
+            video.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            video.pause();
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    });
+
+    video.addEventListener('timeupdate', () => {
+        const percent = (video.currentTime / video.duration) * 100;
+        progress.style.width = percent + '%';
+        currentTime.textContent = formatTime(video.currentTime);
+    });
+
+    progressBar.addEventListener('click', (e) => {
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        video.currentTime = percent * video.duration;
+    });
+
+    progressBar.addEventListener('mousemove', (e) => {
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        const time = percent * video.duration;
+        const previewTime = Math.floor(time / 10) * 10;
+        if (thumbnails[previewTime]) {
+            const ctx = preview.getContext('2d');
+            ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
+            preview.style.left = Math.min(
+                Math.max(e.clientX - rect.left - 80, 0),
+                rect.width - 160
+            ) + 'px';
+            preview.style.display = 'block';
+        }
+    });
+
+    progressBar.addEventListener('mouseleave', () => {
+        preview.style.display = 'none';
+    });
+
+    volumeBtn.addEventListener('click', () => {
+        video.muted = !video.muted;
+        volumeBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+        volumeLevel.style.width = video.muted ? '0%' : (video.volume * 100) + '%';
+    });
+
+    volumeBar.addEventListener('click', (e) => {
+        const rect = volumeBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        video.volume = percent;
+        video.muted = false;
+        volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        volumeLevel.style.width = (percent * 100) + '%';
+    });
+
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.querySelector('.video-container').requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    });
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' + secs : secs);
+    }
+
+    function generateThumbnails() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 160;
+        canvas.height = 90;
+        const ctx = canvas.getContext('2d');
+        const duration = video.duration;
+        const interval = 10;
+
+        function capture(time) {
+            video.currentTime = time;
+            video.addEventListener('seeked', function onSeeked() {
+                ctx.drawImage(video, 0, 0, 160, 90);
+                thumbnails[time] = new Image();
+                thumbnails[time].src = canvas.toDataURL();
+                video.removeEventListener('seeked', onSeeked);
+                if (time + interval < duration) {
+                    capture(time + interval);
+                }
+            }, { once: true });
+        }
+        capture(0);
+    }
+}
 </script>
 
 {% endblock %}
