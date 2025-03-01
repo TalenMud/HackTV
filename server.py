@@ -99,7 +99,7 @@ def video():
     for i in videos:
         if i['url'] == url_param:
             title = i['title'].replace("\n","\\n")
-            desc = i['desc'].replace("\n","\\n")
+            desc = i['desc'].replace("\n","") 
             thumbUrl = i['url_thumb']
     if url_param:
         clean_url = url_param.replace('/embed', '')
@@ -263,7 +263,9 @@ def getad():
     ]
     selected_ad = random.choice(ads)
     return selected_ad
-
+@app.route("/user/<username>")
+def user(username):
+    return render_template("user.html", username=username)
 @app.route("/")
 def home():
     return render_template("index.html", user=session.get("user"))

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}HackTV - Stream{% endblock %}
+
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">homeContainer</div>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-4xl bg-white rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:shadow-xl">
+
+        <div class="mt-6">
+            <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto border-4 border-white shadow-md">
+                <span class="text-3xl font-bold text-gray-700">{{ username|first|upper }}</span>
+            </div>
+
+            <h1 class="mt-4 text-3xl font-bold text-gray-800 text-center">{{ username }}</h1>
+
+          
+         
+        </div>
+
+        <div class="mt-6 text-center">
+            
+        </div>
+</div>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    button:hover {
+        transform: translateY(-1px);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .min-h-screen {
+        animation: fadeIn 0.5s ease-in;
+    }
+</style>
+{% endblock %}
