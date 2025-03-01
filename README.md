@@ -1,10 +1,12 @@
+<img src="static/res/logo.png" width="100rem">
+
 # HackTV
 
-**HackTV** is a live streaming platform built by and for Hack Clubbers. Watch and show the time and effort you and other people put into their projects via livestreams!
+**HackTV** is a media streaming platform built by and for Hack Clubbers. Watch and show the time and effort you and other people put into their projects via videos!
+Its live [here](https://github.com/TalenMud/HackTV)
 
 ## Features
- - Slack Authentication: Secure and simple SSO login using Hack Club Slack credentials! No more having to type in an email and password.
- - Stream Discovery: Search functionality with keywords! No windows 10 here.
+ - Video Discovery: Search functionality with keywords! No windows 10 here.
  - Live Streaming: Stream with ease and have other hack clubbers watch them!
  - Ad System: Hack club style ads! Lets you know of the latest YSWSes!
  - Live Chat: Comments section during streams! If you spam it we will cancel you!
