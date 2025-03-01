@@ -34,7 +34,7 @@
 
         <div class="mb-6">
             <label class="block text-white/80 mb-2 text-lg font-medium">Video Description</label>
-            <textarea name="stream_description" rows="3"
+            <textarea name="desc" id="desc" rows="3"
                 class="w-full px-4 py-3 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#9546fc] text-white placeholder-white/30"
                 placeholder="Enter video description"></textarea>
         </div>
@@ -120,6 +120,8 @@
                 </button>
                 <span id="file-size-thumb" class="text-white/60 text-sm"></span>
             </div>
+            <input type="hidden" name="thumb-url" id="thumb-url">
+
 
         <button type="submit"
             class="w-full py-3 mt-4 px-6 bg-[#9546fc] hover:bg-[#2a0d4f] text-white font-semibold rounded-lg transition-all transform hover:scale-[1.01] active:scale-95">
@@ -137,17 +139,21 @@
 <script>
     let currentFile = null;
     let currentImg= null;
-    const form = document.getElementById('streamForm');
-    const fileInput = document.getElementById('video-upload');
-    const uploadContainer = document.getElementById('upload-container');
-
+    // thumbnail
     const fileInputThumb = document.getElementById('video-upload-thumb');
     const uploadContainerThumb = document.getElementById('upload-container-thumb');
     const previewImage=document.getElementById('preview-image');
     const changeThumbBtn=document.getElementById('change-video-thumb');
-
     const changeThumbContainer=document.getElementById('changeThumbContainer');
+    const thumbUrlInput = document.getElementById('thumb-url');
 
+
+    //video and form
+    const form = document.getElementById('streamForm');
+    const fileInput = document.getElementById('video-upload');
+    const uploadContainer = document.getElementById('upload-container');
+
+    // video preview
     const previewContainer = document.getElementById('preview-container');
     const videoPreview = document.getElementById('video-preview');
     const changeVideoBtn = document.getElementById('change-video');
@@ -159,6 +165,7 @@
     const streamUrl = document.getElementById('stream-url');
     const videoUrlInput = document.getElementById('video-url');
 
+    //feedback
     const feedbackPart=document.getElementById('feedback-part');
     feedbackPart.classList.add('hidden');
 
@@ -252,6 +259,11 @@
             const videoUrl = await uploadFile(currentFile);
             videoUrlInput.value = videoUrl;
 
+
+            const thumbUrl= await uploadImg(currentImg);
+            thumbUrlInput.value = thumbUrl;
+            
+
             const formData = new FormData(form);
             formData.delete('video');
 
@@ -284,6 +296,57 @@
             progressContainer.classList.add('hidden');
         }
     });
+
+    async function uploadImg(file) {
+        const CHUNK_SIZE = 9 * 1024 * 1024;
+        const userKey = localStorage.getItem('userkey');
+        
+        const initUrl = `https://anondrop.net/initiateupload?filename=${encodeURIComponent(file.name)}&key=${userKey}`;
+        const initResponse = await fetch(initUrl);
+        if (!initResponse.ok) throw new Error('Failed to initiate upload');
+        const sessionHash = await initResponse.text();
+
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        let uploadedBytes = 0;
+
+        for (let i = 0; i < totalChunks; i++) {
+            const start = i * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
+
+            const formData = new FormData();
+            formData.append('file', chunk);
+            formData.append('session_hash', sessionHash);
+
+            const uploadResponse = await fetch(`https://anondrop.net/uploadchunk?session_hash=${sessionHash}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                if (uploadResponse.status === 502) {
+                    i--;
+                    continue;
+                }
+                throw new Error('Chunk upload failed');
+            }
+
+            uploadedBytes += chunk.size;
+            const progress = (uploadedBytes / file.size) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        const endResponse = await fetch(`https://anondrop.net/endupload?session_hash=${sessionHash}`);
+        if (!endResponse.ok) throw new Error('Failed to end upload');
+        
+        const responseText = await endResponse.text();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = responseText;
+        const baseUrl = tempDiv.querySelector('a')?.getAttribute('href') || responseText;
+        
+        return baseUrl+ 
+            "/" + encodeURIComponent(file.name);
+    }
 
     async function uploadFile(file) {
         const CHUNK_SIZE = 9 * 1024 * 1024;

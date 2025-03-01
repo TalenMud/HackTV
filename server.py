@@ -99,11 +99,33 @@ def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
 @app.route('/video')
+# checkpoint
 def video():
     url_param = request.args.get('url', '')
+
+    with open(VIDEOS_JSON, 'r') as f:
+        videos = json.load(f)
+
+    title="Some cool video"
+    desc="Some cool description"
+    thumbUrl="test.com/test.img"
+
+    for i in videos:
+        if i['url']==url_param:
+            title = i['title']
+            desc= i['desc']
+            thumbUrl= i['url_thumb']
+            print(desc)
+            print(title)
+            print("This ran!")
+
     
     if url_param:
         clean_url = url_param.replace('/embed', '')
+        print(desc)
+        print(title)
+        print(thumbUrl)
+        print(url_param)
         return render_template_string('''
         <!DOCTYPE html>
         <html>
@@ -111,29 +133,38 @@ def video():
             <meta charset="UTF-8">
             <script>
                 localStorage.setItem('videoUrl', '{{ url }}');
+                localStorage.setItem('thumbUrl', '{{ thumbUrl }}');
+                localStorage.setItem('title', '{{ title }}');
+                localStorage.setItem('desc', '{{ desc }}');
                 window.location.href = '/video';
             </script>
         </head>
         <body></body>
         </html>
-        ''', url=clean_url)
+        ''', url=clean_url,thumbUrl=thumbUrl,title=title,desc=desc)
     
     return render_template('watch.html',user=session.get("user"))
 
 @app.route('/create-video', methods=['POST'])
 def create_video():
-    if 'title' not in request.form or 'url' not in request.form:
-        flash('Missing required fields', 'error')
-        return redirect(url_for('create_video'))
+    for i in ['title','url','desc','thumb-url']:
+        if i not in request.form:
+            flash('Missing required fields', 'error')
+            print(i)
+            return redirect(url_for('create_video'))
 
     title = request.form['title']
+    desc=request.form['desc']
     url = request.form['url']
+    url_thumb=request.form['thumb-url']
 
     video_id = str(uuid.uuid4())
     video_data = {
         'id': video_id,
         'title': title,
+        'desc':desc,
         'url': url,
+        'url_thumb':url_thumb,
         'upload_date': datetime.now().isoformat()
     }
 
