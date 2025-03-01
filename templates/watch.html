@@ -52,7 +52,7 @@
         align-items: center;
         gap: 15px;
     }
-    .play-btn, .fullscreen-btn {
+    .play-btn, .fullscreen-btn, .pip-btn {
         background: none;
         border: none;
         color: #fff;
@@ -61,7 +61,7 @@
         padding: 5px;
         transition: transform 0.2s ease;
     }
-    .play-btn:hover, .fullscreen-btn:hover {
+    .play-btn:hover, .fullscreen-btn:hover, .pip-btn:hover {
         transform: scale(1.1);
     }
     .progress-container {
@@ -214,6 +214,7 @@
                             <div class="volume-level"></div>
                         </div>
                     </div>
+                    <button class="pip-btn"><i class="fas fa-window-restore"></i></button>
                     <button class="fullscreen-btn"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
@@ -379,7 +380,6 @@ async function sendComment() {
         return;
     }
 
-    // Extract username (first part before colon)
     const username = loginData.split(':')[0];
 
     try {
@@ -469,6 +469,7 @@ const volumeBtn = document.querySelector('.volume-btn');
 const volumeBar = document.querySelector('.volume-bar');
 const volumeLevel = document.querySelector('.volume-level');
 const fullscreenBtn = document.querySelector('.fullscreen-btn');
+const pipBtn = document.querySelector('.pip-btn');
 const preview = document.querySelector('.preview');
 let thumbnails = {};
 
@@ -480,7 +481,7 @@ if (!videoUrl) {
 
     video.addEventListener('loadedmetadata', () => {
         durationTime.textContent = formatTime(video.duration);
-        generateThumbnails();
+        generateThumbnails(); 
     });
 
     playBtn.addEventListener('click', () => {
@@ -510,14 +511,18 @@ if (!videoUrl) {
         const percent = (e.clientX - rect.left) / rect.width;
         const time = percent * video.duration;
         const previewTime = Math.floor(time / 10) * 10;
+
         if (thumbnails[previewTime]) {
             const ctx = preview.getContext('2d');
+            ctx.clearRect(0, 0, preview.width, preview.height);
             ctx.drawImage(thumbnails[previewTime], 0, 0, 160, 90);
             preview.style.left = Math.min(
                 Math.max(e.clientX - rect.left - 80, 0),
                 rect.width - 160
             ) + 'px';
             preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none'; 
         }
     });
 
@@ -548,6 +553,21 @@ if (!videoUrl) {
         }
     });
 
+    pipBtn.addEventListener('click', async () => {
+        try {
+            if (document.pictureInPictureElement) {
+                await document.exitPictureInPicture();
+                pipBtn.innerHTML = '<i class="fas fa-window-restore"></i>';
+            } else {
+                await video.requestPictureInPicture();
+                pipBtn.innerHTML = '<i class="fas fa-window-minimize"></i>';
+            }
+        } catch (error) {
+            console.error('Error toggling Picture-in-Picture:', error);
+            alert('Picture-in-Picture is not supported or failed to toggle.');
+        }
+    });
+
     function formatTime(seconds) {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
@@ -560,21 +580,26 @@ if (!videoUrl) {
         canvas.height = 90;
         const ctx = canvas.getContext('2d');
         const duration = video.duration;
-        const interval = 10;
+        const interval = Math.min(10, duration / 10);
 
-        function capture(time) {
-            video.currentTime = time;
+        let currentTime = 0;
+
+        function capture() {
+            if (currentTime >= duration) return;
+
+            video.currentTime = currentTime;
             video.addEventListener('seeked', function onSeeked() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(video, 0, 0, 160, 90);
-                thumbnails[time] = new Image();
-                thumbnails[time].src = canvas.toDataURL();
+                thumbnails[Math.floor(currentTime)] = new Image();
+                thumbnails[Math.floor(currentTime)].src = canvas.toDataURL();
                 video.removeEventListener('seeked', onSeeked);
-                if (time + interval < duration) {
-                    capture(time + interval);
-                }
+                currentTime += interval;
+                capture(); 
             }, { once: true });
         }
-        capture(0);
+
+        capture(); 
     }
 }
 </script>
