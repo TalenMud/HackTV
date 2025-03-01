@@ -33,16 +33,18 @@
     .share-dropdown button:hover {background: #333;color: #00aaff;}
     .share-dropdown button svg {width: 16px;height: 16px;}
     .comment-input-container {position: relative;width: 100%;}
-    .emoji-picker {position: absolute;top: calc(100% + 10px);right: 0;background: #222;border-radius: 12px;box-shadow: 0 6px 20px rgba(0,0,0,0.5);display: none;width: 300px;padding: 15px;z-index: 1000;backdrop-filter: blur(5px);border: 1px solid rgba(255,255,255,0.1);}
+    .emoji-picker {position: absolute;top: calc(100% + 10px);right: 0;background: #222;border-radius: 12px;box-shadow: 0 6px 20px rgba(0,0,0,0.5);display: none;width: 320px;padding: 15px;z-index: 1000;backdrop-filter: blur(5px);border: 1px solid rgba(255,255,255,0.1);}
     .emoji-picker.active {display: block;}
     .emoji-picker input {width: 100%;padding: 8px 12px;margin-bottom: 10px;background: rgba(255,255,255,0.05);border: 1px solid rgba(255,255,255,0.2);border-radius: 6px;color: #fff;outline: none;transition: border-color 0.3s ease;}
     .emoji-picker input:focus {border-color: #00aaff;}
-    .emoji-grid {display: grid;grid-template-columns: repeat(6, 1fr);gap: 8px;max-height: 200px;overflow-y: auto;padding-right: 5px;}
+    .emoji-grid {display: block;max-height: 200px;overflow-y: auto;padding-right: 5px;}
     .emoji-grid::-webkit-scrollbar {width: 6px;}
     .emoji-grid::-webkit-scrollbar-thumb {background: #444;border-radius: 3px;}
     .emoji-grid::-webkit-scrollbar-thumb:hover {background: #666;}
-    .emoji-grid span {font-size: 24px;padding: 6px;text-align: center;cursor: pointer;border-radius: 6px;transition: all 0.2s ease;}
-    .emoji-grid span:hover {background: rgba(255,255,255,0.1);transform: scale(1.2);}
+    .emoji-item {display: inline-block;margin: 4px;font-size: 24px;padding: 6px;text-align: center;cursor: pointer;border-radius: 6px;transition: all 0.2s ease;position: relative;}
+    .emoji-item:hover {background: rgba(255,255,255,0.1);transform: scale(1.2);}
+    .emoji-item:hover .emoji-tooltip {opacity: 1;}
+    .emoji-tooltip {position: absolute;bottom: full;left: 1/2;transform: translateX(-50%);background: #gray-800;text: white;text-size: xs;padding-y: 1;padding-x: 2;border-radius: 0;opacity: 0;transition: opacity 0.2s ease;z-index: 10;white-space: nowrap;margin-bottom: 4px;}
 </style>
 
 <div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[15rem]">
@@ -341,27 +343,104 @@ window.addEventListener('load', () => {
     const emojiGrid = document.getElementById('emoji-grid');
     const commentInput = document.getElementById('comment-input');
 
-    const emojis = [
-        '😀', '😊', '😂', '🤓', '😎', '😍', '😢', '😡', '👍', '👎',
-        '❤️', '🎉', '🔥', '⭐', '💪', '👀', '🙌', '🤔', '🎵', '🚀',
-        '😋', '😴', '🤗', '🤝', '👏', '💖', '💙', '💚', '💛', '💜',
-        '✨', '🌟', '🍕', '🍔', '🍟', '☕', '🍺', '🎂', '🎁', '🎄'
-    ];
+    const emojiCategories = {
+        'Smileys': [
+            { emoji: '😀', title: 'grinning face' },
+            { emoji: '😊', title: 'smiling face with smiling eyes' },
+            { emoji: '😂', title: 'face with tears of joy' },
+            { emoji: '🤓', title: 'nerd face' },
+            { emoji: '😎', title: 'smiling face with sunglasses' },
+            { emoji: '😍', title: 'smiling face with heart-eyes' },
+            { emoji: '😢', title: 'crying face' },
+            { emoji: '😡', title: 'pouting face' }
+        ],
+        'Gestures': [
+            { emoji: '👍', title: 'thumbs up' },
+            { emoji: '👎', title: 'thumbs down' },
+            { emoji: '👏', title: 'clapping hands' },
+            { emoji: '🙌', title: 'raising hands' },
+            { emoji: '🤝', title: 'handshake' },
+            { emoji: '💪', title: 'flexed biceps' }
+        ],
+        'Hearts': [
+            { emoji: '❤️', title: 'red heart' },
+            { emoji: '💖', title: 'sparkling heart' },
+            { emoji: '💙', title: 'blue heart' },
+            { emoji: '💚', title: 'green heart' },
+            { emoji: '💛', title: 'yellow heart' },
+            { emoji: '💜', title: 'purple heart' }
+        ],
+        'Celebration': [
+            { emoji: '🎉', title: 'party popper' },
+            { emoji: '🔥', title: 'fire' },
+            { emoji: '⭐', title: 'star' },
+            { emoji: '✨', title: 'sparkles' },
+            { emoji: '🌟', title: 'glowing star' },
+            { emoji: '🎁', title: 'gift' },
+            { emoji: '🎄', title: 'christmas tree' }
+        ],
+        'Food': [
+            { emoji: '🍕', title: 'pizza' },
+            { emoji: '🍔', title: 'hamburger' },
+            { emoji: '🍟', title: 'french fries' },
+            { emoji: '☕', title: 'hot beverage' },
+            { emoji: '🍺', title: 'beer mug' },
+            { emoji: '🎂', title: 'birthday cake' }
+        ],
+        'Other': [
+            { emoji: '👀', title: 'eyes' },
+            { emoji: '🤔', title: 'thinking face' },
+            { emoji: '🎵', title: 'musical note' },
+            { emoji: '🚀', title: 'rocket' },
+            { emoji: '😋', title: 'face savoring food' },
+            { emoji: '😴', title: 'sleeping face' },
+            { emoji: '🤗', title: 'hugging face' }
+        ]
+    };
 
     function renderEmojis(searchTerm = '') {
         emojiGrid.innerHTML = '';
-        const filteredEmojis = emojis.filter(emoji => 
-            emoji.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        filteredEmojis.forEach(emoji => {
-            const span = document.createElement('span');
-            span.textContent = emoji;
-            span.addEventListener('click', () => {
-                commentInput.value += emoji;
-                emojiPicker.classList.remove('active');
-                commentInput.focus();
-            });
-            emojiGrid.appendChild(span);
+        
+        Object.entries(emojiCategories).forEach(([category, emojis]) => {
+            const filteredEmojis = emojis.filter(item => 
+                item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.emoji.includes(searchTerm)
+            );
+            
+            if (filteredEmojis.length > 0) {
+                const categoryHeader = document.createElement('div');
+                categoryHeader.textContent = category;
+                categoryHeader.className = 'text-white font-bold text-sm mt-2 mb-1 px-2';
+                emojiGrid.appendChild(categoryHeader);
+                
+                filteredEmojis.forEach(item => {
+                    const span = document.createElement('span');
+                    span.textContent = item.emoji;
+                    span.dataset.title = `:${item.title.replace(/ /g, '-')}:`;
+                    span.className = 'relative emoji-item';
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.textContent = span.dataset.title;
+                    tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 transition-opacity duration-200 pointer-events-none';
+                    span.appendChild(tooltip);
+                    
+                    span.addEventListener('mouseenter', () => {
+                        tooltip.classList.add('opacity-100');
+                    });
+                    
+                    span.addEventListener('mouseleave', () => {
+                        tooltip.classList.remove('opacity-100');
+                    });
+                    
+                    span.addEventListener('click', () => {
+                        commentInput.value += item.emoji;
+                        emojiPicker.classList.remove('active');
+                        commentInput.focus();
+                    });
+                    
+                    emojiGrid.appendChild(span);
+                });
+            }
         });
     }
 
