@@ -230,32 +230,6 @@ def streams():
     data = {"title": None, "desc": None, "streamer": False}
     return render_template("stream.html", data=data, user=session.get("user"))
 
-def fetch_ysws_ads():
-    try:
-        response = requests.get("https://ysws.hackclub.com/data.yml", timeout=5)
-        response.raise_for_status()
-        data = yaml.safe_load(response.content)
-        ads = []
-        for entry in data.get('limitedTime', []):
-            if entry.get('status', '') == 'active':
-                ads.append({
-                    "ad": entry['name'],
-                    "description": entry['description'],
-                    "url": entry.get('website', '#'),
-                    "image": "https://hackclub.com/stickers/orpheus.png"
-                })
-        for entry in data.get('indefinite', []):
-            if entry.get('status', '') == 'active':
-                ads.append({
-                    "ad": entry['name'],
-                    "description": entry['description'],
-                    "url": entry.get('website', '#'),
-                    "image": "https://hackclub.com/stickers/orpheus.png"
-                })
-        return ads
-    except Exception as e:
-        print(f"error fetching ysws data: {e}")
-        return None
 
 @app.route("/getad")
 def getad():
@@ -274,8 +248,7 @@ def getad():
         finally:
             cur.close()
             conn.close()
-    ysws_ads = fetch_ysws_ads()
-    ads = ysws_ads if ysws_ads else [
+    ads =  [
         {"ad": "Put the you in CPU today", "image": "https://hackclub.com/stickers/inside.png", "url": "https://www.cpu.land"},
         {"ad": "A Game about Love & Graphing, Made By Hack Clubbers", "image": "https://sinerider.com/Assets/Images/loading-screen.png", "url": "https://sinerider.com/"},
         {"ad": "Free Linux VPS for Hack Club Members", "image": "https://hackclub.com/stickers/nest_hatched_smolpheus.png", "url": "https://hackclub.com/nest"},
