@@ -233,8 +233,12 @@ function renderComments(comments) {
         const commentDiv = document.createElement('div');
         const renderedComment = marked.parse(comment.text, { breaks: true, sanitize: true });
         commentDiv.innerHTML = `
-            <h1 class="text-white text-sm">@${comment.username} <span class="text-gray-400 text-xs">${timeAgo}</span></h1>
-            <p class="text-gray-400 text-xs">${renderedComment}</p>
+<h1 class="text-white text-sm">
+    <a href="/user/${comment.username}" class="text-white hover:underline">
+        @${comment.username}
+    </a> 
+    <span class="text-gray-400 text-xs">${timeAgo}</span>
+</h1>            <p class="text-gray-400 text-xs">${renderedComment}</p>
         `;
         commentsContainer.appendChild(commentDiv);
     });
