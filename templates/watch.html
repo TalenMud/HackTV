@@ -408,61 +408,139 @@ window.addEventListener('load', () => {
     const emojiSearch = document.getElementById('emoji-search');
     const emojiGrid = document.getElementById('emoji-grid');
     const commentInput = document.getElementById('comment-input');
+const emojiCategories = {
+    'Smileys & Emotion': [
+        { emoji: '😀', title: 'grinning face' },
+        { emoji: '😁', title: 'beaming face with smiling eyes' },
+        { emoji: '😂', title: 'face with tears of joy' },
+        { emoji: '🤣', title: 'rolling on the floor laughing' },
+        { emoji: '😊', title: 'smiling face with smiling eyes' },
+        { emoji: '😇', title: 'smiling face with halo' },
+        { emoji: '😍', title: 'smiling face with heart-eyes' },
+        { emoji: '😘', title: 'face blowing a kiss' },
+        { emoji: '😋', title: 'face savoring food' },
+        { emoji: '😎', title: 'smiling face with sunglasses' },
+        { emoji: '😢', title: 'crying face' },
+        { emoji: '😭', title: 'loudly crying face' },
+        { emoji: '😡', title: 'pouting face' },
+        { emoji: '🤯', title: 'exploding head' },
+        { emoji: '🤔', title: 'thinking face' },
+        { emoji: '🤗', title: 'hugging face' },
+        { emoji: '😴', title: 'sleeping face' }
+    ],
+    'Gestures & Hands': [
+        { emoji: '👍', title: 'thumbs up' },
+        { emoji: '👎', title: 'thumbs down' },
+        { emoji: '👏', title: 'clapping hands' },
+        { emoji: '🙌', title: 'raising hands' },
+        { emoji: '🤝', title: 'handshake' },
+        { emoji: '💪', title: 'flexed biceps' },
+        { emoji: '🖖', title: 'vulcan salute' },
+        { emoji: '🤘', title: 'sign of the horns' },
+        { emoji: '✌️', title: 'victory hand' },
+        { emoji: '🤲', title: 'palms up together' },
+        { emoji: '👐', title: 'open hands' },
+        { emoji: '🤞', title: 'crossed fingers' }
+    ],
+    'Hearts & Love': [
+        { emoji: '❤️', title: 'red heart' },
+        { emoji: '💖', title: 'sparkling heart' },
+        { emoji: '💙', title: 'blue heart' },
+        { emoji: '💚', title: 'green heart' },
+        { emoji: '💛', title: 'yellow heart' },
+        { emoji: '💜', title: 'purple heart' },
+        { emoji: '🖤', title: 'black heart' },
+        { emoji: '💔', title: 'broken heart' },
+        { emoji: '💞', title: 'revolving hearts' },
+        { emoji: '💕', title: 'two hearts' },
+        { emoji: '❣️', title: 'heart exclamation' }
+    ],
+    'Celebrations & Events': [
+        { emoji: '🎉', title: 'party popper' },
+        { emoji: '🔥', title: 'fire' },
+        { emoji: '⭐', title: 'star' },
+        { emoji: '✨', title: 'sparkles' },
+        { emoji: '🎁', title: 'gift' },
+        { emoji: '🎄', title: 'christmas tree' },
+        { emoji: '🎶', title: 'musical notes' },
+        { emoji: '🥳', title: 'partying face' },
+        { emoji: '🎈', title: 'balloon' },
+        { emoji: '🎂', title: 'birthday cake' }
+    ],
+    'Food & Drink': [
+        { emoji: '🍕', title: 'pizza' },
+        { emoji: '🍔', title: 'hamburger' },
+        { emoji: '🍟', title: 'french fries' },
+        { emoji: '☕', title: 'hot beverage' },
+        { emoji: '🍺', title: 'beer mug' },
+        { emoji: '🍎', title: 'red apple' },
+        { emoji: '🍩', title: 'doughnut' },
+        { emoji: '🍉', title: 'watermelon' },
+        { emoji: '🌮', title: 'taco' },
+        { emoji: '🥑', title: 'avocado' },
+        { emoji: '🍣', title: 'sushi' },
+        { emoji: '🥗', title: 'green salad' }
+    ],
+    'Animals & Nature': [
+        { emoji: '🐶', title: 'dog face' },
+        { emoji: '🐱', title: 'cat face' },
+        { emoji: '🐭', title: 'mouse face' },
+        { emoji: '🐹', title: 'hamster face' },
+        { emoji: '🐰', title: 'rabbit face' },
+        { emoji: '🦊', title: 'fox face' },
+        { emoji: '🐻', title: 'bear face' },
+        { emoji: '🐼', title: 'panda face' },
+        { emoji: '🦁', title: 'lion face' },
+        { emoji: '🐸', title: 'frog' },
+        { emoji: '🐙', title: 'octopus' }
+    ],
+    'Transportation & Travel': [
+        { emoji: '🚗', title: 'car' },
+        { emoji: '🚕', title: 'taxi' },
+        { emoji: '🚌', title: 'bus' },
+        { emoji: '🚑', title: 'ambulance' },
+        { emoji: '🚒', title: 'fire engine' },
+        { emoji: '🚜', title: 'tractor' },
+        { emoji: '🛵', title: 'motor scooter' },
+        { emoji: '✈️', title: 'airplane' },
+        { emoji: '🚢', title: 'ship' },
+        { emoji: '🚀', title: 'rocket' }
+    ],
+    'Weather & Seasons': [
+        { emoji: '☀️', title: 'sun' },
+        { emoji: '⛅', title: 'sun behind cloud' },
+        { emoji: '🌧', title: 'cloud with rain' },
+        { emoji: '⛈', title: 'cloud with lightning and rain' },
+        { emoji: '❄️', title: 'snowflake' },
+        { emoji: '🌬', title: 'wind face' },
+        { emoji: '🌪', title: 'tornado' },
+        { emoji: '🌊', title: 'water wave' },
+        { emoji: '🌈', title: 'rainbow' }
+    ],
+    'Objects & Technology': [
+        { emoji: '📱', title: 'mobile phone' },
+        { emoji: '💻', title: 'laptop' },
+        { emoji: '⌨️', title: 'keyboard' },
+        { emoji: '🖥', title: 'desktop computer' },
+        { emoji: '📷', title: 'camera' },
+        { emoji: '📺', title: 'television' },
+        { emoji: '🎮', title: 'video game controller' },
+        { emoji: '🕹', title: 'joystick' },
+        { emoji: '📡', title: 'satellite antenna' }
+    ],
+    'Random & Fun': [
+        { emoji: '👀', title: 'eyes' },
+        { emoji: '🤹', title: 'person juggling' },
+        { emoji: '🎭', title: 'performing arts' },
+        { emoji: '🕶', title: 'sunglasses' },
+        { emoji: '🎨', title: 'artist palette' },
+        { emoji: '📚', title: 'books' },
+        { emoji: '🛸', title: 'flying saucer' },
+        { emoji: '💡', title: 'light bulb' }
+    ]
+};
 
-    const emojiCategories = {
-        'Smileys': [
-            { emoji: '😀', title: 'grinning face' },
-            { emoji: '😊', title: 'smiling face with smiling eyes' },
-            { emoji: '😂', title: 'face with tears of joy' },
-            { emoji: '🤓', title: 'nerd face' },
-            { emoji: '😎', title: 'smiling face with sunglasses' },
-            { emoji: '😍', title: 'smiling face with heart-eyes' },
-            { emoji: '😢', title: 'crying face' },
-            { emoji: '😡', title: 'pouting face' }
-        ],
-        'Gestures': [
-            { emoji: '👍', title: 'thumbs up' },
-            { emoji: '👎', title: 'thumbs down' },
-            { emoji: '👏', title: 'clapping hands' },
-            { emoji: '🙌', title: 'raising hands' },
-            { emoji: '🤝', title: 'handshake' },
-            { emoji: '💪', title: 'flexed biceps' }
-        ],
-        'Hearts': [
-            { emoji: '❤️', title: 'red heart' },
-            { emoji: '💖', title: 'sparkling heart' },
-            { emoji: '💙', title: 'blue heart' },
-            { emoji: '💚', title: 'green heart' },
-            { emoji: '💛', title: 'yellow heart' },
-            { emoji: '💜', title: 'purple heart' }
-        ],
-        'Celebration': [
-            { emoji: '🎉', title: 'party popper' },
-            { emoji: '🔥', title: 'fire' },
-            { emoji: '⭐', title: 'star' },
-            { emoji: '✨', title: 'sparkles' },
-            { emoji: '🌟', title: 'glowing star' },
-            { emoji: '🎁', title: 'gift' },
-            { emoji: '🎄', title: 'christmas tree' }
-        ],
-        'Food': [
-            { emoji: '🍕', title: 'pizza' },
-            { emoji: '🍔', title: 'hamburger' },
-            { emoji: '🍟', title: 'french fries' },
-            { emoji: '☕', title: 'hot beverage' },
-            { emoji: '🍺', title: 'beer mug' },
-            { emoji: '🎂', title: 'birthday cake' }
-        ],
-        'Other': [
-            { emoji: '👀', title: 'eyes' },
-            { emoji: '🤔', title: 'thinking face' },
-            { emoji: '🎵', title: 'musical note' },
-            { emoji: '🚀', title: 'rocket' },
-            { emoji: '😋', title: 'face savoring food' },
-            { emoji: '😴', title: 'sleeping face' },
-            { emoji: '🤗', title: 'hugging face' }
-        ]
-    };
+
 
     function renderEmojis(searchTerm = '') {
         emojiGrid.innerHTML = '';
