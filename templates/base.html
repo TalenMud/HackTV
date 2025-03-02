@@ -21,7 +21,7 @@
       <div id="background" class="hidden"></div>
 
       <section class="h-[100vh] w-[100vw]">
-        <div class="p-4 pr-8 flex items-center bg-[#110A10] h-[9vh]" style="z-index:1000;">
+        <div class="p-4 pr-8 flex items-center justify-between bg-[#110A10] h-[9vh] w-full" style="z-index:1000;">
           <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
             <span class="dot"></span>
             <span class="dot"></span>
@@ -30,11 +30,13 @@
           <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer flex items-center justify-center" onclick="window.location.href='index.html';">
             <img src="{{ url_for('static', filename='res/logo.png')}}" class="w-[5rem] h-[5rem]"> HackTV
           </span>
-          <div class="flex items-center justify-center ml-16">
-            <input type="text" id="searchbox" placeholder="Search" class="pl-4">
-            <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
-              <i class="fas fa-search text-white text-xl"></i>
-            </button>
+          <div class="flex items-center justify-center flex-grow">
+            <div class="flex">
+              <input type="text" id="searchbox" placeholder="Search" class="pl-4">
+              <button class="bg-[#303030] h-[2.5rem] px-2 z-2" id="searchbutton">
+                <i class="fas fa-search text-white text-xl"></i>
+              </button>
+            </div>
           </div>
           <div class="ml-auto flex flex-row">
             <a href="/create" id="createButton">
