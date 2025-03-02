@@ -9,13 +9,14 @@
 <div id ="category-buttons" class="flex justify-center p-4">
 </div>
 
-<div id="cards-container" class="p-4 grid grid-cols-3 grid-rows-3 gap-6 w-full h-full"></div>
+<div id="cards-container" class="relative top-8 p-4 grid grid-cols-3 gap-6 w-full h-full"></div>
 {% endblock %}
 
 {% block script %}
 <script>
     const cardsContainer = document.getElementById('cards-container');
     const categoryButtonsContainer = document.getElementById('category-buttons');
+    const descriptionCap=60;
 
     function fetchActiveStreams() {
         fetch('/get-videos')
@@ -85,16 +86,26 @@
         }
     
         streams.forEach(stream => {
-            const { id, title, desc, url, url_thumb } = stream;
+            const { id, title, desc, url, url_thumb ,duration} = stream;
             const card = document.createElement('div');
-            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer');
+            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer','z-[5]','h-[18rem]','w-[32rem]');
             card.addEventListener('click', () => {
               window.location.href = `/video?url=${url}`;
             });
             const image = document.createElement('img');
             image.src = url_thumb;
             image.alt = "Some Cool Video";
-            image.classList.add('w-full', 'h-full', 'object-cover');
+            image.classList.add('z-[3]','w-full', 'h-full', 'object-cover');
+            
+            const overlay = document.createElement('div');
+            overlay.classList.add('overlay','z-[4]','w-full','h-full','object-cover');
+
+            const videoTime=document.createElement('h1');
+            videoTime.textContent="00:00";
+            videoTime.classList.add('text-3xl','bold');
+
+           videoTime.textContent= duration;
+
             const textContainer = document.createElement('div');
             textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'p-4');
             const titleElement = document.createElement('h3');
@@ -102,10 +113,18 @@
             titleElement.textContent = title;
             const descriptionElement = document.createElement('p');
             descriptionElement.classList.add('text-sm', 'text-gray-600', 'dark:text-gray-300');
-            descriptionElement.textContent = desc;
+
+            if(desc.length>descriptionCap){
+                  descriptionElement.textContent=desc.substring(0, descriptionCap) + '...';
+            }else{
+              descriptionElement.textContent=desc;
+            }
+            
             textContainer.appendChild(titleElement);
             textContainer.appendChild(descriptionElement);
+            overlay.appendChild(videoTime);
             card.appendChild(image);
+            card.appendChild(overlay);
             card.appendChild(textContainer);
             cardsContainer.appendChild(card);
         });

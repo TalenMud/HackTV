@@ -64,6 +64,8 @@
                         <source src="" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
+
+              <input type="hidden" name="video-duration" id="video-duration">
                 </div>
                 <div class="mt-3 flex justify-between items-center">
                     <button type="button" id="change-video" 
@@ -164,6 +166,7 @@
     const urlContainer = document.getElementById('url-container');
     const streamUrl = document.getElementById('stream-url');
     const videoUrlInput = document.getElementById('video-url');
+    const vidDuration= document.getElementById('video-duration');
 
     //feedback
     const feedbackPart=document.getElementById('feedback-part');
@@ -259,10 +262,10 @@
             const videoUrl = await uploadFile(currentFile);
             videoUrlInput.value = videoUrl;
 
-
             const thumbUrl= await uploadImg(currentImg);
             thumbUrlInput.value = thumbUrl;
-            
+          
+            vidDuration.value=videoPreview.duration.toFixed(0);
 
             const formData = new FormData(form);
             formData.delete('video');

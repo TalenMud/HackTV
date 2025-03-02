@@ -27,16 +27,16 @@
     .preview {position: absolute;bottom: 40px;width: 160px;height: 90px;background: #000;border: 1px solid #fff;border-radius: 4px;display: none;pointer-events: none;z-index: 3;}
 </style>
 
-<div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[15rem]">
+<div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[11rem] z-[41]">
     <div id="peer-id-display" class="text-white mt-4"><span id="peer-id"></span></div>
     <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
     <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
     <a id="ad-link" href="#" target="_blank">
-        <img id="ad-image" src="" alt="ad image" class="mb-4 w-64 mx-auto">
+        <img id="ad-image" src="" alt="ad image" class="mb-4 w-[11rem] mx-auto">
     </a>
 </div>
 
-<div class="ml-24 w-full p-8 flex flex-row">
+<div class="px-[1rem] w-full flex flex-row  relative top-[7rem]">
     <div class="w-[75%] overflow-y-scroll">
         <div class="video-container">
             <video id="videoPlayer">
@@ -70,8 +70,10 @@
             <div class="like-container flex flex-col items-center">
                 <button id="likeButton" class="text-white hover:text-purple-400 transition-all duration-300">
                     <svg id="likeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="3rem" width="3rem">
-                        <path fill="none" stroke="currentColor" stroke-width="30" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z"/>
-                        <path id="likeFill" fill="none" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z"/>
+                        <path fill="none" stroke="currentColor" stroke-width="30" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z" style="transition:all 0.5s ease;"/>
+                        <path id="likeFill" fill="none" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z" style="transition:all 0.5s ease;"/>
+
+
                     </svg>
                 </button>
                 <span id="likeCount" class="text-white font-[Varela]">0 Likes</span>
@@ -110,7 +112,7 @@
             </div>
         </div>
         <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
-        <p class="font-[Varela] text-xl text-[#ffffff] m-4" id="vidDesc">Hey this is a cool video! Watch it and share it with your friends please:3</p>
+        <p class="font-[Varela] text-xl text-[#ffffff] m-4" id="vidDesc">Hey this is a cool video! Watch it and share it with your friends pwease:3</p>
     </div>
 
     <div id="comment-section" class="p-4 mt-16">
@@ -300,7 +302,7 @@ async function toggleLike() {
     }
 
     const username = loginData.split(':')[0];
-    const isLiked = likeFill.getAttribute('fill') === '#ff0000';
+    const isLiked = likeFill.getAttribute('fill') === '#9546FC';
 
     try {
         const response = await fetch('/get-videos');
@@ -328,7 +330,7 @@ async function toggleLike() {
 
         if (result.status === 'success') {
             const newCount = result.likes;
-            likeFill.setAttribute('fill', isLiked ? 'none' : '#ff0000');
+            likeFill.setAttribute('fill', isLiked ? 'none' : '#9546FC');
             likeCount.textContent = `${newCount} Like${newCount !== 1 ? 's' : ''}`;
         } else {
             alert('Failed to toggle like: ' + result.message);
@@ -354,7 +356,7 @@ async function loadLikes() {
         if (video && video.likes !== undefined) {
             const username = loginData ? loginData.split(':')[0] : null;
             const userLiked = username && video.liked_by && video.liked_by.includes(username);
-            likeFill.setAttribute('fill', userLiked ? '#ff0000' : 'none');
+            likeFill.setAttribute('fill', userLiked ? '#9546FC' : 'none');
             likeCount.textContent = `${video.likes} Like${video.likes !== 1 ? 's' : ''}`;
         }
     } catch (error) {

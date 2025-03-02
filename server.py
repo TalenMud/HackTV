@@ -100,11 +100,14 @@ def video():
     title = "Some cool video"
     desc = "Some cool description"
     thumbUrl = "test.com/test.img"
+    duration="00:00"
     for i in videos:
         if i['url'] == url_param:
             title = i['title'].replace("\n","\\n")
             desc = i['desc'].replace("\n","") 
             thumbUrl = i['url_thumb']
+            duration=i['duration']
+
     if url_param:
         clean_url = url_param.replace('/embed', '')
         return render_template_string('''
@@ -117,6 +120,7 @@ def video():
                 localStorage.setItem('thumbUrl', '{{ thumbUrl }}');
                 localStorage.setItem('title', '{{ title }}');
                 localStorage.setItem('desc', '{{ desc }}');
+                localStorage.setItem('duration', '{{ duration}}');
                 window.location.href = '/video';
             </script>
         </head>
@@ -124,6 +128,19 @@ def video():
         </html>
         ''', url=clean_url, thumbUrl=thumbUrl, title=title, desc=desc)
     return render_template('watch.html', user=session.get("user"))
+
+def formatSeconds(s):
+    try:
+        secs=int(s)
+        hours = secs // 3600
+        minutes = (secs % 3600) // 60
+        seconds = secs % 60
+        ifhr=""
+        if hours>0:
+            ifhr=":"
+        return f"{hours}{ifhr}{minutes}:{seconds}"
+    except:
+        return s
 
 @app.route('/create-video', methods=['POST'])
 def create_video():
@@ -135,7 +152,11 @@ def create_video():
     desc = request.form['desc']
     url = request.form['url']
     url_thumb = request.form['thumb-url']
+    duration = request.form['video-duration']
     video_id = str(uuid.uuid4())
+    print(video_id)
+    print(url)
+    print(url_thumb)
     video_data = {
         'id': video_id,
         'title': title,
@@ -145,8 +166,11 @@ def create_video():
         'upload_date': datetime.now().isoformat(),
         'comments': [],
         'likes': 0,
+        'duration':formatSeconds(duration),
         'liked_by': []
     }
+    print(formatSeconds(duration))
+    print(video_data)
     with open(VIDEOS_JSON, 'r') as f:
         videos = json.load(f)
     videos.append(video_data)
