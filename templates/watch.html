@@ -19,11 +19,11 @@
     .progress-container {flex: 1;display: flex;align-items: center;gap: 10px;position: relative;}
     .time {color: #fff;font-family: Arial, sans-serif;font-size: 12px;min-width: 40px;}
     .progress-bar {flex: 1;height: 4px;background: rgba(255, 255, 255, 0.2);border-radius: 2px;position: relative;cursor: pointer;}
-    .progress {height: 100%;background: #8b5cf6;border-radius: 2px;width: 0;transition: width 0.1s linear;} /* Updated to purple-500 */
+    .progress {height: 100%;background: #8b5cf6;border-radius: 2px;width: 0;transition: width 0.1s linear;}
     .volume-container {display: flex;align-items: center;gap: 5px;}
     .volume-btn {background: none;border: none;color: #fff;font-size: 16px;cursor: pointer;padding: 5px;}
     .volume-bar {width: 60px;height: 4px;background: rgba(255, 255, 255, 0.2);border-radius: 2px;position: relative;cursor: pointer;}
-    .volume-level {height: 100%;background: #8b5cf6;border-radius: 2px;width: 100%;} /* Updated to purple-500 */
+    .volume-level {height: 100%;background: #8b5cf6;border-radius: 2px;width: 100%;}
     .preview {position: absolute;bottom: 40px;width: 160px;height: 90px;background: #000;border: 1px solid #fff;border-radius: 4px;display: none;pointer-events: none;z-index: 3;}
 </style>
 
@@ -67,6 +67,15 @@
 
         <h1 class="font-[Silkscreen] text-3xl text-white m-4" id="vidTitle">Some Cool vid</h1>
         <div class="w-full h-[6rem] flex flex-row justify-evenly items-center">
+            <div class="like-container flex flex-col items-center">
+                <button id="likeButton" class="text-white hover:text-purple-400 transition-all duration-300">
+                    <svg id="likeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="3rem" width="3rem">
+                        <path fill="none" stroke="currentColor" stroke-width="30" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z"/>
+                        <path id="likeFill" fill="none" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z"/>
+                    </svg>
+                </button>
+                <span id="likeCount" class="text-white font-[Varela]">0 Likes</span>
+            </div>
             <div class="share-container relative">
                 <button id="shareButton" class="flex flex-col items-center text-white hover:text-purple-400 transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="3rem" width="3rem">
@@ -278,13 +287,90 @@ function handleKeyUp(event) {
     }
 }
 
+async function toggleLike() {
+    const likeButton = document.getElementById('likeButton');
+    const likeFill = document.getElementById('likeFill');
+    const likeCount = document.getElementById('likeCount');
+    const videoUrl = localStorage.getItem('videoUrl');
+    const loginData = localStorage.getItem('loginforhacktv');
+
+    if (!loginData) {
+        alert('You must be logged in to like videos.');
+        return;
+    }
+
+    const username = loginData.split(':')[0];
+    const isLiked = likeFill.getAttribute('fill') === '#ff0000';
+
+    try {
+        const response = await fetch('/get-videos');
+        const data = await response.json();
+        const exactMatch = data.videos.find(v => v.url === videoUrl);
+        const video = exactMatch || findClosestVideo(data.videos, videoUrl);
+        
+        if (!video) {
+            alert('No matching video found.');
+            return;
+        }
+
+        const likeData = {
+            video_id: video.id,
+            username: username,
+            action: isLiked ? 'unlike' : 'like'
+        };
+
+        const likeResponse = await fetch('/toggle-like', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(likeData)
+        });
+        const result = await likeResponse.json();
+
+        if (result.status === 'success') {
+            const newCount = result.likes;
+            likeFill.setAttribute('fill', isLiked ? 'none' : '#ff0000');
+            likeCount.textContent = `${newCount} Like${newCount !== 1 ? 's' : ''}`;
+        } else {
+            alert('Failed to toggle like: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        alert('Error toggling like.');
+    }
+}
+
+async function loadLikes() {
+    const videoUrl = localStorage.getItem('videoUrl');
+    const loginData = localStorage.getItem('loginforhacktv');
+    const likeFill = document.getElementById('likeFill');
+    const likeCount = document.getElementById('likeCount');
+
+    try {
+        const response = await fetch('/get-videos');
+        const data = await response.json();
+        const exactMatch = data.videos.find(v => v.url === videoUrl);
+        const video = exactMatch || findClosestVideo(data.videos, videoUrl);
+        
+        if (video && video.likes !== undefined) {
+            const username = loginData ? loginData.split(':')[0] : null;
+            const userLiked = username && video.liked_by && video.liked_by.includes(username);
+            likeFill.setAttribute('fill', userLiked ? '#ff0000' : 'none');
+            likeCount.textContent = `${video.likes} Like${video.likes !== 1 ? 's' : ''}`;
+        }
+    } catch (error) {
+        console.error('Error loading likes:', error);
+    }
+}
+
 window.addEventListener('load', () => {
     getAd();
     addVideoToLocalStorage();
     fetchComments();
+    loadLikes();
 
     const shareButton = document.getElementById('shareButton');
     const shareDropdown = document.getElementById('shareDropdown');
+    const likeButton = document.getElementById('likeButton');
     const shareUrl = encodeURIComponent(window.location.href);
     const shareTitle = encodeURIComponent(document.querySelector('h1.text-3xl').textContent.trim());
 
@@ -294,6 +380,8 @@ window.addEventListener('load', () => {
         shareDropdown.classList.toggle('pointer-events-none');
         shareDropdown.classList.toggle('translate-y-2');
     });
+
+    likeButton.addEventListener('click', toggleLike);
 
     document.addEventListener('click', (e) => {
         if (!shareButton.contains(e.target) && !shareDropdown.contains(e.target)) {

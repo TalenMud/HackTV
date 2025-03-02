@@ -76,12 +76,16 @@ if not os.path.exists(VIDEOS_JSON):
     with open(VIDEOS_JSON, 'w') as f:
         json.dump([], f)
 
-# Update existing videos with empty comments array
+# Update existing videos with empty comments array and likes
 with open(VIDEOS_JSON, 'r') as f:
     videos = json.load(f)
 for video in videos:
     if 'comments' not in video:
         video['comments'] = []
+    if 'likes' not in video:
+        video['likes'] = 0
+    if 'liked_by' not in video:
+        video['liked_by'] = []
 with open(VIDEOS_JSON, 'w') as f:
     json.dump(videos, f, indent=2)
 
@@ -139,7 +143,9 @@ def create_video():
         'url': url,
         'url_thumb': url_thumb,
         'upload_date': datetime.now().isoformat(),
-        'comments': []
+        'comments': [],
+        'likes': 0,
+        'liked_by': []
     }
     with open(VIDEOS_JSON, 'r') as f:
         videos = json.load(f)
@@ -196,6 +202,48 @@ def create_comment():
         json.dump(videos, f, indent=2)
     return jsonify({'status': 'success', 'message': 'Comment added successfully', 'comment': comment}), 201
 
+@app.route('/toggle-like', methods=['POST'])
+def toggle_like():
+    data = request.get_json()
+    video_id = data.get('video_id')
+    username = data.get('username')
+    action = data.get('action')
+
+    if not video_id or not username or not action:
+        return jsonify({'status': 'error', 'message': 'Video ID, username, and action are required'}), 400
+    
+    if action not in ['like', 'unlike']:
+        return jsonify({'status': 'error', 'message': 'Invalid action'}), 400
+
+    with open(VIDEOS_JSON, 'r') as f:
+        videos = json.load(f)
+
+    video = next((v for v in videos if v['id'] == video_id), None)
+    if not video:
+        return jsonify({'status': 'error', 'message': 'Video not found'}), 404
+
+    liked_by = video.get('liked_by', [])
+    likes = video.get('likes', 0)
+
+    if action == 'like' and username not in liked_by:
+        liked_by.append(username)
+        likes += 1
+    elif action == 'unlike' and username in liked_by:
+        liked_by.remove(username)
+        likes -= 1
+
+    video['liked_by'] = liked_by
+    video['likes'] = likes
+
+    with open(VIDEOS_JSON, 'w') as f:
+        json.dump(videos, f, indent=2)
+
+    return jsonify({
+        'status': 'success',
+        'message': 'Like toggled successfully',
+        'likes': likes
+    }), 200
+
 @app.route('/index.html')
 def index():
     return redirect(url_for('home'))
@@ -215,15 +263,14 @@ def newstream():
 @app.route("/explore")
 def explore():
     return render_template("explore.html", user=session.get("user"))
-SLACK_HOOK_URL = "https://hooks.slack.com/triggers/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"
 
+SLACK_HOOK_URL = "https://hooks.slack.com/triggers/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"
 @app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
     if request.method == 'POST':
         email = request.form.get('email')
         message = request.form.get('message')
         
-  
         payload = {
             "email": email,
             "feedback": message,
@@ -249,7 +296,6 @@ def streams():
         return render_template("watch.html", data=data)
     data = {"title": None, "desc": None, "streamer": False}
     return render_template("stream.html", data=data, user=session.get("user"))
-
 
 @app.route("/getad")
 def getad():
@@ -283,9 +329,11 @@ def getad():
     ]
     selected_ad = random.choice(ads)
     return selected_ad
+
 @app.route("/user/<username>")
 def user(username):
     return render_template("user.html", username=username)
+
 @app.route("/")
 def home():
     return render_template("index.html", user=session.get("user"))
