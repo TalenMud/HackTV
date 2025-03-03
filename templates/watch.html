@@ -25,6 +25,19 @@
     .volume-bar {width: 60px;height: 4px;background: rgba(255, 255, 255, 0.2);border-radius: 2px;position: relative;cursor: pointer;}
     .volume-level {height: 100%;background: #8b5cf6;border-radius: 2px;width: 100%;}
     .preview {position: absolute;bottom: 40px;width: 160px;height: 90px;background: #000;border: 1px solid #fff;border-radius: 4px;display: none;pointer-events: none;z-index: 3;}
+    .comment-wrapper { position: relative; padding-right: 2rem; }
+    .delete-comment-btn { 
+        position: absolute; 
+        right: 0; 
+        top: 0; 
+        background: none; 
+        border: none; 
+        color: #fff; 
+        cursor: pointer; 
+        opacity: 0.7; 
+        transition: opacity 0.2s ease;
+    }
+    .delete-comment-btn:hover { opacity: 1; }
 </style>
 
 <div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[11rem] z-[41]">
@@ -36,7 +49,7 @@
     </a>
 </div>
 
-<div class="px-[1rem] w-full flex flex-row  relative top-[7rem]">
+<div class="px-[1rem] w-full flex flex-row relative top-[7rem]">
     <div class="w-[75%] overflow-y-scroll">
         <div class="video-container">
             <video id="videoPlayer">
@@ -72,8 +85,6 @@
                     <svg id="likeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height="3rem" width="3rem">
                         <path fill="none" stroke="currentColor" stroke-width="30" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z" style="transition:all 0.5s ease;"/>
                         <path id="likeFill" fill="none" d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2l144 0c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48l-97.5 0c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3l0-38.3 0-48 0-24.9c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32L0 224c0-17.7 14.3-32 32-32z" style="transition:all 0.5s ease;"/>
-
-
                     </svg>
                 </button>
                 <span id="likeCount" class="text-white font-[Varela]">0 Likes</span>
@@ -92,7 +103,7 @@
                             Facebook
                         </button>
                         <button onclick="shareTo('twitter')" class="w-full flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-purple-600 hover:text-white transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2  callee48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>
                             Twitter
                         </button>
                         <button onclick="shareTo('linkedin')" class="w-full flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-purple-600 hover:text-white transition-all duration-200">
@@ -115,7 +126,7 @@
         <p class="font-[Varela] text-xl text-[#ffffff] m-4" id="vidDesc">Hey this is a cool video! Watch it and share it with your friends pwease:3</p>
     </div>
 
-    <div id="comment-section" class="p-4 mt-16">
+    <div id="comment-section" class="p-4 mt-16 w-[25%]">
         <div class="flex items-center mb-4">
             <div class="comment-input-container relative w-full">
                 <input type="text" id="comment-input" placeholder="Add a comment" name="new-comment" onkeyup="handleKeyUp(event)" class="w-full px-4 py-2 bg-white/5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-white/30">
@@ -215,10 +226,24 @@ async function fetchComments() {
 
 function renderComments(comments) {
     commentsContainer.innerHTML = '';
+    const loginData = localStorage.getItem('loginforhacktv');
+    const currentUser = loginData ? loginData.split(':')[0] : null;
+
     comments.forEach(comment => {
         const timeAgo = new Date(comment.timestamp).toLocaleString();
         const commentDiv = document.createElement('div');
+        commentDiv.classList.add('comment-wrapper');
         const renderedComment = marked.parse(comment.text, { breaks: true, sanitize: true });
+        
+        let deleteButton = '';
+        if (currentUser && currentUser === comment.username) {
+            deleteButton = `
+                <button class="delete-comment-btn" onclick="deleteComment('${comment.id}')">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+        }
+
         commentDiv.innerHTML = `
             <h1 class="text-white text-sm">
                 <a href="/user/${comment.username}" class="text-white hover:underline">
@@ -227,9 +252,40 @@ function renderComments(comments) {
                 <span class="text-gray-400 text-xs">${timeAgo}</span>
             </h1>
             <p class="text-gray-400 text-xs">${renderedComment}</p>
+            ${deleteButton}
         `;
         commentsContainer.appendChild(commentDiv);
     });
+}
+
+async function deleteComment(commentId) {
+    const loginData = localStorage.getItem('loginforhacktv');
+    if (!loginData) {
+        alert('You must be logged in to delete comments.');
+        return;
+    }
+
+    if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/delete-comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comment_id: commentId })
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            await fetchComments();
+        } else {
+            alert('Failed to delete comment: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Error deleting comment.');
+    }
 }
 
 async function sendComment() {
@@ -410,139 +466,138 @@ window.addEventListener('load', () => {
     const emojiSearch = document.getElementById('emoji-search');
     const emojiGrid = document.getElementById('emoji-grid');
     const commentInput = document.getElementById('comment-input');
-const emojiCategories = {
-    'Smileys & Emotion': [
-        { emoji: '😀', title: 'grinning face' },
-        { emoji: '😁', title: 'beaming face with smiling eyes' },
-        { emoji: '😂', title: 'face with tears of joy' },
-        { emoji: '🤣', title: 'rolling on the floor laughing' },
-        { emoji: '😊', title: 'smiling face with smiling eyes' },
-        { emoji: '😇', title: 'smiling face with halo' },
-        { emoji: '😍', title: 'smiling face with heart-eyes' },
-        { emoji: '😘', title: 'face blowing a kiss' },
-        { emoji: '😋', title: 'face savoring food' },
-        { emoji: '😎', title: 'smiling face with sunglasses' },
-        { emoji: '😢', title: 'crying face' },
-        { emoji: '😭', title: 'loudly crying face' },
-        { emoji: '😡', title: 'pouting face' },
-        { emoji: '🤯', title: 'exploding head' },
-        { emoji: '🤔', title: 'thinking face' },
-        { emoji: '🤗', title: 'hugging face' },
-        { emoji: '😴', title: 'sleeping face' }
-    ],
-    'Gestures & Hands': [
-        { emoji: '👍', title: 'thumbs up' },
-        { emoji: '👎', title: 'thumbs down' },
-        { emoji: '👏', title: 'clapping hands' },
-        { emoji: '🙌', title: 'raising hands' },
-        { emoji: '🤝', title: 'handshake' },
-        { emoji: '💪', title: 'flexed biceps' },
-        { emoji: '🖖', title: 'vulcan salute' },
-        { emoji: '🤘', title: 'sign of the horns' },
-        { emoji: '✌️', title: 'victory hand' },
-        { emoji: '🤲', title: 'palms up together' },
-        { emoji: '👐', title: 'open hands' },
-        { emoji: '🤞', title: 'crossed fingers' }
-    ],
-    'Hearts & Love': [
-        { emoji: '❤️', title: 'red heart' },
-        { emoji: '💖', title: 'sparkling heart' },
-        { emoji: '💙', title: 'blue heart' },
-        { emoji: '💚', title: 'green heart' },
-        { emoji: '💛', title: 'yellow heart' },
-        { emoji: '💜', title: 'purple heart' },
-        { emoji: '🖤', title: 'black heart' },
-        { emoji: '💔', title: 'broken heart' },
-        { emoji: '💞', title: 'revolving hearts' },
-        { emoji: '💕', title: 'two hearts' },
-        { emoji: '❣️', title: 'heart exclamation' }
-    ],
-    'Celebrations & Events': [
-        { emoji: '🎉', title: 'party popper' },
-        { emoji: '🔥', title: 'fire' },
-        { emoji: '⭐', title: 'star' },
-        { emoji: '✨', title: 'sparkles' },
-        { emoji: '🎁', title: 'gift' },
-        { emoji: '🎄', title: 'christmas tree' },
-        { emoji: '🎶', title: 'musical notes' },
-        { emoji: '🥳', title: 'partying face' },
-        { emoji: '🎈', title: 'balloon' },
-        { emoji: '🎂', title: 'birthday cake' }
-    ],
-    'Food & Drink': [
-        { emoji: '🍕', title: 'pizza' },
-        { emoji: '🍔', title: 'hamburger' },
-        { emoji: '🍟', title: 'french fries' },
-        { emoji: '☕', title: 'hot beverage' },
-        { emoji: '🍺', title: 'beer mug' },
-        { emoji: '🍎', title: 'red apple' },
-        { emoji: '🍩', title: 'doughnut' },
-        { emoji: '🍉', title: 'watermelon' },
-        { emoji: '🌮', title: 'taco' },
-        { emoji: '🥑', title: 'avocado' },
-        { emoji: '🍣', title: 'sushi' },
-        { emoji: '🥗', title: 'green salad' }
-    ],
-    'Animals & Nature': [
-        { emoji: '🐶', title: 'dog face' },
-        { emoji: '🐱', title: 'cat face' },
-        { emoji: '🐭', title: 'mouse face' },
-        { emoji: '🐹', title: 'hamster face' },
-        { emoji: '🐰', title: 'rabbit face' },
-        { emoji: '🦊', title: 'fox face' },
-        { emoji: '🐻', title: 'bear face' },
-        { emoji: '🐼', title: 'panda face' },
-        { emoji: '🦁', title: 'lion face' },
-        { emoji: '🐸', title: 'frog' },
-        { emoji: '🐙', title: 'octopus' }
-    ],
-    'Transportation & Travel': [
-        { emoji: '🚗', title: 'car' },
-        { emoji: '🚕', title: 'taxi' },
-        { emoji: '🚌', title: 'bus' },
-        { emoji: '🚑', title: 'ambulance' },
-        { emoji: '🚒', title: 'fire engine' },
-        { emoji: '🚜', title: 'tractor' },
-        { emoji: '🛵', title: 'motor scooter' },
-        { emoji: '✈️', title: 'airplane' },
-        { emoji: '🚢', title: 'ship' },
-        { emoji: '🚀', title: 'rocket' }
-    ],
-    'Weather & Seasons': [
-        { emoji: '☀️', title: 'sun' },
-        { emoji: '⛅', title: 'sun behind cloud' },
-        { emoji: '🌧', title: 'cloud with rain' },
-        { emoji: '⛈', title: 'cloud with lightning and rain' },
-        { emoji: '❄️', title: 'snowflake' },
-        { emoji: '🌬', title: 'wind face' },
-        { emoji: '🌪', title: 'tornado' },
-        { emoji: '🌊', title: 'water wave' },
-        { emoji: '🌈', title: 'rainbow' }
-    ],
-    'Objects & Technology': [
-        { emoji: '📱', title: 'mobile phone' },
-        { emoji: '💻', title: 'laptop' },
-        { emoji: '⌨️', title: 'keyboard' },
-        { emoji: '🖥', title: 'desktop computer' },
-        { emoji: '📷', title: 'camera' },
-        { emoji: '📺', title: 'television' },
-        { emoji: '🎮', title: 'video game controller' },
-        { emoji: '🕹', title: 'joystick' },
-        { emoji: '📡', title: 'satellite antenna' }
-    ],
-    'Random & Fun': [
-        { emoji: '👀', title: 'eyes' },
-        { emoji: '🤹', title: 'person juggling' },
-        { emoji: '🎭', title: 'performing arts' },
-        { emoji: '🕶', title: 'sunglasses' },
-        { emoji: '🎨', title: 'artist palette' },
-        { emoji: '📚', title: 'books' },
-        { emoji: '🛸', title: 'flying saucer' },
-        { emoji: '💡', title: 'light bulb' }
-    ]
-};
 
-
+    const emojiCategories = {
+        'Smileys & Emotion': [
+            { emoji: '😀', title: 'grinning face' },
+            { emoji: '😁', title: 'beaming face with smiling eyes' },
+            { emoji: '😂', title: 'face with tears of joy' },
+            { emoji: '🤣', title: 'rolling on the floor laughing' },
+            { emoji: '😊', title: 'smiling face with smiling eyes' },
+            { emoji: '😇', title: 'smiling face with halo' },
+            { emoji: '😍', title: 'smiling face with heart-eyes' },
+            { emoji: '😘', title: 'face blowing a kiss' },
+            { emoji: '😋', title: 'face savoring food' },
+            { emoji: '😎', title: 'smiling face with sunglasses' },
+            { emoji: '😢', title: 'crying face' },
+            { emoji: '😭', title: 'loudly crying face' },
+            { emoji: '😡', title: 'pouting face' },
+            { emoji: '🤯', title: 'exploding head' },
+            { emoji: '🤔', title: 'thinking face' },
+            { emoji: '🤗', title: 'hugging face' },
+            { emoji: '😴', title: 'sleeping face' }
+        ],
+        'Gestures & Hands': [
+            { emoji: '👍', title: 'thumbs up' },
+            { emoji: '👎', title: 'thumbs down' },
+            { emoji: '👏', title: 'clapping hands' },
+            { emoji: '🙌', title: 'raising hands' },
+            { emoji: '🤝', title: 'handshake' },
+            { emoji: '💪', title: 'flexed biceps' },
+            { emoji: '🖖', title: 'vulcan salute' },
+            { emoji: '🤘', title: 'sign of the horns' },
+            { emoji: '✌️', title: 'victory hand' },
+            { emoji: '🤲', title: 'palms up together' },
+            { emoji: '👐', title: 'open hands' },
+            { emoji: '🤞', title: 'crossed fingers' }
+        ],
+        'Hearts & Love': [
+            { emoji: '❤️', title: 'red heart' },
+            { emoji: '💖', title: 'sparkling heart' },
+            { emoji: '💙', title: 'blue heart' },
+            { emoji: '💚', title: 'green heart' },
+            { emoji: '💛', title: 'yellow heart' },
+            { emoji: '💜', title: 'purple heart' },
+            { emoji: '🖤', title: 'black heart' },
+            { emoji: '💔', title: 'broken heart' },
+            { emoji: '💞', title: 'revolving hearts' },
+            { emoji: '💕', title: 'two hearts' },
+            { emoji: '❣️', title: 'heart exclamation' }
+        ],
+        'Celebrations & Events': [
+            { emoji: '🎉', title: 'party popper' },
+            { emoji: '🔥', title: 'fire' },
+            { emoji: '⭐', title: 'star' },
+            { emoji: '✨', title: 'sparkles' },
+            { emoji: '🎁', title: 'gift' },
+            { emoji: '🎄', title: 'christmas tree' },
+            { emoji: '🎶', title: 'musical notes' },
+            { emoji: '🥳', title: 'partying face' },
+            { emoji: '🎈', title: 'balloon' },
+            { emoji: '🎂', title: 'birthday cake' }
+        ],
+        'Food & Drink': [
+            { emoji: '🍕', title: 'pizza' },
+            { emoji: '🍔', title: 'hamburger' },
+            { emoji: '🍟', title: 'french fries' },
+            { emoji: '☕', title: 'hot beverage' },
+            { emoji: '🍺', title: 'beer mug' },
+            { emoji: '🍎', title: 'red apple' },
+            { emoji: '🍩', title: 'doughnut' },
+            { emoji: '🍉', title: 'watermelon' },
+            { emoji: '🌮', title: 'taco' },
+            { emoji: '🥑', title: 'avocado' },
+            { emoji: '🍣', title: 'sushi' },
+            { emoji: '🥗', title: 'green salad' }
+        ],
+        'Animals & Nature': [
+            { emoji: '🐶', title: 'dog face' },
+            { emoji: '🐱', title: 'cat face' },
+            { emoji: '🐭', title: 'mouse face' },
+            { emoji: '🐹', title: 'hamster face' },
+            { emoji: '🐰', title: 'rabbit face' },
+            { emoji: '🦊', title: 'fox face' },
+            { emoji: '🐻', title: 'bear face' },
+            { emoji: '🐼', title: 'panda face' },
+            { emoji: '🦁', title: 'lion face' },
+            { emoji: '🐸', title: 'frog' },
+            { emoji: '🐙', title: 'octopus' }
+        ],
+        'Transportation & Travel': [
+            { emoji: '🚗', title: 'car' },
+            { emoji: '🚕', title: 'taxi' },
+            { emoji: '🚌', title: 'bus' },
+            { emoji: '🚑', title: 'ambulance' },
+            { emoji: '🚒', title: 'fire engine' },
+            { emoji: '🚜', title: 'tractor' },
+            { emoji: '🛵', title: 'motor scooter' },
+            { emoji: '✈️', title: 'airplane' },
+            { emoji: '🚢', title: 'ship' },
+            { emoji: '🚀', title: 'rocket' }
+        ],
+        'Weather & Seasons': [
+            { emoji: '☀️', title: 'sun' },
+            { emoji: '⛅', title: 'sun behind cloud' },
+            { emoji: '🌧', title: 'cloud with rain' },
+            { emoji: '⛈', title: 'cloud with lightning and rain' },
+            { emoji: '❄️', title: 'snowflake' },
+            { emoji: '🌬', title: 'wind face' },
+            { emoji: '🌪', title: 'tornado' },
+            { emoji: '🌊', title: 'water wave' },
+            { emoji: '🌈', title: 'rainbow' }
+        ],
+        'Objects & Technology': [
+            { emoji: '📱', title: 'mobile phone' },
+            { emoji: '💻', title: 'laptop' },
+            { emoji: '⌨️', title: 'keyboard' },
+            { emoji: '🖥', title: 'desktop computer' },
+            { emoji: '📷', title: 'camera' },
+            { emoji: '📺', title: 'television' },
+            { emoji: '🎮', title: 'video game controller' },
+            { emoji: '🕹', title: 'joystick' },
+            { emoji: '📡', title: 'satellite antenna' }
+        ],
+        'Random & Fun': [
+            { emoji: '👀', title: 'eyes' },
+            { emoji: '🤹', title: 'person juggling' },
+            { emoji: '🎭', title: 'performing arts' },
+            { emoji: '🕶', title: 'sunglasses' },
+            { emoji: '🎨', title: 'artist palette' },
+            { emoji: '📚', title: 'books' },
+            { emoji: '🛸', title: 'flying saucer' },
+            { emoji: '💡', title: 'light bulb' }
+        ]
+    };
 
     function renderEmojis(searchTerm = '') {
         emojiGrid.innerHTML = '';

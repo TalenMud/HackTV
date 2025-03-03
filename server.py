@@ -76,7 +76,6 @@ if not os.path.exists(VIDEOS_JSON):
     with open(VIDEOS_JSON, 'w') as f:
         json.dump([], f)
 
-# Update existing videos with empty comments array and likes
 with open(VIDEOS_JSON, 'r') as f:
     videos = json.load(f)
 for video in videos:
@@ -225,6 +224,26 @@ def create_comment():
     with open(VIDEOS_JSON, 'w') as f:
         json.dump(videos, f, indent=2)
     return jsonify({'status': 'success', 'message': 'Comment added successfully', 'comment': comment}), 201
+
+@app.route('/delete-comment', methods=['POST'])
+def delete_comment():
+    data = request.get_json()
+    comment_id = data.get('comment_id')
+    if not comment_id:
+        return jsonify({'status': 'error', 'message': 'Comment ID is required'}), 400
+    
+    with open(VIDEOS_JSON, 'r') as f:
+        videos = json.load(f)
+    
+    for video in videos:
+        comment_to_delete = next((c for c in video['comments'] if c['id'] == comment_id), None)
+        if comment_to_delete:
+            video['comments'].remove(comment_to_delete)
+            with open(VIDEOS_JSON, 'w') as f:
+                json.dump(videos, f, indent=2)
+            return jsonify({'status': 'success', 'message': 'Comment deleted successfully'}), 200
+    
+    return jsonify({'status': 'error', 'message': 'Comment not found'}), 404
 
 @app.route('/toggle-like', methods=['POST'])
 def toggle_like():
