@@ -1,17 +1,20 @@
 <img src="static/res/logo.png" width="100rem">
 
-# HackTV
+# HackTV 📺
 
 **HackTV** is a media streaming platform built by and for Hack Clubbers. Watch and show the time and effort you and other people put into their projects via videos!
-Its live [here](https://github.com/TalenMud/HackTV)
+Its live [here](https://conversafe.hackclub.app)
 
-## Features
+> [!NOTE]
+> Its still a work in progress project, so bugs are expected, please [join the slack channel](https://hackclub.slack.com/archives/C08FMM1JJRK) for latest updates!
+
+## Features 😎
  - Video Discovery: Search functionality with keywords! No windows 10 here.
  - Live Streaming: Stream with ease and have other hack clubbers watch them!
  - Ad System: Hack club style ads! Lets you know of the latest YSWSes!
  - Live Chat: Comments section during streams! If you spam it we will cancel you!
 
-## Tech stack
+## Tech stack 💻
 ### Backend:
  - Python/Flask
  - PostgreSQL (no airtable allowed!)
@@ -20,8 +23,7 @@ Its live [here](https://github.com/TalenMud/HackTV)
  - HTML5
  - JavaScript
 
-
-## Installation
+## Installation 🛠️
 1. **Prerequisites:**
      - PostgreSQL
      - Python 3.9+
@@ -38,7 +40,7 @@ psql hacktv < postgre.sql
 pip install -r requirements.txt
 ```
 
-4. **Configuration:**
+4. **Configuration:** 🛠️
 Create an `.env` file with:
 ```env
 FLASK_SECRET_KEY=a_randomly_generated_key
@@ -83,7 +85,7 @@ hacktv/
 └── sql.py
 ```
 
-## Contributing
+## Contributing 🤝
 Feel free to contribute to our code any time! Here's how:
 1. Fork the repository to your account
 2. Create a branch (`git checkout -b feature/amazing-feature`)
@@ -92,7 +94,7 @@ Feel free to contribute to our code any time! Here's how:
 5. Push to the branch (`git push origin feature/amazing-feature`)
 6. Open a pull request
 
-*Please make sure that your work has clean, commented code and the commit messages are meaningful.*
+> *Please make sure that your work has clean, commented code and the commit messages are meaningful.*
 
 ## Versions panel
 ### Version 1.0.?
