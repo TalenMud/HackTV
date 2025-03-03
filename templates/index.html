@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<div id ="category-buttons" class="flex justify-center p-4">
+<div id="category-buttons" class="flex justify-center p-4">
 </div>
 
 <div id="cards-container" class="relative top-8 p-4 grid grid-cols-3 gap-6 w-full h-full"></div>
@@ -16,10 +16,12 @@
 <script>
     const cardsContainer = document.getElementById('cards-container');
     const categoryButtonsContainer = document.getElementById('category-buttons');
-    const descriptionCap=60;
+    const descriptionCap = 60;
 
-    function fetchActiveStreams() {
-        fetch('/get-videos')
+    function fetchActiveStreams(categoryId = null) {
+        let url = '/get-videos';
+        if (categoryId) url += `?category=${categoryId}`;
+        fetch(url)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -86,25 +88,24 @@
         }
     
         streams.forEach(stream => {
-            const { id, title, desc, url, url_thumb ,duration} = stream;
+            const { id, title, desc, url, url_thumb, duration, author } = stream; 
+            console.log(author)
             const card = document.createElement('div');
-            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer','z-[5]','h-[18rem]','w-[32rem]');
+            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer', 'z-[5]', 'h-[18rem]', 'w-[32rem]');
             card.addEventListener('click', () => {
-              window.location.href = `/video?url=${url}`;
+                window.location.href = `/video?url=${url}`;
             });
             const image = document.createElement('img');
             image.src = url_thumb;
-            image.alt = "Some Cool Video";
-            image.classList.add('z-[3]','w-full', 'h-full', 'object-cover');
+            image.alt = "Video Thumbnail";
+            image.classList.add('z-[3]', 'w-full', 'h-full', 'object-cover');
             
             const overlay = document.createElement('div');
-            overlay.classList.add('overlay','z-[4]','w-full','h-full','object-cover');
+            overlay.classList.add('overlay', 'z-[4]', 'w-full', 'h-full', 'object-cover');
 
-            const videoTime=document.createElement('h1');
-            videoTime.textContent="00:00";
-            videoTime.classList.add('text-3xl','bold');
-
-           videoTime.textContent= duration;
+            const videoTime = document.createElement('h1');
+            videoTime.textContent = duration;
+            videoTime.classList.add('text-3xl', 'font-bold');
 
             const textContainer = document.createElement('div');
             textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'p-4');
@@ -113,15 +114,15 @@
             titleElement.textContent = title;
             const descriptionElement = document.createElement('p');
             descriptionElement.classList.add('text-sm', 'text-gray-600', 'dark:text-gray-300');
+            descriptionElement.textContent = desc.length > descriptionCap ? desc.substring(0, descriptionCap) + '...' : desc;
 
-            if(desc.length>descriptionCap){
-                  descriptionElement.textContent=desc.substring(0, descriptionCap) + '...';
-            }else{
-              descriptionElement.textContent=desc;
-            }
-            
+            const authorElement = document.createElement('p');
+            authorElement.classList.add('text-sm', 'text-gray-500', 'dark:text-gray-400', 'mt-1');
+            authorElement.textContent = `By: ${author || 'Unknown'}`;
+
             textContainer.appendChild(titleElement);
             textContainer.appendChild(descriptionElement);
+            textContainer.appendChild(authorElement);
             overlay.appendChild(videoTime);
             card.appendChild(image);
             card.appendChild(overlay);
