@@ -13,7 +13,7 @@ Array.from(hamLogos).forEach((hamLogo)=>{
         else
         {
             menu.style.top=0;
-            menu.style.width = "auto";
+            menu.style.width = "15rem";
         }
         
     });

@@ -32,7 +32,7 @@ button, a, img {
 
 /* Menu part */
 #menu{
-    width:11rem;
+    width:15rem;
     transition: all 0.8s ease;
     padding-right:2rem;
     border-right: 1px solid #202020;
@@ -46,7 +46,7 @@ button, a, img {
     padding-right:1rem;
     padding-top:0.5rem;
     padding-bottom:0.5rem;
-    width:8rem;
+    width:100%;
     cursor:pointer;
     border-radius:1rem;
     margin-bottom:1rem;

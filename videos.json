@@ -7,11 +7,10 @@
     "url_thumb": "https://anondrop.net/1345501383188680825/easyfeh.png",
     "upload_date": "2025-03-01T21:02:18.631279",
     "comments": [],
-    "likes": 1,
-    "liked_by": [
-      "ShibamRoy"
-    ],
-    "duration": "2:10"
+    "likes": 0,
+    "liked_by": [],
+    "duration": "2:10",
+    "author": "ShibamRoy"
   },
   {
     "id": "56b6c1c6-2226-4799-b269-75c17cbb448d",
@@ -20,18 +19,12 @@
     "url": "https://anondrop.net/embed/1345506120198000792/Rick%20Roll.mp4",
     "url_thumb": "https://anondrop.net/1345506134290727024/B24Logo%20(2).png",
     "upload_date": "2025-03-01T21:21:02.635194",
-    "comments": [
-      {
-        "id": "9d24e618-7661-4e56-b14f-2c03c0cf2e6a",
-        "username": "ShibamRoy",
-        "text": "No Way \ud83d\ude02",
-        "timestamp": "2025-03-02T05:40:18.361707"
-      }
-    ],
+    "comments": [],
     "likes": 1,
     "liked_by": [
       "ShibamRoy"
     ],
+    "author": "Unknown",
     "duration": "3:32"
   },
   {
@@ -44,6 +37,7 @@
     "comments": [],
     "likes": 0,
     "duration": "01:44",
-    "liked_by": []
+    "liked_by": [],
+    "author": "ShibamRoy"
   }
 ]

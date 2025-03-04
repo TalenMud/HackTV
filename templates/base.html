@@ -27,7 +27,7 @@
             <span class="dot"></span>
             <span class="dot"></span>
           </div>
-          <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer flex items-center justify-center" onclick="window.location.href='index.html';">
+          <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer flex items-center justify-center" onclick="window.location.href='/';">
             <img src="{{ url_for('static', filename='res/logo.png')}}" class="w-[5rem] h-[5rem]"> HackTV
           </span>
           <div class="flex items-center justify-center flex-grow">
@@ -69,10 +69,16 @@
               <i class="fas fa-clock-rotate-left text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">History</span>
             </a>
+            <a class="menuItem" href="/myvideos" id="myvidsContainer">
+              <i class="fas fa-video text-white text-xl"></i>
+              <span class="text-white text-lg font-[Varela]">My Videos</span>
+            </a>
+
             <a class="menuItem" href="/settings" id="settingsContainer">
               <i class="fas fa-gear text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Settings</span>
             </a>
+
           </div>
           <div class="mainContent w-full h-full flex flex-col items-center justify-center overflow-y-scroll overflow-x-hidden" id="main-content">
             {% if user %}

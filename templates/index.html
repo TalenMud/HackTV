@@ -89,7 +89,6 @@
     
         streams.forEach(stream => {
             const { id, title, desc, url, url_thumb, duration, author } = stream; 
-            console.log(author)
             const card = document.createElement('div');
             card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer', 'z-[5]', 'h-[18rem]', 'w-[32rem]');
             card.addEventListener('click', () => {
@@ -116,13 +115,13 @@
             descriptionElement.classList.add('text-sm', 'text-gray-600', 'dark:text-gray-300');
             descriptionElement.textContent = desc.length > descriptionCap ? desc.substring(0, descriptionCap) + '...' : desc;
 
-            const authorElement = document.createElement('p');
-            authorElement.classList.add('text-sm', 'text-gray-500', 'dark:text-gray-400', 'mt-1');
-            authorElement.textContent = `By: ${author || 'Unknown'}`;
+            const videoOwner = document.createElement('p');
+            videoOwner.classList.add('text-sm', 'text-gray-500', 'dark:text-gray-400', 'mt-1');
+            videoOwner.innerHTML = `By: <span class="text-[#9546fc] bold">${author || 'Unknown'}</span>`;
 
             textContainer.appendChild(titleElement);
             textContainer.appendChild(descriptionElement);
-            textContainer.appendChild(authorElement);
+            textContainer.appendChild(videoOwner);
             overlay.appendChild(videoTime);
             card.appendChild(image);
             card.appendChild(overlay);

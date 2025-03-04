@@ -40,7 +40,7 @@
     .delete-comment-btn:hover { opacity: 1; }
 </style>
 
-<div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[11rem] z-[41]">
+<div id="ad-section" class="absolute left-2 bottom-16 text-center p-4 max-w-[13rem] z-[41]">
     <div id="peer-id-display" class="text-white mt-4"><span id="peer-id"></span></div>
     <p class="font-[Silkscreen] text-2xl underline text-white mb-4">AD</p>
     <h1 id="ad-title" class="text-white mb-4">Loading...</h1>
@@ -53,7 +53,7 @@
     <div class="w-[75%] overflow-y-scroll">
         <div class="video-container">
             <video id="videoPlayer">
-                <source src="" type="video/mp4">
+              <source src="{{ videoUrl }}" type="video/mp4">
             </video>
             <div class="controls">
                 <div class="control-bar">
@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        <h1 class="font-[Silkscreen] text-3xl text-white m-4" id="vidTitle">Some Cool vid</h1>
+        <h1 class="font-[Silkscreen] text-3xl text-white m-4" id="vidTitle"> {{ title }} </h1>
         <div class="w-full h-[6rem] flex flex-row justify-evenly items-center">
             <div class="like-container flex flex-col items-center">
                 <button id="likeButton" class="text-white hover:text-purple-400 transition-all duration-300">
@@ -123,7 +123,7 @@
             </div>
         </div>
         <hr class="text-[#303030] bg-[#303030] border-2 border-[#303030] my-8" height="2px" width="100%">
-        <p class="font-[Varela] text-xl text-[#ffffff] m-4" id="vidDesc">Hey this is a cool video! Watch it and share it with your friends pwease:3</p>
+        <p class="font-[Varela] text-xl text-[#ffffff] m-4" id="vidDesc"> {{ desc }} </p>
     </div>
 
     <div id="comment-section" class="p-4 mt-16 w-[25%]">
@@ -155,8 +155,6 @@ const adImage = document.getElementById('ad-image');
 const adLink = document.getElementById('ad-link');
 const commentsContainer = document.getElementById('comments');
 
-document.getElementById('vidTitle').innerText = localStorage.getItem('title');
-document.getElementById('vidDesc').innerText = localStorage.getItem('desc');
 
 async function getAd() {
     try {
@@ -175,9 +173,9 @@ function addVideoToLocalStorage() {
     const videoId = crypto.randomUUID();
     const videoDetails = {
         id: videoId,
-        title: localStorage.getItem('title'),
-        url: localStorage.getItem('videoUrl'),
-        thumbnail: localStorage.getItem('thumbUrl')
+      title: "{{ title }}",
+      url: "{{ videoUrl }}",
+      thumbnail: "{{ thumbUrl }}" 
     };
     let history = JSON.parse(localStorage.getItem('history')) || [];
     history.push(videoDetails);
@@ -205,7 +203,7 @@ function findClosestVideo(videos, targetUrl) {
 }
 
 async function fetchComments() {
-    const videoUrl = localStorage.getItem('videoUrl');
+  const videoUrl = "{{ videoUrl }}";
     try {
         const response = await fetch('/get-videos');
         const data = await response.json();
@@ -291,7 +289,7 @@ async function deleteComment(commentId) {
 async function sendComment() {
     const commentInput = document.getElementById('comment-input');
     const commentText = commentInput.value.trim();
-    const videoUrl = localStorage.getItem('videoUrl');
+  const videoUrl = "{{ videoUrl }}"
     const loginData = localStorage.getItem('loginforhacktv');
 
     if (!commentText || !videoUrl) {
@@ -349,7 +347,7 @@ async function toggleLike() {
     const likeButton = document.getElementById('likeButton');
     const likeFill = document.getElementById('likeFill');
     const likeCount = document.getElementById('likeCount');
-    const videoUrl = localStorage.getItem('videoUrl');
+  const videoUrl = "{{ videoUrl }}";
     const loginData = localStorage.getItem('loginforhacktv');
 
     if (!loginData) {
@@ -398,7 +396,7 @@ async function toggleLike() {
 }
 
 async function loadLikes() {
-    const videoUrl = localStorage.getItem('videoUrl');
+  const videoUrl = "{{ videoUrl }}";
     const loginData = localStorage.getItem('loginforhacktv');
     const likeFill = document.getElementById('likeFill');
     const likeCount = document.getElementById('likeCount');
@@ -648,7 +646,7 @@ window.addEventListener('load', () => {
     });
 });
 
-const videoUrl = localStorage.getItem('videoUrl');
+const videoUrl = "{{ videoUrl }}"
 const video = document.getElementById('videoPlayer');
 const playBtn = document.querySelector('.play-btn');
 const progressBar = document.querySelector('.progress-bar');

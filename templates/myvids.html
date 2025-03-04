@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}HackTV - My Videos{% endblock %}
+
+{% block sidebar_selected %}
+<div class="hidden" id="sidebar_selected">myvidsContainer</div>
+{% endblock %}
+
+{% block content%}
+{% endblock%}
+
+{% block script%}
+
+<script>
+
+    function loadVideoHistory() {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+
+        if (history.length === 0) {
+            videoHistoryList.innerHTML = '<li class="text-white">No videos in history.</li>';
+            return;
+        }
+
+        videoHistoryList.innerHTML = '';
+        history.forEach(video => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('bg-[#2a0d4f]', 'p-4', 'rounded-md', 'flex', 'items-center');
+            
+            const title = document.createElement('h3');
+            title.classList.add('text-lg', 'font-[Varela]', 'text-white');
+            title.textContent = video.id; 
+
+            listItem.appendChild(title);
+            videoHistoryList.appendChild(listItem);
+        });
+    }
+
+    window.addEventListener('load', loadVideoHistory);
+  </script>
+
+{% endblock %}
