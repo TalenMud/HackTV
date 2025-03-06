@@ -9,14 +9,18 @@
 <div id="category-buttons" class="flex justify-center p-4">
 </div>
 
-<div id="cards-container" class="relative top-8 p-4 grid grid-cols-3 gap-6 w-full h-full"></div>
+<div id="cards-container" class="relative top-8 p-4 flex flex-col items-center lg:items-start lg:grid lg:grid-cols-3 gap-6 w-full h-full"></div>
 {% endblock %}
 
 {% block script %}
 <script>
     const cardsContainer = document.getElementById('cards-container');
     const categoryButtonsContainer = document.getElementById('category-buttons');
-    const descriptionCap = 60;
+    let descriptionCap = 60;
+
+    if(window.innerWidth<=768){
+      descriptionCap=40;
+    }
 
     function fetchActiveStreams(categoryId = null) {
         let url = '/get-videos';
@@ -90,7 +94,7 @@
         streams.forEach(stream => {
             const { id, title, desc, url, url_thumb, duration, author } = stream; 
             const card = document.createElement('div');
-            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer', 'z-[5]', 'h-[18rem]', 'w-[32rem]');
+            card.classList.add('relative', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer', 'z-[5]', 'card');
             card.addEventListener('click', () => {
                 window.location.href = `/video?url=${url}`;
             });
@@ -107,7 +111,7 @@
             videoTime.classList.add('text-3xl', 'font-bold');
 
             const textContainer = document.createElement('div');
-            textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'bg-gradient-to-t', 'from-white', 'dark:from-gray-900', 'to-transparent', 'p-4');
+            textContainer.classList.add('absolute', 'bottom-0', 'left-0', 'right-0', 'txtContainer', 'from-white', 'dark:from-gray-900', 'to-transparent', 'p-4');
             const titleElement = document.createElement('h3');
             titleElement.classList.add('text-xl', 'font-semibold', 'text-gray-800', 'dark:text-gray-100');
             titleElement.textContent = title;

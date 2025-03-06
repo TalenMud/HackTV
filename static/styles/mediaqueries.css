@@ -1,0 +1,64 @@
+
+
+@media (max-width: 1080px) {
+  #card-container{
+    display:flex;
+    flex-direction:column;
+  }
+  .card{
+    min-height:10rem;
+    width: 100%;
+  }
+  #feedback-part p{
+    font-size: 1rem;
+  }
+  #vidDesc{
+    font-size:1rem;
+  }
+
+  #searchbutton{
+    padding-left:1rem;
+    padding-right:1rem;
+    padding-top:1rem;
+    padding-bottom:1rem;
+    border-radius: 100%;
+    width:3rem;
+    height:3rem;
+    position: relative;
+    left:1rem;
+
+  }
+  #searchContainer{
+    justify-content: flex-end;
+    padding-right:1rem;
+  }
+
+  #createButton{
+    display:none;
+  }
+
+  #logo{
+    width:3rem;
+    height:3rem;
+  }
+  #cards-container{
+    position:relative;
+    top:3rem;
+
+  }
+
+  #background{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 20px);
+    grid-template-rows: repeat(auto-fill, 20px);
+    gap: 10px;
+  }
+  #vidCommentContainer{
+    flex-direction:column;
+    height:80vh;
+  }
+  #comment-section{
+    width:90vw;
+  }
+}
+
