@@ -74,12 +74,12 @@ button, a, img {
 
 #searchbox{
     width:16rem;
-    font: "Jura",serif;
+    font-family: "Jura" , serif;
     margin-left: 10rem;
     height:2.5rem;
     border: 1px solid #303030;
     background-color: #121212;
-    transition:all 0.5s ease-in-out;
+    transition:all 0.5s ease-in;
     outline:none;
     border-top-left-radius:1rem;
     border-bottom-left-radius:1rem;
@@ -94,6 +94,7 @@ button, a, img {
   transition: all 0.5s ease;
   border-top-right-radius:1rem;
   border-bottom-right-radius:1rem;
+  position:absolute;
 }
 #searchbutton:hover{
   background-color:#454545;
@@ -257,7 +258,7 @@ input[type="checkbox"]:checked {
 
 /*Feedback*/
 .inpt{
-    font: "Jura",serif;
+    font-family: "Jura",serif;
     border: 1px solid #303030;
     background-color: #121212;
     transition:all 0.5s ease-in-out;

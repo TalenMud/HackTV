@@ -1,0 +1,39 @@
+.video-container{
+  width:90%;
+  max-width:1000px;
+  border-radius:1rem;
+  display:flex;
+  justify-content:center;
+  margin-inline:auto;
+  position:relative;
+  
+}
+video{
+  width:100%;
+  border-radius:1rem;
+}
+
+.controls-container{
+  position:absolute;
+  bottom:1rem;
+  left:1rem;
+  right:0;
+  color: white;
+  z-index: 100;
+  opacity:0;
+  width:100%;
+  transition: all 0.3s ease-in-out;
+}
+.video-container:hover .controls-container,
+.video-container.pause .controls-container,
+.video-container:focus-within .controls-container{
+  opacity:1;
+}
+
+.controls-container{
+  display:flex;
+  align-items: center;
+}
+.controls-container button{
+  cursor:pointer;
+}

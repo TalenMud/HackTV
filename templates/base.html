@@ -26,23 +26,23 @@
 
       <section class="h-[100vh] w-[100vw]">
         <div class="p-4 pr-8 flex items-center justify-between bg-[#110A10] h-[9vh] w-full" id="navBar" style="z-index:1000;" >
-          <div class="flex text-white items-center justify-center w-[4rem] hamDesign">
+          <div class="flex text-white items-center justify-center w-[4rem] hamDesign" id="hamContainer">
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
           </div>
-          <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer flex items-center justify-center" onclick="window.location.href='/';">
+          <span class="font-[Silkscreen] text-2xl md:text-3xl ml-2 cursor-pointer flex items-center justify-center" onclick="window.location.href='/';" id="logoContainer">
             <img src="{{ url_for('static', filename='res/logo.png')}}" id="logo"> HackTV
           </span>
           <div class="flex items-center justify-center flex-grow" id="searchContainer">
-            <div class="flex">
-              <input type="text" id="searchbox" placeholder="Search" class="pl-4 hidden lg:block">
-              <button class="bg-[#303030] h-[2.5rem] px-2 z-2 flex items-center justify-center" id="searchbutton">
+            <div class="flex w-auto flex-row items-center justify-center relative">
+              <input type="text" id="searchbox" placeholder="Search" class="pl-4">
+              <button class="bg-[#303030] h-[2.5rem] px-2 flex items-center justify-center" id="searchbutton">
                 <i class="fas fa-search text-white text-xl"></i>
               </button>
             </div>
           </div>
-          <div class="ml-auto flex flex-row">
+          <div class="ml-auto lg:flex flex-row hidden ">
             <a href="/create" id="createButton">
               <svg viewBox="0 0 16 16" height="1rem" width="1rem" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -60,7 +60,7 @@
 
         <div class="flex flex-row justify-start w-full h-[91vh]">
           {% block sidebar_selected %}{% endblock %}
-          <div class="relative hidden pt-8 lg:flex flex-col items-start pl-4 ml-0 z-40" id="menu">
+          <div class="relative pt-8 flex flex-col items-start pl-4 ml-0 z-40 w-[15rem]" id="menu">
             <a class="menuItem" href="/" id="homeContainer">
               <i class="fas fa-home text-white text-xl"></i>
               <span class="text-white text-lg font-[Varela]">Home</span>
@@ -108,6 +108,19 @@
         const searchButton = document.getElementById('searchbutton');
         const searchQuery = document.getElementById('searchbox');
         const backgroundDots = document.getElementById('background');
+        const logoContainer=document.getElementById("logoContainer");
+        const logo=document.getElementById("logoContainer");
+        const hamContainer=document.getElementById("hamContainer");
+
+        // Searchbox for smaller screens
+        
+        searchBox.addEventListener("blur",()=>{
+          logoContainer.style.display="flex";
+          hamContainer.style.display="flex";
+          logo.style.display="flex";
+          searchQuery.style.display="none";
+          searchQuery.style.width="0";
+        })
 
         function updateBackgroundDots() {
           const hideDots = localStorage.getItem('hideBackgroundDots') === 'true';
@@ -123,6 +136,14 @@
           const query = searchQuery.value.trim();
           if (query) {
             window.location.href = `/search/${query}`;
+          }
+          if (window.innerWidth<=1040){
+            searchQuery.style.display="flex";
+            searchQuery.style.width="auto";
+            logo.style.display="none";
+            hamContainer.style.display="none";
+            logoContainer.style.display="none";
+            searchQuery.focus();
           }
         });
 
