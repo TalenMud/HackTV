@@ -1,7 +1,14 @@
 const bg = document.getElementById("background");
 // size + gap defined in CSS, also change here if changed in CSS
-const cellSize = 40;
-const gap = 5;
+let cellSize = 40;
+let gap = 5;
+let glowRad=100;
+
+if(window.innerWidth <=1080){
+  cellSize=20;
+  gap=10;
+  glowRad=50;
+}
 
 function generateDots() {
   bg.innerHTML = "";
@@ -28,7 +35,7 @@ document.addEventListener("mousemove", (e) => {
     const dotY = dot.offsetTop + dot.clientHeight / 2;
     const distance = Math.sqrt((mouseX - dotX) ** 2 + (mouseY - dotY) ** 2);
 
-    if (distance < 100) {
+    if (distance < glowRad) {
       dot.classList.add("glow");
     } else {
       dot.classList.remove("glow");

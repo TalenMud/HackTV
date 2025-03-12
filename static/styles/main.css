@@ -29,6 +29,10 @@ button, a, img {
 .hamDesign.clicked .dot{
     height: 40px;
 }
+#logo{
+  width:5rem;
+  height:5rem;
+}
 
 /* Menu part */
 #menu{
@@ -70,12 +74,12 @@ button, a, img {
 
 #searchbox{
     width:16rem;
-    font: "Jura",serif;
+    font-family: "Jura" , serif;
     margin-left: 10rem;
     height:2.5rem;
     border: 1px solid #303030;
     background-color: #121212;
-    transition:all 0.5s ease-in-out;
+    transition:all 0.5s ease-in;
     outline:none;
     border-top-left-radius:1rem;
     border-bottom-left-radius:1rem;
@@ -90,6 +94,7 @@ button, a, img {
   transition: all 0.5s ease;
   border-top-right-radius:1rem;
   border-bottom-right-radius:1rem;
+  position:absolute;
 }
 #searchbutton:hover{
   background-color:#454545;
@@ -115,6 +120,16 @@ button, a, img {
   flex-grow:1;
   transition:all 0.5s ease;
 }
+.card{
+  height:18rem;
+  width:32rem;
+}
+.txtContainer{
+  background-image: linear-gradient(330deg, rgba(149,70,252,0) 10%, #000000 95%);
+  backdrop-filter:blur(10px);
+  bottom:0;
+}
+
 
 /*Settings page*/
 .switch {
@@ -243,7 +258,7 @@ input[type="checkbox"]:checked {
 
 /*Feedback*/
 .inpt{
-    font: "Jura",serif;
+    font-family: "Jura",serif;
     border: 1px solid #303030;
     background-color: #121212;
     transition:all 0.5s ease-in-out;
@@ -320,6 +335,10 @@ input[type="checkbox"]:checked {
 #comment-input:focus{
   border-bottom:2px solid #9546FC;
 }
+#comment-section{
+  max-height: 50vh;
+  height:20vh;
+}
 .reactButton svg,.reactButton p{
   fill: #999999;
   transition: all 0.3s ease;
@@ -395,4 +414,13 @@ input[type=file]::file-selector-button {
 
 input[type=file]::file-selector-button:hover,input[type=file]::file-selector-button:focus{
   background: #5e29a3
+}
+
+#feedback-form{
+  width:80vw;
+}
+#feedback-form p{
+  padding-right:1rem;
+  padding-left:1rem;
+
 }
